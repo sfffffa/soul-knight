@@ -18,9 +18,9 @@ public:
 		int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
 		std::shared_ptr<Damage> bullet = Bullet::create());
 
-	void setBullet(std::shared_ptr<Damage> bullet) { _bullet = bullet; }
+	virtual void setBullet(std::shared_ptr<Damage> bullet) { _bullet = bullet; }
 
-	std::shared_ptr<Damage> getBullet()const { return _bullet; }
+	virtual std::shared_ptr<Damage> getBulletInstance()const { return _bullet; }
 
 	RangedWeapon *clone()const override;
 

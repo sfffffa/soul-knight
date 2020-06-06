@@ -1,8 +1,7 @@
 #include "Character.h"
 
 inline bool Character::initMember(
-	int HP, int HPMax, int shield, int shieldMax, int MP, int MPMax,
-	float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
 	if (!weapon) {
 		return false;
 	}
@@ -10,7 +9,7 @@ inline bool Character::initMember(
 		_weapon = weapon;
 	}
 
-	auto HPTemp = LimitedAttribute<int>::createWithValueMax(HP, HPMax);
+	auto HPTemp = LimitedAttribute<int>::createWithValue(HPMax);
 	if (!HPTemp) {
 		return false;
 	}
@@ -18,15 +17,7 @@ inline bool Character::initMember(
 		_HP = HPTemp;
 	}
 
-	auto shieldTemp = LimitedAttribute<int>::createWithValueMax(shield, shieldMax);
-	if (!shieldMax) {
-		return false;
-	}
-	else {
-		_shield = shieldTemp;
-	}
-
-	auto MPTemp = LimitedAttribute<int>::createWithValueMax(MP, MPMax);
+	auto MPTemp = LimitedAttribute<int>::createWithValue(MPMax);
 	if (!MPTemp) {
 		return false;
 	}
@@ -46,10 +37,9 @@ inline bool Character::initMember(
 }
 
 bool Character::init(
-	int HP, int HPMax, int shield, int shieldMax, int MP, int MPMax,
-	float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
 	if (!Sprite::init() ||
-		!initMember(HP, HPMax, shield, shieldMax, MP, MPMax, speed, weapon)) {
+		!initMember(HPMax, MPMax, speed, weapon)) {
 		return false;
 	}
 
@@ -57,10 +47,9 @@ bool Character::init(
 }
 
 bool Character::initWithSpriteFrame(SpriteFrame *spriteFrame,
-	int HP, int HPMax, int shield, int shieldMax, int MP, int MPMax,
-	float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
 	if (!Sprite::initWithSpriteFrame(spriteFrame) ||
-		!initMember(HP, HPMax, shield, shieldMax, MP, MPMax, speed, weapon)) {
+		!initMember(HPMax, MPMax, speed, weapon)) {
 		return false;
 	}
 
@@ -68,10 +57,9 @@ bool Character::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 bool Character::initWithSpriteFrameName(const std::string& spriteFrameName,
-	int HP, int HPMax, int shield, int shieldMax, int MP, int MPMax,
-	float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
 	if (!Sprite::initWithSpriteFrameName(spriteFrameName) ||
-		!initMember(HP, HPMax, shield, shieldMax, MP, MPMax, speed, weapon)) {
+		!initMember(HPMax, MPMax, speed, weapon)) {
 		return false;
 	}
 

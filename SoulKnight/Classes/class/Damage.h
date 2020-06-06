@@ -18,6 +18,8 @@ public:
 	virtual int getDamage()const { return _damage->getValue(); }
 	virtual bool getCritOrNot()const { return _crit; }
 
+	virtual std::shared_ptr<Attribute<int>> getDamageInatance() { return _damage; }
+
 	virtual Damage *clone()const = 0;
 
 protected:

@@ -20,6 +20,8 @@ public:
 
 	virtual Element getElement()const { return _element->getValue(); }
 
+	virtual std::shared_ptr<Attribute<Element>> getElementInstance()const { return _element; }
+
 	ElementalBullet *clone()const override;
 
 protected:

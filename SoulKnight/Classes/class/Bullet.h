@@ -18,6 +18,8 @@ public:
 
 	virtual float getSpeed()const { return _speed->getValue(); }
 
+	virtual std::shared_ptr<Attribute<float>> getSpeedInstance()const { return _speed; }
+
 	Bullet *clone()const override;
 
 protected:

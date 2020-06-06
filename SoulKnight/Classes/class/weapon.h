@@ -21,6 +21,11 @@ public:
 	virtual float getCritRate()const { return _critRate->getValue(); }
 	virtual float getCritMultiple()const { return _critMultiple->getValue(); }
 
+	virtual std::shared_ptr<Attribute<int>> getMPCosumeInstance()const { return _MPconsume; }
+	virtual std::shared_ptr<Attribute<float>> getAspdInstance()const { return _aspd; }
+	virtual std::shared_ptr<Attribute<float>> getCritRateInatance()const { return _critRate; }
+	virtual std::shared_ptr<Attribute<float>> getCritMultipleInstance()const { return _critMultiple; }
+
 	virtual Weapon *clone()const = 0;
 
 	virtual void use() = 0;

@@ -21,6 +21,9 @@ public:
 	virtual int getDamage()const { return _damage->getValue(); }
 	virtual float getRange()const { return _range->getValue(); }
 
+	virtual std::shared_ptr<Attribute<int>> getDamageInstance()const { return _damage; }
+	virtual std::shared_ptr<Attribute<float>> getRangeInstance()const { return _range; }
+
 	CloseInWeapon *clone()const override;
 
 	void use()override;
