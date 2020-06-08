@@ -58,10 +58,35 @@ endif()
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
      Classes/HelloWorldScene.cpp
+	 Classes/class/Damage.cpp
+	 Classes/class/Bullet.cpp
+	 Classes/class/ElementalBullet.cpp
+	 Classes/class/Weapon.cpp
+	 Classes/class/CloseInWeapon.cpp
+	 Classes/class/RangedWeapon.cpp
+	 Classes/class/Item.cpp
+	 Classes/class/Character.cpp
+	 Classes/class/Monster.cpp
+	 Classes/class/Boss.cpp
+	 Classes/class/Hero.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
      Classes/HelloWorldScene.h
+	 Classes/class/Attribute.h
+	 Classes/class/LimitedAttribute.h
+	 Classes/class/AttributeChanger.h
+	 Classes/class/Damage.h
+	 Classes/class/Bullet.h
+	 Classes/class/ElementalBullet.h
+	 Classes/class/Weapon.h
+	 Classes/class/CloseInWeapon.h
+	 Classes/class/RangedWeapon.h
+	 Classes/class/Item.h
+	 Classes/class/Character.h
+	 Classes/class/Monster.h
+	 Classes/class/Boss.h
+	 Classes/class/Hero.h
      )
 
 if(ANDROID)
