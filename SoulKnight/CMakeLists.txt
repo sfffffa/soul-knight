@@ -57,7 +57,8 @@ endif()
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
-     Classes/HelloWorldScene.cpp
+	 Classes/SecureMap.cpp
+	 Classes/WildMap.cpp
 	 Classes/class/Damage.cpp
 	 Classes/class/Bullet.cpp
 	 Classes/class/ElementalBullet.cpp
@@ -72,7 +73,8 @@ list(APPEND GAME_SOURCE
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
-     Classes/HelloWorldScene.h
+	 Classes/SecureMap.h
+	 Classes/WildMap.h
 	 Classes/class/Attribute.h
 	 Classes/class/LimitedAttribute.h
 	 Classes/class/AttributeChanger.h
