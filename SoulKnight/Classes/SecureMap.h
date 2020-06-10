@@ -2,6 +2,13 @@
 #define _SECURE_MAP_H_
 
 #include "cocos2d.h"
+#include "class/LimitedAttribute.h"
+#include "class/AttributeChanger.h"
+#include "class/Item.h"
+#include "class/ElementalBullet.h"
+#include "class/CloseInWeapon.h"
+#include "class/RangedWeapon.h"
+#include "class/Boss.h"
 #include "class/Hero.h"
 #include <string>
 
