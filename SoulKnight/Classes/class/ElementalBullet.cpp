@@ -22,7 +22,7 @@ bool ElementalBullet::init(
 }
 
 std::shared_ptr<ElementalBullet> ElementalBullet::create(
-	int damage = 0, float speed = 0.0f, bool crit = false, Element element = ICE) {
+	int damage, float speed, bool crit, Element element) {
 	ElementalBullet *temp = new(std::nothrow) ElementalBullet();
 
 	if (temp && temp->init(damage, speed, crit, element)) {
@@ -45,7 +45,7 @@ bool ElementalBullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<ElementalBullet> ElementalBullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int damage = 0, float speed = 0.0f, bool crit = false, Element element = ICE) {
+	int damage, float speed, bool crit, Element element) {
 	ElementalBullet *temp = new(std::nothrow) ElementalBullet();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit, element)) {
@@ -68,7 +68,7 @@ bool ElementalBullet::initWithSpriteFrameName(const std::string &spriteFrameName
 }
 
 std::shared_ptr<ElementalBullet> ElementalBullet::createWithSpriteFrameName(const std::string &spriteFrameName,
-	int damage = 0, float speed = 0.0f, bool crit = false, Element element = ICE) {
+	int damage, float speed, bool crit, Element element) {
 	ElementalBullet *temp = new(std::nothrow) ElementalBullet();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit, element)) {

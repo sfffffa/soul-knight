@@ -18,8 +18,7 @@ bool RangedWeapon::init(
 }
 
 std::shared_ptr<RangedWeapon> RangedWeapon::create(
-	int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-	std::shared_ptr<Damage> bullet = Bullet::create()) {
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
 	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
 
 	if (temp && temp->init(MPconsume, aspd, critRate, critMultiple, bullet)) {
@@ -41,8 +40,7 @@ bool RangedWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-	std::shared_ptr<Damage> bullet = Bullet::create()) {
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
 	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, MPconsume, aspd, critRate, critMultiple, bullet)) {
@@ -64,8 +62,7 @@ bool RangedWeapon::initWithSpriteFrameName(const std::string& spriteFrameName,
 }
 
 std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrameName(const std::string& spriteFrameName,
-	int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-	std::shared_ptr<Damage> bullet = Bullet::create()) {
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
 	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, MPconsume, aspd, critRate, critMultiple, bullet)) {
@@ -82,7 +79,8 @@ RangedWeapon *RangedWeapon::clone()const {
 	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
 
 	if (temp && temp->initWithSpriteFrame(
-		this->getSpriteFrame(), _MPconsume->getValue(), _aspd->getValue(), _critRate->getValue(), _critMultiple->getValue(),
+		this->getSpriteFrame(), _MPconsume->getValue(), _aspd->getValue(),
+		_critRate->getValue(), _critMultiple->getValue(),
 		std::shared_ptr<Damage>(_bullet->clone()))) {
 		return temp;
 	}

@@ -56,7 +56,7 @@ protected:
 	}
 	void operator+(T value)override { *this + value; }
 	LimitedAttribute &operator*=(T fold) {
-		_value *= value;
+		_value *= fold;
 		if (_value > _valueMax)_value = _valueMax;
 		return *this;
 	}

@@ -14,7 +14,7 @@ inline bool Damage::initMember(int damage, bool crit) {
 }
 
 bool Damage::init(int damage, bool crit) {
-	if (!Sprite::init || !initMember(damage, crit)); {
+	if (!Sprite::init() || !initMember(damage, crit)) {
 		return false;
 	}
 

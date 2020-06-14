@@ -42,10 +42,9 @@ bool Hero::init(
 }
 
 std::shared_ptr<Hero> Hero::create(
-	int HPMax = 0, int shieldMax = 0, int MPMax = 0, float speed = 0,
-	std::shared_ptr<Weapon> weapon = CloseInWeapon::create(),
-	std::shared_ptr<Weapon> offhandWeapon = CloseInWeapon::create(),
-	std::function<void(void)> skill = [] {}, float cd = 0.0f) {
+	int HPMax, int shieldMax, int MPMax, float speed,
+	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	std::function<void(void)> skill, float cd) {
 	Hero *temp = new(std::nothrow) Hero();
 	if (temp &&
 		temp->init(HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
@@ -70,10 +69,9 @@ bool Hero::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<Hero> Hero::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int HPMax = 0, int shieldMax = 0, int MPMax = 0, float speed = 0,
-	std::shared_ptr<Weapon> weapon = CloseInWeapon::create(),
-	std::shared_ptr<Weapon> offhandWeapon = CloseInWeapon::create(),
-	std::function<void(void)> skill = [] {}, float cd = 0.0f) {
+	int HPMax, int shieldMax, int MPMax, float speed,
+	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	std::function<void(void)> skill, float cd) {
 	Hero *temp = new(std::nothrow) Hero();
 	if (temp &&
 		temp->initWithSpriteFrame(spriteFrame, HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
@@ -98,10 +96,9 @@ bool Hero::initWithSpriteFrameName(const std::string& spriteFrameName,
 }
 
 std::shared_ptr<Hero> Hero::createWithSpriteFrameName(const std::string& spriteFrameName,
-	int HPMax = 0, int shieldMax = 0, int MPMax = 0, float speed = 0,
-	std::shared_ptr<Weapon> weapon = CloseInWeapon::create(),
-	std::shared_ptr<Weapon> offhandWeapon = CloseInWeapon::create(),
-	std::function<void(void)> skill = [] {}, float cd = 0.0f) {
+	int HPMax, int shieldMax, int MPMax, float speed,
+	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	std::function<void(void)> skill, float cd) {
 	Hero *temp = new(std::nothrow) Hero();
 	if (temp &&
 		temp->initWithSpriteFrameName(spriteFrameName, HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {

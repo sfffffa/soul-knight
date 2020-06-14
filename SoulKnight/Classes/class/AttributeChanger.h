@@ -4,7 +4,7 @@
 #include "Attribute.h"
 
 template<typename T>
-class AttrbuteChanger {
+class AttributeChanger {
 public:
 	enum OpSym { ADD, SUBTRACT, MULTIPLY, DIVIDE, ASSIGN };
 

@@ -22,7 +22,7 @@ bool Bullet::init(
 }
 
 std::shared_ptr<Bullet> Bullet::create(
-	int damage = 0, float speed = 0.0f, bool crit = false) {
+	int damage, float speed, bool crit) {
 	Bullet *temp = new(std::nothrow) Bullet();
 
 	if (temp && temp->init(damage, speed, crit)) {
@@ -45,7 +45,7 @@ bool Bullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<Bullet> Bullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int damage = 0, float speed = 0.0f, bool crit = false) {
+	int damage, float speed, bool crit) {
 	Bullet *temp = new(std::nothrow) Bullet();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit)) {
@@ -68,7 +68,7 @@ bool Bullet::initWithSpriteFrameName(const std::string &spriteFrameName,
 }
 
 std::shared_ptr<Bullet> Bullet::createWithSpriteFrameName(const std::string &spriteFrameName,
-	int damage = 0, float speed = 0.0f, bool crit = false) {
+	int damage, float speed, bool crit) {
 	Bullet *temp = new(std::nothrow) Bullet();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit)) {

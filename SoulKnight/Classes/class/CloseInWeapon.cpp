@@ -30,7 +30,7 @@ bool CloseInWeapon::init(
 }
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::create(
-	int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f) {
+	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
 	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
 
 	if (temp && temp->init(MPconsume, damage, rang, aspd, critRate, critMultiple)) {
@@ -53,7 +53,7 @@ bool CloseInWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f) {
+	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
 	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, MPconsume, damage, rang, aspd, critRate, critMultiple)) {
@@ -76,7 +76,7 @@ bool CloseInWeapon::initWithSpriteFrameName(const std::string &spriteFrameName,
 }
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrameName(const std::string &spriteFrameName,
-	int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f) {
+	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
 	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, MPconsume, damage, rang, aspd, critRate, critMultiple)) {

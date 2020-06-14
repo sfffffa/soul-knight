@@ -33,10 +33,10 @@ protected:
 	//destructor
 	virtual ~Attribute() = default;
 
-	virtual Attribute &operator=(T value) { _value = value; return *this }
-	virtual Attribute &operator+=(T value) { _value += value; return *this }
+	virtual Attribute &operator=(T value) { _value = value; return *this; }
+	virtual Attribute &operator+=(T value) { _value += value; return *this; }
 	virtual void operator+(T value) { *this + value; }
-	virtual Attribute &operator*=(T fold) { _value *= value; return *this }
+	virtual Attribute &operator*=(T fold) { _value *= fold; return *this; }
 	virtual void operator*(T fold) { *this * fold; }
 
 	T _value;//µ±Ç°Öµ
