@@ -11,11 +11,11 @@
 #include "class/Boss.h"
 #include "class/Hero.h"
 
-#define HERO 10
-#define ENEMY 20
-#define MY_BULLET 30
-#define ENEMY_BULLET 40
-#define NPC 50
+#define HERO 0x01
+#define ENEMY 0x02
+#define MY_BULLET 0x04
+#define ENEMY_BULLET 0x08
+#define NPC 0x10
 
 class WildMap : public cocos2d::Scene
 {
@@ -28,8 +28,6 @@ public:
 	CREATE_FUNC(WildMap);
 
 private:
-
-	void addHero(std::shared_ptr<Hero> hero);
 };
 
 #endif // __WILD_MAP_H__

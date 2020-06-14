@@ -121,13 +121,3 @@ bool WildMap::init()
 
 	return true;
 }
-
-void WildMap::addHero(std::shared_ptr<Hero> hero) {
-	auto visibleSize = Director::getInstance()->getVisibleSize();
-	Vec2 origin = Director::getInstance()->getVisibleOrigin();
-
-	//hero->setPosition(Vec2(origin.x + visibleSize.width / 2,
-		//origin.y + visibleSize.height / 2));
-
-	this->addChild(hero.get(), 40);
-}
