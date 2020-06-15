@@ -23,14 +23,12 @@ bool ElementalBullet::init(
 
 std::shared_ptr<ElementalBullet> ElementalBullet::create(
 	int damage, float speed, bool crit, Element element) {
-	ElementalBullet *temp = new(std::nothrow) ElementalBullet();
+	auto temp = std::shared_ptr<ElementalBullet>();
 
 	if (temp && temp->init(damage, speed, crit, element)) {
-		return std::shared_ptr<ElementalBullet>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<ElementalBullet>(nullptr);
 	}
 }
@@ -46,14 +44,12 @@ bool ElementalBullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 
 std::shared_ptr<ElementalBullet> ElementalBullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int damage, float speed, bool crit, Element element) {
-	ElementalBullet *temp = new(std::nothrow) ElementalBullet();
+	auto temp = std::shared_ptr<ElementalBullet>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit, element)) {
-		return std::shared_ptr<ElementalBullet>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<ElementalBullet>(nullptr);
 	}
 }
@@ -69,14 +65,12 @@ bool ElementalBullet::initWithSpriteFrameName(const std::string &spriteFrameName
 
 std::shared_ptr<ElementalBullet> ElementalBullet::createWithSpriteFrameName(const std::string &spriteFrameName,
 	int damage, float speed, bool crit, Element element) {
-	ElementalBullet *temp = new(std::nothrow) ElementalBullet();
+	auto temp = std::shared_ptr<ElementalBullet>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit, element)) {
-		return std::shared_ptr<ElementalBullet>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<ElementalBullet>(nullptr);
 	}
 }

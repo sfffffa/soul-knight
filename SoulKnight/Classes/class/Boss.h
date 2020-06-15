@@ -4,6 +4,7 @@
 #include "Monster.h"
 #include <vector>
 #include <initializer_list>
+#include <memory>
 
 class Boss :public Monster {
 public:

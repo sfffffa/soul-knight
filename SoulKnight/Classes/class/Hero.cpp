@@ -45,14 +45,12 @@ std::shared_ptr<Hero> Hero::create(
 	int HPMax, int shieldMax, int MPMax, float speed,
 	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
 	std::function<void(void)> skill, float cd) {
-	Hero *temp = new(std::nothrow) Hero();
+	auto temp = std::shared_ptr<Hero>();
 	if (temp &&
 		temp->init(HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
-		return std::shared_ptr<Hero>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Hero>(nullptr);
 	}
 }
@@ -72,14 +70,12 @@ std::shared_ptr<Hero> Hero::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int HPMax, int shieldMax, int MPMax, float speed,
 	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
 	std::function<void(void)> skill, float cd) {
-	Hero *temp = new(std::nothrow) Hero();
+	auto temp = std::shared_ptr<Hero>();
 	if (temp &&
 		temp->initWithSpriteFrame(spriteFrame, HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
-		return std::shared_ptr<Hero>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Hero>(nullptr);
 	}
 }
@@ -99,14 +95,12 @@ std::shared_ptr<Hero> Hero::createWithSpriteFrameName(const std::string& spriteF
 	int HPMax, int shieldMax, int MPMax, float speed,
 	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
 	std::function<void(void)> skill, float cd) {
-	Hero *temp = new(std::nothrow) Hero();
+	auto temp = std::shared_ptr<Hero>();
 	if (temp &&
 		temp->initWithSpriteFrameName(spriteFrameName, HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
-		return std::shared_ptr<Hero>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Hero>(nullptr);
 	}
 }

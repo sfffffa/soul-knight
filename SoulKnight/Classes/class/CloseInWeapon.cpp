@@ -31,14 +31,12 @@ bool CloseInWeapon::init(
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::create(
 	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
-	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
+	auto temp = std::shared_ptr<CloseInWeapon>();
 
 	if (temp && temp->init(MPconsume, damage, rang, aspd, critRate, critMultiple)) {
-		return std::shared_ptr<CloseInWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<CloseInWeapon>(nullptr);
 	}
 }
@@ -54,14 +52,12 @@ bool CloseInWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
-	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
+	auto temp = std::shared_ptr<CloseInWeapon>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, MPconsume, damage, rang, aspd, critRate, critMultiple)) {
-		return std::shared_ptr<CloseInWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<CloseInWeapon>(nullptr);
 	}
 }
@@ -77,14 +73,12 @@ bool CloseInWeapon::initWithSpriteFrameName(const std::string &spriteFrameName,
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrameName(const std::string &spriteFrameName,
 	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
-	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
+	auto temp = std::shared_ptr<CloseInWeapon>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, MPconsume, damage, rang, aspd, critRate, critMultiple)) {
-		return std::shared_ptr<CloseInWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<CloseInWeapon>(nullptr);
 	}
 }

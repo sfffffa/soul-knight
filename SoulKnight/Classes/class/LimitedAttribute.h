@@ -10,27 +10,23 @@ class LimitedAttribute :public Attribute<T> {
 public:
 	//create
 	static std::shared_ptr<LimitedAttribute> createWithValue(T value) {
-		LimitedAttribute *temp = new(std::nothrow) LimitedAttribute();
+		auto temp = std::shared_ptr<LimitedAttribute>();
 
 		if (temp && temp->initMember(value)) {
-			return std::shared_ptr<LimitedAttribute>(temp);
+			return temp;
 		}
 		else {
-			delete temp;
-			temp = nullptr;
 			return std::shared_ptr<LimitedAttribute>(nullptr);
 		}
 	}
 
 	static std::shared_ptr<LimitedAttribute> createWithValueMax(T value, T valueMax) {
-		LimitedAttribute *temp = new(std::nothrow) LimitedAttribute();
+		auto temp = std::shared_ptr<LimitedAttribute>();
 
 		if (temp &&temp->initMember(value, valueMax)) {
-			return std::shared_ptr<LimitedAttribute>(temp);
+			return temp;
 		}
 		else {
-			delete temp;
-			temp = nullptr;
 			return std::shared_ptr<LimitedAttribute>(nullptr);
 		}
 	}
@@ -46,7 +42,7 @@ protected:
 	virtual ~LimitedAttribute() = default;
 
 	LimitedAttribute &operator=(T value)override {
-		_value = (value > _valueMax) ? : _valueMax : value;
+		_value = (value > _valueMax) ? _valueMax : value;
 		return *this;
 	};
 	LimitedAttribute &operator+=(T value)override {

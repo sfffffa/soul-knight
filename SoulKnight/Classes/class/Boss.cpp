@@ -28,14 +28,12 @@ std::shared_ptr<Boss> Boss::create(
 	float speed, std::shared_ptr<Weapon> weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
-	auto temp = new(std::nothrow) Boss();
+	auto temp = std::make_shared<Boss>();
 	if (temp &&
 		temp->init(HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance, weapomChance)) {
-		return std::shared_ptr<Boss>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Boss>(nullptr);
 	}
 }
@@ -57,14 +55,12 @@ std::shared_ptr<Boss> Boss::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	std::shared_ptr<Weapon> weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
-	Boss *temp = new(std::nothrow) Boss();
+	auto temp = std::make_shared<Boss>();
 	if (temp &&
 		temp->initWithSpriteFrame(spriteFrame, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance, weapomChance)) {
-		return std::shared_ptr<Boss>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Boss>(nullptr);
 	}
 }
@@ -86,14 +82,12 @@ std::shared_ptr<Boss> Boss::createWithSpriteFrameName(const std::string& spriteF
 	std::shared_ptr<Weapon> weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
-	Boss *temp = new(std::nothrow) Boss();
+	auto temp = std::shared_ptr<Boss>();
 	if (temp &&
 		temp->initWithSpriteFrameName(spriteFrameName, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance, weapomChance)) {
-		return std::shared_ptr<Boss>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Boss>(nullptr);
 	}
 }

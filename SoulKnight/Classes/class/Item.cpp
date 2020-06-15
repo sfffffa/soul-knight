@@ -19,13 +19,11 @@ bool Item::init(int value) {
 }
 
 std::shared_ptr<Item> Item::create(int value) {
-	Item *temp = new(std::nothrow) Item();
+	auto temp = std::shared_ptr<Item>();
 	if (temp && temp->init(value)) {
-		return std::shared_ptr<Item>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Item>(nullptr);
 	}
 }
@@ -38,13 +36,11 @@ bool Item::initWithSpriteFrame(SpriteFrame *spriteFrame, int value) {
 }
 
 std::shared_ptr<Item> Item::createWithSpriteFrame(SpriteFrame *spriteFrame, int value) {
-	Item *temp = new(std::nothrow) Item();
+	auto temp = std::shared_ptr<Item>();
 	if (temp && temp->initWithSpriteFrame(spriteFrame, value)) {
-		return std::shared_ptr<Item>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Item>(nullptr);
 	}
 }
@@ -57,13 +53,11 @@ bool Item::initWithSpriteFrameName(const std::string& spriteFrameName, int value
 }
 
 std::shared_ptr<Item> Item::createWithSpriteFrameName(const std::string& spriteFrameName, int value) {
-	Item *temp = new(std::nothrow) Item();
+	auto temp = std::shared_ptr<Item>();
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, value)) {
-		return std::shared_ptr<Item>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Item>(nullptr);
 	}
 }

@@ -11,14 +11,12 @@ class Attribute {
 public:
 	//create
 	static std::shared_ptr<Attribute> createWithValue(T value) {
-		Attribute *temp = new(std::nothrow) Attribute();
+		auto temp = std::make_shared<Attribute>();
 
 		if (temp && temp->initMember(value)) {
-			return std::shared_ptr<Attribute>(temp);
+			return temp;
 		}
 		else {
-			delete temp;
-			temp = nullptr;
 			return std::shared_ptr<Attribute>(nullptr);
 		}
 	}

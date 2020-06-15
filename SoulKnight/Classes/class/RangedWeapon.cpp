@@ -19,14 +19,12 @@ bool RangedWeapon::init(
 
 std::shared_ptr<RangedWeapon> RangedWeapon::create(
 	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
-	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
+	auto temp = std::shared_ptr<RangedWeapon>();
 
 	if (temp && temp->init(MPconsume, aspd, critRate, critMultiple, bullet)) {
-		return std::shared_ptr<RangedWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<RangedWeapon>(nullptr);
 	}
 }
@@ -41,14 +39,12 @@ bool RangedWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 
 std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
-	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
+	auto temp = std::shared_ptr<RangedWeapon>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, MPconsume, aspd, critRate, critMultiple, bullet)) {
-		return std::shared_ptr<RangedWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<RangedWeapon>(nullptr);
 	}
 }
@@ -63,14 +59,12 @@ bool RangedWeapon::initWithSpriteFrameName(const std::string& spriteFrameName,
 
 std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrameName(const std::string& spriteFrameName,
 	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
-	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
+	auto temp = std::shared_ptr<RangedWeapon>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, MPconsume, aspd, critRate, critMultiple, bullet)) {
-		return std::shared_ptr<RangedWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<RangedWeapon>(nullptr);
 	}
 }
