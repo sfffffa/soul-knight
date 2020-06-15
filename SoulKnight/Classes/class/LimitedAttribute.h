@@ -2,38 +2,46 @@
 #define _LIMITEDATTRIBUTE_
 
 #include "Attribute.h"
+#include "cocos2d.h"
+#include <new>
 
 template <typename T>
 class LimitedAttribute :public Attribute<T> {
 	friend class AttributeChanger;
 
 public:
-	//create
-	static std::shared_ptr<LimitedAttribute> createWithValue(T value) {
-		auto temp = std::shared_ptr<LimitedAttribute>();
+	//create value 和value 均设为实参value 值
+	static LimitedAttribute *createWithValue(T value) {
+		LimitedAttribute *temp = new(std::nothrow) LimitedAttribute();
 
 		if (temp && temp->initMember(value)) {
+			temp->autorelease();
 			return temp;
 		}
 		else {
-			return std::shared_ptr<LimitedAttribute>(nullptr);
+			delete temp;
+			temp = nullptr;
+			return nullptr;
 		}
 	}
 
-	static std::shared_ptr<LimitedAttribute> createWithValueMax(T value, T valueMax) {
-		auto temp = std::shared_ptr<LimitedAttribute>();
+	static LimitedAttribute *createWithValueMax(T value, T valueMax) {
+		LimitedAttribute *temp = new(std::nothrow) LimitedAttribute();
 
 		if (temp &&temp->initMember(value, valueMax)) {
+			temp->autorelease();
 			return temp;
 		}
 		else {
-			return std::shared_ptr<LimitedAttribute>(nullptr);
+			delete temp;
+			temp = nullptr;
+			return nullptr;
 		}
 	}
 
 	//you should set valueMax before setting value
 	void setValue(T value) { _value = (value > _valueMax) ? _valueMax : value; }
-	virtual void setValueMax(T valueMax) { _valueMax = valueMax; if (value > valueMax)value = valueMax; }
+	virtual void setValueMax(T valueMax) { _valueMax = valueMax; if (_value > valueMax)_value = valueMax; }
 
 	//get
 	virtual T getValueMax()const { return _valueMax; }
@@ -41,7 +49,7 @@ public:
 protected:
 	virtual ~LimitedAttribute() = default;
 
-	LimitedAttribute &operator=(T value)override {
+	/*LimitedAttribute &operator=(T value)override {
 		_value = (value > _valueMax) ? _valueMax : value;
 		return *this;
 	};
@@ -56,7 +64,7 @@ protected:
 		if (_value > _valueMax)_value = _valueMax;
 		return *this;
 	}
-	void operator*(T fold)override { *this * fold; }
+	void operator*(T fold)override { *this * fold; }*/
 
 	T _valueMax;//属性上限
 

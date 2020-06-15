@@ -7,9 +7,9 @@ inline bool Damage::initMember(int damage, bool crit) {
 	}
 	else {
 		_damage = dam;
-		_crit = crit;
 	}
 
+	_crit = crit;
 	return true;
 }
 

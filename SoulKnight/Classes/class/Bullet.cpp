@@ -21,15 +21,18 @@ bool Bullet::init(
 	return true;
 }
 
-std::shared_ptr<Bullet> Bullet::create(
+Bullet *Bullet::create(
 	int damage, float speed, bool crit) {
-	auto temp = std::shared_ptr<Bullet>();
+	auto temp = new(std::nothrow) Bullet();
 
 	if (temp && temp->init(damage, speed, crit)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Bullet>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
@@ -42,15 +45,18 @@ bool Bullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	return true;
 }
 
-std::shared_ptr<Bullet> Bullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
+Bullet *Bullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int damage, float speed, bool crit) {
-	auto temp = std::shared_ptr<Bullet>();
+	auto temp = new(std::nothrow) Bullet();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Bullet>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
@@ -63,15 +69,18 @@ bool Bullet::initWithSpriteFrameName(const std::string &spriteFrameName,
 	return true;
 }
 
-std::shared_ptr<Bullet> Bullet::createWithSpriteFrameName(const std::string &spriteFrameName,
+Bullet *Bullet::createWithSpriteFrameName(const std::string &spriteFrameName,
 	int damage, float speed, bool crit) {
-	auto temp = std::shared_ptr<Bullet>();
+	auto temp = new(std::nothrow) Bullet();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Bullet>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
@@ -80,6 +89,7 @@ Bullet *Bullet::clone()const {
 
 	if (temp && temp->initWithSpriteFrame(this->getSpriteFrame(),
 		_damage->getValue(), _speed->getValue(), _crit)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {

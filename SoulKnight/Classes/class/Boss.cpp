@@ -13,7 +13,7 @@ inline bool Boss::initMember(float weaponChance) {
 
 bool Boss::init(
 	int HPMax, int MPMax,
-	float speed, std::shared_ptr<Weapon> weapon,
+	float speed, Weapon *weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
 	if (!Monster::init(HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance) ||
@@ -23,24 +23,27 @@ bool Boss::init(
 	return true;
 }
 
-std::shared_ptr<Boss> Boss::create(
+Boss *Boss::create(
 	int HPMax, int MPMax,
-	float speed, std::shared_ptr<Weapon> weapon,
+	float speed, Weapon *weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
-	auto temp = std::make_shared<Boss>();
+	auto temp = new(std::nothrow) Boss();
 	if (temp &&
 		temp->init(HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance, weapomChance)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Boss>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
 bool Boss::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	int HPMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon,
+	Weapon *weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
 	if (!Monster::initWithSpriteFrame(spriteFrame, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance) ||
@@ -50,24 +53,27 @@ bool Boss::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	return true;
 }
 
-std::shared_ptr<Boss> Boss::createWithSpriteFrame(SpriteFrame *spriteFrame,
+Boss *Boss::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int HPMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon,
+	Weapon *weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
-	auto temp = std::make_shared<Boss>();
+	auto temp = new(std::nothrow) Boss();
 	if (temp &&
 		temp->initWithSpriteFrame(spriteFrame, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance, weapomChance)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Boss>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
 bool Boss::initWithSpriteFrameName(const std::string& spriteFrameName,
 	int HPMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon,
+	Weapon *weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
 	if (!Monster::initWithSpriteFrameName(spriteFrameName, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance) ||
@@ -77,17 +83,20 @@ bool Boss::initWithSpriteFrameName(const std::string& spriteFrameName,
 	return true;
 }
 
-std::shared_ptr<Boss> Boss::createWithSpriteFrameName(const std::string& spriteFrameName,
+Boss *Boss::createWithSpriteFrameName(const std::string& spriteFrameName,
 	int HPMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon,
+	Weapon *weapon,
 	float coinChance, float healthPotChance,
 	float magicPotChance, float weapomChance) {
-	auto temp = std::shared_ptr<Boss>();
+	auto temp = new(std::nothrow) Boss();
 	if (temp &&
 		temp->initWithSpriteFrameName(spriteFrameName, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance, weapomChance)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Boss>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }

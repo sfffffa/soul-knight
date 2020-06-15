@@ -1,4 +1,4 @@
-#ifndef _ATTRIBUTE_CHANGER_
+/*#ifndef _ATTRIBUTE_CHANGER_
 #define _ATTRIBUTE_CHANGER_
 
 #include "Attribute.h"
@@ -31,6 +31,6 @@ public:
 
 protected:
 	std::shared_ptr<Attribute<T>> _targetAttribute;
-}
+};
 
-#endif // _ATTRIBUTE_CHANGER_
+#endif // _ATTRIBUTE_CHANGER_*/

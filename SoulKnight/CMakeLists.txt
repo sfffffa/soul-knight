@@ -77,7 +77,6 @@ list(APPEND GAME_HEADER
 	 Classes/WildMap.h
 	 Classes/class/Attribute.h
 	 Classes/class/LimitedAttribute.h
-	 Classes/class/AttributeChanger.h
 	 Classes/class/Damage.h
 	 Classes/class/Bullet.h
 	 Classes/class/ElementalBullet.h

@@ -1,7 +1,7 @@
 #include "Hero.h"
 
 inline bool Hero::initMember(
-	int shieldMax, std::shared_ptr<Weapon> offhandWeapon,
+	int shieldMax, Weapon *offhandWeapon,
 	float coolDown, std::function<void(void)> skill) {
 	if (!offhandWeapon) {
 		return false;
@@ -32,7 +32,7 @@ inline bool Hero::initMember(
 
 bool Hero::init(
 	int HPMax, int shieldMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	Weapon *weapon, Weapon *offhandWeapon,
 	std::function<void(void)> skill, float cd) {
 	if (!Character::init(HPMax, MPMax, speed, weapon) ||
 		!initMember(shieldMax, offhandWeapon, cd, skill)) {
@@ -41,23 +41,26 @@ bool Hero::init(
 	return true;
 }
 
-std::shared_ptr<Hero> Hero::create(
+Hero *Hero::create(
 	int HPMax, int shieldMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	Weapon *weapon, Weapon *offhandWeapon,
 	std::function<void(void)> skill, float cd) {
-	auto temp = std::shared_ptr<Hero>();
+	auto temp = new(std::nothrow) Hero();
 	if (temp &&
 		temp->init(HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Hero>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
 bool Hero::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	int HPMax, int shieldMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	Weapon *weapon, Weapon *offhandWeapon,
 	std::function<void(void)> skill, float cd) {
 	if (!Character::initWithSpriteFrame(spriteFrame, HPMax, MPMax, speed, weapon) ||
 		!initMember(shieldMax, offhandWeapon, cd, skill)) {
@@ -66,23 +69,26 @@ bool Hero::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	return true;
 }
 
-std::shared_ptr<Hero> Hero::createWithSpriteFrame(SpriteFrame *spriteFrame,
+Hero *Hero::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int HPMax, int shieldMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	Weapon *weapon, Weapon *offhandWeapon,
 	std::function<void(void)> skill, float cd) {
-	auto temp = std::shared_ptr<Hero>();
+	auto temp = new(std::nothrow) Hero();
 	if (temp &&
 		temp->initWithSpriteFrame(spriteFrame, HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Hero>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
 bool Hero::initWithSpriteFrameName(const std::string& spriteFrameName,
 	int HPMax, int shieldMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	Weapon *weapon, Weapon *offhandWeapon,
 	std::function<void(void)> skill, float cd) {
 	if (!Character::initWithSpriteFrameName(spriteFrameName, HPMax, MPMax, speed, weapon) ||
 		!initMember(shieldMax, offhandWeapon, cd, skill)) {
@@ -91,16 +97,23 @@ bool Hero::initWithSpriteFrameName(const std::string& spriteFrameName,
 	return true;
 }
 
-std::shared_ptr<Hero> Hero::createWithSpriteFrameName(const std::string& spriteFrameName,
+Hero *Hero::createWithSpriteFrameName(const std::string& spriteFrameName,
 	int HPMax, int shieldMax, int MPMax, float speed,
-	std::shared_ptr<Weapon> weapon, std::shared_ptr<Weapon> offhandWeapon,
+	Weapon *weapon, Weapon *offhandWeapon,
 	std::function<void(void)> skill, float cd) {
-	auto temp = std::shared_ptr<Hero>();
+	auto temp = new(std::nothrow) Hero();
 	if (temp &&
 		temp->initWithSpriteFrameName(spriteFrameName, HPMax, shieldMax, MPMax, speed, weapon, offhandWeapon, skill, cd)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<Hero>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
+}
+
+Hero *Hero::clone()const {
+	return nullptr;
 }

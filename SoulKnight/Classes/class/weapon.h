@@ -21,14 +21,14 @@ public:
 	virtual float getCritRate()const { return _critRate->getValue(); }
 	virtual float getCritMultiple()const { return _critMultiple->getValue(); }
 
-	virtual std::shared_ptr<Attribute<int>> getMPCosumeInstance()const { return _MPconsume; }
-	virtual std::shared_ptr<Attribute<float>> getAspdInstance()const { return _aspd; }
-	virtual std::shared_ptr<Attribute<float>> getCritRateInatance()const { return _critRate; }
-	virtual std::shared_ptr<Attribute<float>> getCritMultipleInstance()const { return _critMultiple; }
+	virtual Attribute<int> *getMPCosumeInstance()const { return _MPconsume; }
+	virtual Attribute<float> *getAspdInstance()const { return _aspd; }
+	virtual Attribute<float> *getCritRateInatance()const { return _critRate; }
+	virtual Attribute<float> *getCritMultipleInstance()const { return _critMultiple; }
 
 	virtual Weapon *clone()const = 0;
 
-	virtual void use() = 0;
+	//virtual void use() = 0;
 protected:
 	//destructor
 	virtual ~Weapon() = default;
@@ -42,10 +42,10 @@ protected:
 	bool initWithSpriteFrameName(const std::string& spriteFrameName,
 		int MPconsume, float aspd, float critRate, float critMultiple);
 
-	std::shared_ptr<Attribute<int>> _MPconsume;//ºÄÀ¶
-	std::shared_ptr<Attribute<float>> _aspd;//¹¥ËÙ
-	std::shared_ptr<Attribute<float>> _critRate;//±©»÷ÂÊ
-	std::shared_ptr<Attribute<float>> _critMultiple;//±©»÷±¶Êý
+	Attribute<int> *_MPconsume;//ºÄÀ¶
+	Attribute<float> *_aspd;//¹¥ËÙ
+	Attribute<float> *_critRate;//±©»÷ÂÊ
+	Attribute<float> *_critMultiple;//±©»÷±¶Êý
 
 private:
 

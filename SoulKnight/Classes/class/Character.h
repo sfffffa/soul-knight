@@ -21,7 +21,7 @@ public:
 	virtual void setMP(int MP) { _MP->setValue(MP); }
 	virtual void setMPMax(int MPMax) { _MP->setValueMax(MPMax); }
 	virtual void setSpeed(float speed) { _speed->setValue(speed); }
-	virtual void setWeapon(std::shared_ptr<Weapon> weapon) { _weapon = weapon; }
+	virtual void setWeapon(Weapon *weapon) { _weapon = weapon; }
 
 	virtual int getHP()const { return _HP->getValue(); }
 	virtual int getHPMax()const { return _HP->getValueMax(); }
@@ -29,43 +29,43 @@ public:
 	virtual int getMPMax()const { return _MP->getValueMax(); }
 	virtual float getSpeed()const { return _speed->getValue(); }
 
-	virtual std::shared_ptr<LimitedAttribute<int>> getHPInstance()const { return _HP; }
-	virtual std::shared_ptr<LimitedAttribute<int>> getMPInstance()const { return _MP; }
-	virtual std::shared_ptr<Attribute<float>> getSpeedInstance()const { return _speed; }
-	virtual std::shared_ptr<Weapon> getWeaponInstance()const { return _weapon; }
+	virtual LimitedAttribute<int> *getHPInstance()const { return _HP; }
+	virtual LimitedAttribute<int> *getMPInstance()const { return _MP; }
+	virtual Attribute<float> *getSpeedInstance()const { return _speed; }
+	virtual Weapon *getWeaponInstance()const { return _weapon; }
 
 	virtual Character *clone()const = 0;
 
-	//use move(Vec2(0,0)) to stop
+	/*//use move(Vec2(0,0)) to stop
 	virtual void move(Vec2 dir) = 0;
 
 	virtual void shoot() = 0;
 
 	virtual void beShot(int damage) = 0;
 
-	virtual void die() = 0;
+	virtual void die() = 0;*/
 
 protected:
 	//destructor
 	virtual ~Character() = default;
 
 	bool init(
-		int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon);
+		int HPMax, int MPMax, float speed, Weapon *weapon);
 
 	bool initWithSpriteFrame(SpriteFrame *spriteFrame,
-		int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon);
+		int HPMax, int MPMax, float speed, Weapon *weapon);
 
 	bool initWithSpriteFrameName(const std::string& spriteFrameName,
-		int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon);
+		int HPMax, int MPMax, float speed, Weapon *weapon);
 
-	std::shared_ptr<LimitedAttribute<int>> _HP;
-	std::shared_ptr<LimitedAttribute<int>> _MP;
-	std::shared_ptr<Attribute<float>> _speed;
-	std::shared_ptr<Weapon> _weapon;
+	LimitedAttribute<int> *_HP;
+	LimitedAttribute<int> *_MP;
+	Attribute<float> *_speed;
+	Weapon *_weapon;
 private:
 
 	bool initMember(
-		int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon);
+		int HPMax, int MPMax, float speed, Weapon *weapon);
 };
 
 #endif //_CHARACTER_

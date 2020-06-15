@@ -21,15 +21,18 @@ bool ElementalBullet::init(
 	return true;
 }
 
-std::shared_ptr<ElementalBullet> ElementalBullet::create(
+ElementalBullet *ElementalBullet::create(
 	int damage, float speed, bool crit, Element element) {
-	auto temp = std::shared_ptr<ElementalBullet>();
+	auto temp = new(std::nothrow) ElementalBullet();
 
 	if (temp && temp->init(damage, speed, crit, element)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<ElementalBullet>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
@@ -42,15 +45,18 @@ bool ElementalBullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	return true;
 }
 
-std::shared_ptr<ElementalBullet> ElementalBullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
+ElementalBullet *ElementalBullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int damage, float speed, bool crit, Element element) {
-	auto temp = std::shared_ptr<ElementalBullet>();
+	auto temp = new(std::nothrow) ElementalBullet();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit, element)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<ElementalBullet>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
@@ -63,15 +69,18 @@ bool ElementalBullet::initWithSpriteFrameName(const std::string &spriteFrameName
 	return true;
 }
 
-std::shared_ptr<ElementalBullet> ElementalBullet::createWithSpriteFrameName(const std::string &spriteFrameName,
+ElementalBullet *ElementalBullet::createWithSpriteFrameName(const std::string &spriteFrameName,
 	int damage, float speed, bool crit, Element element) {
-	auto temp = std::shared_ptr<ElementalBullet>();
+	auto temp = new(std::nothrow) ElementalBullet();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit, element)) {
+		temp->autorelease();
 		return temp;
 	}
 	else {
-		return std::shared_ptr<ElementalBullet>(nullptr);
+		delete temp;
+		temp = nullptr;
+		return nullptr;
 	}
 }
 
@@ -80,6 +89,7 @@ ElementalBullet *ElementalBullet::clone()const {
 
 	if (temp && temp->initWithSpriteFrame(
 		this->getSpriteFrame(), _damage->getValue(), _speed->getValue(), _crit, _element->getValue())) {
+		temp->autorelease();
 		return temp;
 	}
 	else {

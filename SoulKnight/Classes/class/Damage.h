@@ -5,6 +5,7 @@
 #include "Attribute.h"
 #include <memory>
 #include <string>
+#include <new>
 
 USING_NS_CC;
 
@@ -18,7 +19,7 @@ public:
 	virtual int getDamage()const { return _damage->getValue(); }
 	virtual bool getCritOrNot()const { return _crit; }
 
-	virtual std::shared_ptr<Attribute<int>> getDamageInatance() { return _damage; }
+	virtual Attribute<int> *getDamageInatance() { return _damage; }
 
 	virtual Damage *clone()const = 0;
 
@@ -34,7 +35,7 @@ protected:
 	bool initWithSpriteFrameName(const std::string &spriteFrameName,
 		int damage, bool crit);
 
-	std::shared_ptr<Attribute<int>> _damage;//ÉËº¦Öµ
+	Attribute<int> *_damage;//ÉËº¦Öµ
 	bool _crit;//ÊÇ·ñ±©»÷
 
 private:

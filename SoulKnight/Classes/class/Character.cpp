@@ -1,7 +1,7 @@
 #include "Character.h"
 
 inline bool Character::initMember(
-	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, Weapon *weapon) {
 	if (!weapon) {
 		return false;
 	}
@@ -37,7 +37,7 @@ inline bool Character::initMember(
 }
 
 bool Character::init(
-	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, Weapon *weapon) {
 	if (!Sprite::init() ||
 		!initMember(HPMax, MPMax, speed, weapon)) {
 		return false;
@@ -47,7 +47,7 @@ bool Character::init(
 }
 
 bool Character::initWithSpriteFrame(SpriteFrame *spriteFrame,
-	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, Weapon *weapon) {
 	if (!Sprite::initWithSpriteFrame(spriteFrame) ||
 		!initMember(HPMax, MPMax, speed, weapon)) {
 		return false;
@@ -57,7 +57,7 @@ bool Character::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 bool Character::initWithSpriteFrameName(const std::string& spriteFrameName,
-	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon) {
+	int HPMax, int MPMax, float speed, Weapon *weapon) {
 	if (!Sprite::initWithSpriteFrameName(spriteFrameName) ||
 		!initMember(HPMax, MPMax, speed, weapon)) {
 		return false;
