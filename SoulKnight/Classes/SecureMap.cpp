@@ -36,6 +36,7 @@ bool SecureMap::init()
 	//
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
+	Vec2 destination(origin.x + visibleSize.width, origin.y + visibleSize.height);
 
 	/////////////////////
 	// 1.3 资源加载											hth
@@ -46,12 +47,14 @@ bool SecureMap::init()
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				hth
 	//
-
+	auto background = DrawNode::create();
+	background->drawSolidRect(origin, destination, cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
+	this->addChild(background, -10);
 	/////////////////////////////
 	//  NPC初始化（addNPC函数）								hth、cyf
 	//
-	auto hunter = initNPC("猎人npc.png");
-	auto oldMan = initNPC("老头npc.png");
+	auto hunter = initNPC("hunternpc.png");
+	auto oldMan = initNPC("oldmannpc.png");
 
 	/////////////////////////////
 	//  hero 拟初始化										cyf
@@ -62,13 +65,14 @@ bool SecureMap::init()
 	// 3. 地图初始化											hth、cyf
 	//
 	_tiledmap = TMXTiledMap::create("safemap.tmx");
+	_tiledmap->setAnchorPoint(Vec2::ZERO);
+	_tiledmap->setPosition(Vec2(origin.x, origin.y + 70));
 	this->addChild(_tiledmap);
 
+	hunter->setPosition(Vec2(origin.x+512, origin.y + visibleSize.height - 320));
+	oldMan->setPosition(Vec2(origin.y + visibleSize.width-512, origin.y + visibleSize.height -320));
 	_tiledmap->addChild(hunter);
 	_tiledmap->addChild(oldMan);
-
-	//this->addNPC(hunter, Vec2(, ));待处理
-	//this->addNPC(oldMan,Vec2(,));
 
 	/////////////////////////////
 	// 5. Hero初始化（Hero初始化应在上一个选择英雄场景中完成）	hth、cyf
