@@ -1,4 +1,5 @@
 #include "SecureMap.h"
+#include "ui/CocosGUI.h"
 
 USING_NS_CC;
 
@@ -42,7 +43,7 @@ bool SecureMap::init()
 	// 1.3 资源加载											hth
 	//
 	auto spritecache = SpriteFrameCache::getInstance();
-	spritecache->addSpriteFramesWithFile("spritesheet.plist");
+	spritecache->addSpriteFramesWithFile("new.plist");
 
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				hth
@@ -55,6 +56,7 @@ bool SecureMap::init()
 	//
 	auto hunter = initNPC("hunternpc.png");
 	auto oldMan = initNPC("oldmannpc.png");
+	
 
 	/////////////////////////////
 	//  hero 拟初始化										cyf
@@ -67,17 +69,34 @@ bool SecureMap::init()
 	_tiledmap = TMXTiledMap::create("safemap.tmx");
 	_tiledmap->setAnchorPoint(Vec2::ZERO);
 	_tiledmap->setPosition(Vec2(origin.x, origin.y + 70));
-	this->addChild(_tiledmap);
-
-	hunter->setPosition(Vec2(origin.x+512, origin.y + visibleSize.height - 320));
-	oldMan->setPosition(Vec2(origin.y + visibleSize.width-512, origin.y + visibleSize.height -320));
-	_tiledmap->addChild(hunter);
-	_tiledmap->addChild(oldMan);
+	this->addChild(_tiledmap, -1);
 
 	/////////////////////////////
 	// 5. Hero初始化（Hero初始化应在上一个选择英雄场景中完成）	hth、cyf
 	//    此次初始化仅设置位置及physicsBody（见拟初始化）
 	//
+	_hero = Hero::createWithSpriteFrameName("hero1.png");
+	_hero->setScale(0.3, 0.3);
+
+	TMXObjectGroup* objectGroup= _tiledmap->getObjectGroup("object");
+	auto heroBornPlace=objectGroup->getObject("born");
+	auto hunterBornPlace = objectGroup->getObject("hunter");
+	auto oldmanBornPlace = objectGroup->getObject("oldman");
+	
+	float bornX = heroBornPlace["x"].asFloat();
+	float bornY = heroBornPlace["y"].asFloat();
+	float hunterX = hunterBornPlace["x"].asFloat();
+	float hunterY = hunterBornPlace["y"].asFloat();
+	float oldmanX = oldmanBornPlace["x"].asFloat();
+	float oldmanY = oldmanBornPlace["y"].asFloat();
+	
+	_hero->setPosition(Vec2(bornX,bornY));
+	hunter->setPosition(Vec2(hunterX, hunterY));
+	oldMan->setPosition(Vec2(oldmanX, oldmanY));
+	
+	_tiledmap->addChild(_hero,100);
+	_tiledmap->addChild(hunter, 100);
+	_tiledmap->addChild(oldMan, 100);
 
 	/////////////////////
 	// 5.1 键盘监听（NPC与Hero对话）							cyf
@@ -109,7 +128,12 @@ bool SecureMap::init()
 	/////////////////////////////
 	// 6. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
 	//
-
+	auto bloodBar = ui::LoadingBar::create("emptyblood.png");
+	bloodBar->setDirection(ui::LoadingBar::Direction::RIGHT);
+	bloodBar->setPercent(1.0f);
+	//bloodBar->setPosition(Vec2(1024, 768));
+	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2,origin.y+visibleSize.height- bloodBar->getContentSize().height/2));
+	this->addChild(bloodBar,100);
 	/////////////////////////////
 	// 7. 菜单初始化											hth
 	//
@@ -134,6 +158,7 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 
 	npc->addComponent(physicsBody);
 
+	npc->setScale(2.5);
 	return npc;
 }
 
