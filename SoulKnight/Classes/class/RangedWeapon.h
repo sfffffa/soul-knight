@@ -9,15 +9,15 @@ class RangedWeapon :public Weapon {
 public:
 	static std::shared_ptr<RangedWeapon> create(
 		int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-		std::shared_ptr<Damage> bullet = std::shared_ptr<Bullet>(nullptr));
+		std::shared_ptr<Damage> bullet = Bullet::create());
 
 	static std::shared_ptr<RangedWeapon> createWithSpriteFrame(SpriteFrame *spriteFrame,
 		int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-		std::shared_ptr<Damage> bullet = std::shared_ptr<Bullet>(nullptr));
+		std::shared_ptr<Damage> bullet = Bullet::create());
 
 	static std::shared_ptr<RangedWeapon> createWithSpriteFrameName(const std::string& spriteFrameName,
 		int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-		std::shared_ptr<Damage> bullet = std::shared_ptr<Bullet>(nullptr));
+		std::shared_ptr<Damage> bullet = Bullet::create());
 
 	virtual void setBullet(std::shared_ptr<Damage> bullet) { _bullet = bullet; }
 
