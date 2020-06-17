@@ -1,7 +1,7 @@
 #include "Item.h"
 
 inline bool Item::initMember(Type type, int value) {
-	auto temp = Attribute<int>::createWithValue(value);
+	auto temp = std::make_shared<int>(value);
 	if (!temp) {
 		return false;
 	}
@@ -20,16 +20,13 @@ bool Item::init(Type type, int value) {
 	return true;
 }
 
-Item *Item::create(Type type, int value) {
-	Item *temp = new(std::nothrow) Item();
+std::shared_ptr<Item> Item::create(Type type, int value) {
+	auto temp = std::make_shared<Item>();
 	if (temp && temp->init(type, value)) {
-		temp->autorelease();
 		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
-		return nullptr;
+		return std::shared_ptr<Item>(nullptr);
 	}
 }
 
@@ -40,16 +37,13 @@ bool Item::initWithSpriteFrame(SpriteFrame *spriteFrame, Type type, int value) {
 	return true;
 }
 
-Item *Item::createWithSpriteFrame(SpriteFrame *spriteFrame, Type type, int value) {
-	Item *temp = new(std::nothrow) Item();
+std::shared_ptr<Item> Item::createWithSpriteFrame(SpriteFrame *spriteFrame, Type type, int value) {
+	auto temp = std::make_shared<Item>();
 	if (temp && temp->initWithSpriteFrame(spriteFrame, type, value)) {
-		temp->autorelease();
 		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
-		return nullptr;
+		return std::shared_ptr<Item>(nullptr);
 	}
 }
 
@@ -60,16 +54,13 @@ bool Item::initWithSpriteFrameName(const std::string& spriteFrameName, Type type
 	return true;
 }
 
-Item *Item::createWithSpriteFrameName(const std::string& spriteFrameName, Type type, int value) {
-	Item *temp = new(std::nothrow) Item();
+std::shared_ptr<Item> Item::createWithSpriteFrameName(const std::string& spriteFrameName, Type type, int value) {
+	auto temp = std::make_shared<Item>();
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, type, value)) {
-		temp->autorelease();
 		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
-		return nullptr;
+		return std::shared_ptr<Item>(nullptr);
 	}
 }
 
@@ -80,7 +71,6 @@ Item *Item::clone()const {
 		temp->setSpriteFrame(this->getSpriteFrame());
 		temp->_type = _type;
 		temp->_value = _value;
-		temp->autorelease();
 		return temp;
 	}
 	else {

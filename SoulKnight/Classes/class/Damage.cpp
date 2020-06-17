@@ -1,12 +1,12 @@
 #include "Damage.h"
 
 inline bool Damage::initMember(int damage, bool crit) {
-	auto dam = Attribute<int>::createWithValue(damage);
-	if (!dam) {
+	auto damTemp = std::make_shared<int>(damage);
+	if (!damTemp) {
 		return false;
 	}
 	else {
-		_damage = dam;
+		_damage = damTemp;
 	}
 
 	_crit = crit;

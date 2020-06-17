@@ -1,7 +1,7 @@
 #include "Bullet.h"
 
 inline bool Bullet::initMember(float speed) {
-	auto spe = Attribute<float>::createWithValue(speed);
+	auto spe = std::make_shared<float>(speed);
 	if (!spe) {
 		return false;
 	}
@@ -21,18 +21,15 @@ bool Bullet::init(
 	return true;
 }
 
-Bullet *Bullet::create(
+std::shared_ptr<Bullet> Bullet::create(
 	int damage, float speed, bool crit) {
-	auto temp = new(std::nothrow) Bullet();
+	auto temp = std::make_shared<Bullet>();
 
 	if (temp && temp->init(damage, speed, crit)) {
-		temp->autorelease();
 		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
-		return nullptr;
+		return std::shared_ptr<Bullet>(nullptr);
 	}
 }
 
@@ -45,18 +42,15 @@ bool Bullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	return true;
 }
 
-Bullet *Bullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
+std::shared_ptr<Bullet> Bullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
 	int damage, float speed, bool crit) {
-	auto temp = new(std::nothrow) Bullet();
+	auto temp = std::make_shared<Bullet>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit)) {
-		temp->autorelease();
 		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
-		return nullptr;
+		return std::shared_ptr<Bullet>(nullptr);
 	}
 }
 
@@ -69,27 +63,26 @@ bool Bullet::initWithSpriteFrameName(const std::string &spriteFrameName,
 	return true;
 }
 
-Bullet *Bullet::createWithSpriteFrameName(const std::string &spriteFrameName,
+std::shared_ptr<Bullet> Bullet::createWithSpriteFrameName(const std::string &spriteFrameName,
 	int damage, float speed, bool crit) {
-	auto temp = new(std::nothrow) Bullet();
+	auto temp = std::make_shared<Bullet>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit)) {
-		temp->autorelease();
 		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
-		return nullptr;
+		return std::shared_ptr<Bullet>(nullptr);
 	}
 }
 
-Bullet *Bullet::clone()const {
+Bullet *Bullet::clone(bool crit)const {
 	Bullet *temp = new(std::nothrow) Bullet();
 
-	if (temp && temp->initWithSpriteFrame(this->getSpriteFrame(),
-		_damage->getValue(), _speed->getValue(), _crit)) {
-		temp->autorelease();
+	if (temp) {
+		temp->setSpriteFrame(this->getSpriteFrame());
+		temp->_damage = _damage;
+		temp->_speed = _speed;
+		temp->_crit = crit;
 		return temp;
 	}
 	else {
