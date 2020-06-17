@@ -41,9 +41,10 @@ public:
 
 	virtual void die() = 0;*/
 
-protected:
 	//destructor
 	virtual ~Character() = default;
+
+protected:
 
 	bool init(
 		int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon);

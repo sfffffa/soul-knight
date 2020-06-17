@@ -42,10 +42,9 @@ public:
 	void beShot(int damage)override;
 
 	void die()override;*/
-
-protected:
 	//destructor
 	virtual ~Monster() = default;
+protected:
 
 	bool init(
 		int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon,

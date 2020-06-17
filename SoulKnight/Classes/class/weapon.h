@@ -24,9 +24,11 @@ public:
 	virtual Weapon *clone()const = 0;
 
 	//virtual void use() = 0;
-protected:
+
 	//destructor
 	virtual ~Weapon() = default;
+
+protected:
 
 	bool init(
 		int MPconsume, float aspd, float critRate, float critMultiple);

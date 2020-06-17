@@ -29,9 +29,10 @@ public:
 
 	//clone ¹²ÏíÍ¬Ò» value
 	virtual Item *clone()const;
-protected:
+
 	//destructor
 	virtual ~Item() = default;
+protected:
 
 	bool init(Type type, int value);
 

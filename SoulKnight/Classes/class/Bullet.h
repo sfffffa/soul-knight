@@ -21,9 +21,9 @@ public:
 
 	Bullet *clone(bool crit)const override;
 
-protected:
 	//destructor
 	virtual ~Bullet() = default;
+protected:
 
 	bool init(int damage, float speed, bool crit);
 

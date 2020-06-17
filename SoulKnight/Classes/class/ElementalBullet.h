@@ -23,9 +23,10 @@ public:
 
 	ElementalBullet *clone(bool crit)const override;
 
-protected:
 	//destructor
 	virtual ~ElementalBullet() = default;
+
+protected:
 
 	bool init(
 		int damage, float speed, bool crit, Element element);

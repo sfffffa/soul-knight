@@ -18,10 +18,9 @@ public:
 	virtual bool getCritOrNot()const { return _crit; }
 
 	virtual Damage *clone(bool crit)const = 0;
-
-protected:
 	//destructor
 	virtual ~Damage() = default;
+protected:
 
 	bool init(int damage, bool crit);
 

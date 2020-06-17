@@ -26,9 +26,10 @@ public:
 
 	CloseInWeapon *clone()const override;
 
-protected:
 	//destructor
 	virtual ~CloseInWeapon() = default;
+
+protected:
 
 	bool init(
 		int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple);

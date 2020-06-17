@@ -53,9 +53,10 @@ public:
 	virtual void beShot(int damage) override;
 
 	virtual void die() override;*/
-protected:
+
 	//destructor
 	virtual ~Hero() = default;
+protected:
 
 	bool init(
 		int HPMax, int shieldMax, int MPMax, float speed,

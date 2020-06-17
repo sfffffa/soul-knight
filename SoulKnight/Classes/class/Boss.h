@@ -47,9 +47,9 @@ public:
 	void beShot(int damage)override;
 
 	void die()override;*/
+	virtual ~Boss() = default;
 
 protected:
-	virtual ~Boss() = default;
 
 	bool init(
 		int HPMax, int MPMax, float speed,

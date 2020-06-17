@@ -25,9 +25,10 @@ public:
 
 	RangedWeapon *clone()const override;
 
-protected:
 	//destructor
 	virtual ~RangedWeapon() = default;
+
+protected:
 
 	bool init(
 		int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet);
