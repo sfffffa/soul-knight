@@ -2,7 +2,7 @@
 
 inline bool Weapon::initMember(
 	int MPconsume, float aspd, float critRate, float critMultiple) {
-	auto mpcTemp = Attribute<int>::createWithValue(MPconsume);
+	auto mpcTemp = std::make_shared<int>(MPconsume);
 	if (!mpcTemp) {
 		return false;
 	}
@@ -10,7 +10,7 @@ inline bool Weapon::initMember(
 		_MPconsume = mpcTemp;
 	}
 
-	auto aspdTemp = Attribute<float>::createWithValue(aspd);
+	auto aspdTemp = std::make_shared<float>(aspd);
 	if (!mpcTemp) {
 		return false;
 	}
@@ -18,7 +18,7 @@ inline bool Weapon::initMember(
 		_aspd = aspdTemp;
 	}
 
-	auto crTemp = Attribute<float>::createWithValue(critRate);
+	auto crTemp = std::make_shared<float>(critRate);
 	if (!crTemp) {
 		return false;
 	}
@@ -26,7 +26,7 @@ inline bool Weapon::initMember(
 		_critRate = crTemp;
 	}
 
-	auto cmTemp = Attribute<float>::createWithValue(critMultiple);
+	auto cmTemp = std::make_shared<float>(critMultiple);
 	if (!cmTemp) {
 		return false;
 	}
