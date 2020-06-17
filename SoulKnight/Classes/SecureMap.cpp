@@ -51,23 +51,24 @@ bool SecureMap::init()
 	auto background = DrawNode::create();
 	background->drawSolidRect(origin, destination, cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
 	this->addChild(background, -10);
+
 	/////////////////////////////
-	//  NPC初始化（addNPC函数）								hth、cyf
+	// 3. NPC初始化（addNPC函数）								hth、cyf
 	//
 	auto hunter = initNPC("hunternpc.png");
 	auto oldMan = initNPC("oldmannpc.png");
 
 	/////////////////////////////
-	//  hero 拟初始化										cyf
+	//  4. hero 初始化										cyf
 	//
+	//依靠前一场景传参,此次初始化仅设置位置及physicsBody
 	_hero = Hero::createWithSpriteFrameName("hero1.png");
 	_hero->setSpeed(500.0f);
-	_hero->setScale(0.3, 0.3);
+	_hero->setScale(0.3f, 0.3f);
 	initHero();
-	//依靠前一场景传参
 
 	/////////////////////////////
-	// 3. 地图初始化											hth、cyf
+	// 5. 地图初始化											hth、cyf
 	//
 	_tiledmap = TMXTiledMap::create("safemap.tmx");
 	_tiledmap->setAnchorPoint(Vec2::ZERO);
@@ -75,10 +76,12 @@ bool SecureMap::init()
 	this->addChild(_tiledmap, -1);
 
 	/////////////////////////////
-	// 5. Hero初始化（Hero初始化应在上一个选择英雄场景中完成）	hth、cyf
-	//    此次初始化仅设置位置及physicsBody（见拟初始化）
+	// 5.1 地图瓦片初始化											hth、cyf
 	//
 
+	/////////////////////////////
+	// 5.2 地图中NPC，Hero初始化											hth、cyf
+	//
 	TMXObjectGroup* objectGroup = _tiledmap->getObjectGroup("object");
 	auto heroBornPlace = objectGroup->getObject("born");
 	auto hunterBornPlace = objectGroup->getObject("hunter");
@@ -95,43 +98,23 @@ bool SecureMap::init()
 	hunter->setPosition(Vec2(hunterX, hunterY));
 	oldMan->setPosition(Vec2(oldmanX, oldmanY));
 
-	_tiledmap->addChild(_hero.get(), 100);
 	_tiledmap->addChild(hunter, 100);
 	_tiledmap->addChild(oldMan, 100);
+	_tiledmap->addChild(_hero.get(), 1000);
 
 	/////////////////////
-	// 5.1 键盘监听（NPC与Hero对话）							cyf
-	//
+	// 6 键盘监听														cyf
+	//（移动 WASD）（攻击 J）（交互：NPC与Hero对话 space）（技能键 K）（换武器 L）
 	auto keyBoardListener = EventListenerKeyboard::create();
 	keyBoardListener->onKeyPressed = CC_CALLBACK_2(SecureMap::onKeyPressed, this);
 	keyBoardListener->onKeyReleased = CC_CALLBACK_2(SecureMap::onKeyReleased, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyBoardListener, _tiledmap);
 	/////////////////////
-	// 5.1.1 键盘监听（移动）（WASD）							cyf
-	//
-
-	/////////////////////
-	// 5.1.2 键盘监听（攻击）（J）							cyf
+	// 7 碰撞检测（NPC与Hero对话）（子弹与NPC）（子弹与墙体）	cyf
 	//
 
 	/////////////////////////////
-	// 5.1.3 键盘监听（交互键）（space）						cyf
-	//
-
-	/////////////////////
-	// 5.1.3 键盘监听（技能键不可用的设置）					cyf
-	//
-
-	/////////////////////
-	// 5.1.4 键盘监听（换武器键不可用的设置）					cyf
-	//
-
-	/////////////////////
-	// 5.2 碰撞检测（NPC与Hero对话）（子弹与NPC）（子弹与墙体）	cyf
-	//
-
-	/////////////////////////////
-	// 6. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
+	// 8. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
 	//
 	auto bloodBar = ui::LoadingBar::create("emptyblood.png");
 	bloodBar->setDirection(ui::LoadingBar::Direction::RIGHT);
@@ -140,11 +123,11 @@ bool SecureMap::init()
 	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
 	this->addChild(bloodBar, 100);
 	/////////////////////////////
-	// 7. 菜单初始化											hth
+	// 9. 菜单初始化											hth
 	//
 
 	/////////////////////////////
-	// 7.1 鼠标的监听										hth
+	// 10 鼠标的监听										hth
 	//
 
 	return true;
@@ -158,7 +141,7 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(NPC);
 	physicsBody->setCategoryBitmask(0x04);
-	physicsBody->setCollisionBitmask(0x01);
+	physicsBody->setCollisionBitmask(0x02);
 	physicsBody->setContactTestBitmask(0x0A);
 
 	npc->addComponent(physicsBody);
@@ -170,13 +153,25 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 void SecureMap::initHero() {
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
 		_hero->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
+	physicsBody->setDynamic(true);
+	physicsBody->setGravityEnable(false);
+	physicsBody->setRotationEnable(false);
 	physicsBody->setTag(HERO);
-	physicsBody->setCategoryBitmask(0x04);
-	physicsBody->setCollisionBitmask(0x01);
-	physicsBody->setContactTestBitmask(0x0A);
+	physicsBody->setCategoryBitmask(0x02);
+	physicsBody->setCollisionBitmask(0x06);
+	physicsBody->setContactTestBitmask(0x04);
 
 	_hero->addComponent(physicsBody);
+}
+
+void SecureMap::initWall(Sprite *wall) {
+	auto physicsBody = PhysicsBody::createBox(
+		wall->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(WALL);
+	physicsBody->setCategoryBitmask(0x01);
+	physicsBody->setCollisionBitmask(0x02);
+	physicsBody->setContactTestBitmask(0x08);
 }
 
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {

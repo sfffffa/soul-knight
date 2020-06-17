@@ -14,7 +14,8 @@
 #define ENEMY 0x02
 #define MY_BULLET 0x04
 #define ENEMY_BULLET 0x08
-#define NPC 0x10
+#define WALL 0x10
+#define NPC 0x20
 
 class SecureMap : public cocos2d::Scene
 {
@@ -37,6 +38,9 @@ private:
 
 	//赋予hero PhysicsBody
 	void initHero();
+
+	//场景物件初始化
+	void initWall(Sprite *wall);
 
 	//键盘监听
 	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
