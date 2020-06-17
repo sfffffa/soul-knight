@@ -2,8 +2,6 @@
 #define _SECURE_MAP_H_
 
 #include "cocos2d.h"
-#include "class/LimitedAttribute.h"
-#include "class/AttributeChanger.h"
 #include "class/Item.h"
 #include "class/ElementalBullet.h"
 #include "class/CloseInWeapon.h"
@@ -32,12 +30,17 @@ public:
 private:
 
 	TMXTiledMap* _tiledmap;
+	std::shared_ptr<Hero> _hero;
 
 	//∏≥”ËNPCÕº∆¨º∞PhysicsBody
 	Sprite *initNPC(const std::string& spriteFrameName);
 
 	//∏≥”Ëhero PhysicsBody
-	std::shared_ptr<Hero> initHero(std::shared_ptr<Hero> hero);
+	void initHero();
+
+	//º¸≈Ãº‡Ã˝
+	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
+	bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
 };
 
 #endif // _SECURE_MAP_H_#pragma once

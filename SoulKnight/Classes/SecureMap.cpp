@@ -56,11 +56,14 @@ bool SecureMap::init()
 	//
 	auto hunter = initNPC("hunternpc.png");
 	auto oldMan = initNPC("oldmannpc.png");
-	
 
 	/////////////////////////////
 	//  hero 拟初始化										cyf
 	//
+	_hero = Hero::createWithSpriteFrameName("hero1.png");
+	_hero->setSpeed(500.0f);
+	_hero->setScale(0.3, 0.3);
+	initHero();
 	//依靠前一场景传参
 
 	/////////////////////////////
@@ -75,32 +78,34 @@ bool SecureMap::init()
 	// 5. Hero初始化（Hero初始化应在上一个选择英雄场景中完成）	hth、cyf
 	//    此次初始化仅设置位置及physicsBody（见拟初始化）
 	//
-	_hero = Hero::createWithSpriteFrameName("hero1.png");
-	_hero->setScale(0.3, 0.3);
 
-	TMXObjectGroup* objectGroup= _tiledmap->getObjectGroup("object");
-	auto heroBornPlace=objectGroup->getObject("born");
+	TMXObjectGroup* objectGroup = _tiledmap->getObjectGroup("object");
+	auto heroBornPlace = objectGroup->getObject("born");
 	auto hunterBornPlace = objectGroup->getObject("hunter");
 	auto oldmanBornPlace = objectGroup->getObject("oldman");
-	
+
 	float bornX = heroBornPlace["x"].asFloat();
 	float bornY = heroBornPlace["y"].asFloat();
 	float hunterX = hunterBornPlace["x"].asFloat();
 	float hunterY = hunterBornPlace["y"].asFloat();
 	float oldmanX = oldmanBornPlace["x"].asFloat();
 	float oldmanY = oldmanBornPlace["y"].asFloat();
-	
-	_hero->setPosition(Vec2(bornX,bornY));
+
+	_hero->setPosition(Vec2(bornX, bornY));
 	hunter->setPosition(Vec2(hunterX, hunterY));
 	oldMan->setPosition(Vec2(oldmanX, oldmanY));
-	
-	_tiledmap->addChild(_hero,100);
+
+	_tiledmap->addChild(_hero.get(), 100);
 	_tiledmap->addChild(hunter, 100);
 	_tiledmap->addChild(oldMan, 100);
 
 	/////////////////////
 	// 5.1 键盘监听（NPC与Hero对话）							cyf
 	//
+	auto keyBoardListener = EventListenerKeyboard::create();
+	keyBoardListener->onKeyPressed = CC_CALLBACK_2(SecureMap::onKeyPressed, this);
+	keyBoardListener->onKeyReleased = CC_CALLBACK_2(SecureMap::onKeyReleased, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyBoardListener, _tiledmap);
 	/////////////////////
 	// 5.1.1 键盘监听（移动）（WASD）							cyf
 	//
@@ -132,8 +137,8 @@ bool SecureMap::init()
 	bloodBar->setDirection(ui::LoadingBar::Direction::RIGHT);
 	bloodBar->setPercent(1.0f);
 	//bloodBar->setPosition(Vec2(1024, 768));
-	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2,origin.y+visibleSize.height- bloodBar->getContentSize().height/2));
-	this->addChild(bloodBar,100);
+	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
+	this->addChild(bloodBar, 100);
 	/////////////////////////////
 	// 7. 菜单初始化											hth
 	//
@@ -162,16 +167,71 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 	return npc;
 }
 
-std::shared_ptr<Hero> SecureMap::initHero(std::shared_ptr<Hero> hero) {
+void SecureMap::initHero() {
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
-		hero->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+		_hero->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(HERO);
 	physicsBody->setCategoryBitmask(0x04);
 	physicsBody->setCollisionBitmask(0x01);
 	physicsBody->setContactTestBitmask(0x0A);
 
-	hero->addComponent(physicsBody);
+	_hero->addComponent(physicsBody);
+}
 
-	return hero;
+bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
+	switch (keyCode)
+	{
+	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_W:
+		_hero->getPhysicsBody()->setVelocity(Vec2(0, _hero->getSpeed()));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_A:
+		_hero->getPhysicsBody()->setVelocity(Vec2(-_hero->getSpeed(), 0));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_S:
+		_hero->getPhysicsBody()->setVelocity(Vec2(0, -_hero->getSpeed()));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_D:
+		_hero->getPhysicsBody()->setVelocity(Vec2(_hero->getSpeed(), 0));
+		break;
+
+	case cocos2d::EventKeyboard::KeyCode::KEY_J:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_K:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_L:
+		break;
+	default:
+		break;
+	}
+	return true;
+}
+
+bool SecureMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
+	Vec2 velocity = _hero->getPhysicsBody()->getVelocity();
+	switch (keyCode)
+	{
+	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_W:
+	case cocos2d::EventKeyboard::KeyCode::KEY_S:
+		_hero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_A:
+	case cocos2d::EventKeyboard::KeyCode::KEY_D:
+		_hero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+		break;
+
+	case cocos2d::EventKeyboard::KeyCode::KEY_J:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_K:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_L:
+		break;
+	default:
+		break;
+	}
+	return true;
 }
