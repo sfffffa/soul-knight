@@ -55,14 +55,14 @@ bool SecureMap::init()
 	/////////////////////////////
 	// 3. NPC初始化（addNPC函数）								hth、cyf
 	//
-	auto hunter = initNPC("hunternpc.png");
-	auto oldMan = initNPC("oldmannpc.png");
+	auto hunter = initNPC("hunter.png");
+	auto oldMan = initNPC("oldman.png");
 
 	/////////////////////////////
 	//  4. hero 初始化										cyf
 	//
 	//依靠前一场景传参,此次初始化仅设置位置及physicsBody
-	_hero = Hero::createWithSpriteFrameName("hero1.png");
+	_hero = Hero::createWithSpriteFrameName("hero1right.png");
 	_hero->setSpeed(500.0f);
 	_hero->setScale(0.3f, 0.3f);
 	initHero();
@@ -116,12 +116,38 @@ bool SecureMap::init()
 	/////////////////////////////
 	// 8. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
 	//
-	auto bloodBar = ui::LoadingBar::create("emptyblood.png");
+	
+	auto bloodBar = ui::Slider::create();
+	bloodBar->setEnabled(false);
+	bloodBar->loadBarTexture("emptybar.png");
+	bloodBar->loadProgressBarTexture("fullblood.png");
+	bloodBar->setPercent(100);
+	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
+	this->addChild(bloodBar, 200);
+
+	auto blueBar = ui::Slider::create();
+	blueBar->setEnabled(false);
+	blueBar->loadBarTexture("emptybar.png");
+	blueBar->loadProgressBarTexture("fullblue.png");
+	blueBar->setPercent(100);
+	blueBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height-blueBar->getContentSize().height/2-10));
+	this->addChild(blueBar, 200);
+	
+	auto shieldBar = ui::Slider::create();
+	shieldBar->setEnabled(false);
+	shieldBar->loadBarTexture("emptybar.png");
+	shieldBar->loadProgressBarTexture("fullshield.png");
+	shieldBar->setPercent(100);
+	shieldBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height -shieldBar->getContentSize().height/2 - 20));
+	this->addChild(shieldBar, 200);
+	
+	/*auto bloodBar = ui::LoadingBar::create("fullblood.png");
 	bloodBar->setDirection(ui::LoadingBar::Direction::RIGHT);
 	bloodBar->setPercent(1.0f);
 	//bloodBar->setPosition(Vec2(1024, 768));
 	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
-	this->addChild(bloodBar, 100);
+	this->addChild(bloodBar, 100);*/
+	
 	/////////////////////////////
 	// 9. 菜单初始化											hth
 	//
