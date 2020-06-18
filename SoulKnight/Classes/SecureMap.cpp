@@ -334,12 +334,20 @@ bool SecureMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_W:
+		if (velocity.y > 0)
+			_hero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_S:
-		_hero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+		if (velocity.y < 0)
+			_hero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
+		if (velocity.x < 0)
+			_hero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
-		_hero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+		if (velocity.x > 0)
+			_hero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
 		break;
 
 	case cocos2d::EventKeyboard::KeyCode::KEY_J:
