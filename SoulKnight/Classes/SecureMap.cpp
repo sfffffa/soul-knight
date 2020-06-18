@@ -1,6 +1,7 @@
 #include "SecureMap.h"
 #include "ui/CocosGUI.h"
-
+#include "AudioEngine.h"
+#include "SettingScene.h"
 USING_NS_CC;
 extern std::shared_ptr<Hero> globalHero;
 extern int globalCoin;
@@ -53,7 +54,16 @@ bool SecureMap::init()
 	//
 	auto spritecache = SpriteFrameCache::getInstance();
 	spritecache->addSpriteFramesWithFile("new.plist");
+    if (AudioEngine::getPlayingAudioCount())
+	{
+		AudioEngine::resume(0);
+	}
+	else
+	{
+		auto backgroundAudioID = AudioEngine::play2d("bgm2.mp3", true);
 
+	}
+	
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				hth
 	//
@@ -156,17 +166,16 @@ bool SecureMap::init()
 	shieldBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height - shieldBar->getContentSize().height / 2 - 20));
 	this->addChild(shieldBar, 200);
 
-	/*auto bloodBar = ui::LoadingBar::create("fullblood.png");
-	bloodBar->setDirection(ui::LoadingBar::Direction::RIGHT);
-	bloodBar->setPercent(1.0f);
-	//bloodBar->setPosition(Vec2(1024, 768));
-	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
-	this->addChild(bloodBar, 100);*/
+
 
 	/////////////////////////////
 	// 9. 菜单初始化											hth
 	//
-
+    auto pause = MenuItemLabel::create(Label::createWithTTF("pause", "fonts/Marker Felt.ttf", 48), CC_CALLBACK_1(SecureMap::pausemenu, this));
+	auto menu = Menu::createWithItem(pause);
+	menu->setPosition(Vec2(origin.x + visibleSize.width - pause->getContentSize().width / 2 - 20, origin.y + visibleSize.height - pause->getContentSize().height / 2));
+	this->addChild(menu, 300);
+	
 	/////////////////////////////
 	// 10 鼠标的监听										hth
 	//
@@ -417,4 +426,13 @@ bool SecureMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
 		return false;
 	}
 	//Hero和NPC
+}
+
+void SecureMap::pausemenu(cocos2d::Ref* pSender)
+{
+	AudioEngine::pause(0);
+	Director::getInstance()->pause();
+	Scene* settingScene = Setting::createScene();
+	Director::getInstance()->pushScene(settingScene);
+
 }

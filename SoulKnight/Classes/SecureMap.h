@@ -11,6 +11,8 @@ public:
 	static cocos2d::Scene* createScene();
 
 	virtual bool init();
+	
+	void pausemenu(cocos2d::Ref* pSender);//pause
 
 	// implement the "static create()" method manually
 	CREATE_FUNC(SecureMap);
