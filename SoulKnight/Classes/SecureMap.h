@@ -15,7 +15,8 @@
 #define MY_BULLET 0x04
 #define ENEMY_BULLET 0x08
 #define WALL 0x10
-#define NPC 0x20
+#define DOOR 0x20
+#define NPC 0x40
 
 class SecureMap : public cocos2d::Scene
 {
@@ -38,6 +39,9 @@ private:
 
 	//赋予hero PhysicsBody
 	void initHero();
+
+	//武器初始化
+	void initBullet(std::shared_ptr<Damage> bullet);
 
 	//场景物件初始化
 	void initWall(Sprite *wall);

@@ -162,6 +162,7 @@ bool SecureMap::init()
 
 Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 	auto npc = cocos2d::Sprite::createWithSpriteFrameName(spriteFrameName);
+	npc->setAnchorPoint(Vec2(0.5, 0.1));
 
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
 		npc->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
@@ -189,9 +190,23 @@ void SecureMap::initHero() {
 	physicsBody->setTag(HERO);
 	physicsBody->setCategoryBitmask(0x02);
 	physicsBody->setCollisionBitmask(0x07);
-	physicsBody->setContactTestBitmask(0x04);
+	physicsBody->setContactTestBitmask(0x14);
 
 	_hero->addComponent(physicsBody);
+}
+
+void SecureMap::initBullet(std::shared_ptr<Damage> bullet) {
+	auto physicsBody = PhysicsBody::createBox(
+		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(true);
+	physicsBody->setGravityEnable(false);
+	physicsBody->setRotationEnable(false);
+	physicsBody->setTag(MY_BULLET);
+	physicsBody->setCategoryBitmask(0x08);
+	physicsBody->setCollisionBitmask(0x00);
+	physicsBody->setContactTestBitmask(0x15);
+
+	bullet->addComponent(physicsBody);
 }
 
 void SecureMap::initWall(Sprite *wall) {
@@ -204,6 +219,18 @@ void SecureMap::initWall(Sprite *wall) {
 	physicsBody->setContactTestBitmask(0x08);
 
 	wall->addComponent(physicsBody);
+}
+
+void SecureMap::initDoor(Sprite *door) {
+	auto physicsBody = PhysicsBody::createBox(
+		door->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(DOOR);
+	physicsBody->setCategoryBitmask(0x10);
+	physicsBody->setCollisionBitmask(0x00);
+	physicsBody->setContactTestBitmask(0x02);
+
+	door->addComponent(physicsBody);
 }
 
 void SecureMap::initLayer() {
@@ -228,6 +255,12 @@ void SecureMap::initLayer() {
 		initWall(layer6->getTileAt(Vec2(2, i)));
 		initWall(layer6->getTileAt(Vec2(61, i)));
 	}
+	for (int i = 3; i < 12; ++i) {
+		initWall(layer6->getTileAt(Vec2(i, 4)));
+	}
+	for (int i = 53; i < 61; ++i) {
+		initWall(layer6->getTileAt(Vec2(i, 4)));
+	}
 
 	//bookshelf
 	auto layer7 = _tiledmap->getLayer("layer7");
@@ -251,9 +284,18 @@ void SecureMap::initLayer() {
 	initWall(layer9->getTileAt(Vec2(23, 4)));
 	initWall(layer9->getTileAt(Vec2(24, 4)));
 	initWall(layer9->getTileAt(Vec2(25, 4)));
+
+	//door
+	auto layer4 = _tiledmap->getLayer("layer4");
+	initDoor(layer4->getTileAt(Vec2(31, 3)));
+	initDoor(layer4->getTileAt(Vec2(32, 3)));
+	initDoor(layer4->getTileAt(Vec2(33, 3)));
 }
 
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
+	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1left.png");
+	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png");
+
 	switch (keyCode)
 	{
 	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
@@ -262,12 +304,14 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 		_hero->getPhysicsBody()->setVelocity(Vec2(0, _hero->getSpeed()));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
+		_hero->setSpriteFrame(heroLeft);
 		_hero->getPhysicsBody()->setVelocity(Vec2(-_hero->getSpeed(), 0));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_S:
 		_hero->getPhysicsBody()->setVelocity(Vec2(0, -_hero->getSpeed()));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
+		_hero->setSpriteFrame(heroRight);
 		_hero->getPhysicsBody()->setVelocity(Vec2(_hero->getSpeed(), 0));
 		break;
 
