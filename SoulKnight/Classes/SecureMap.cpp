@@ -78,6 +78,7 @@ bool SecureMap::init()
 	/////////////////////////////
 	// 5.1 地图瓦片初始化											hth、cyf
 	//
+	initLayer();
 
 	/////////////////////////////
 	// 5.2 地图中NPC，Hero初始化											hth、cyf
@@ -116,7 +117,7 @@ bool SecureMap::init()
 	/////////////////////////////
 	// 8. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
 	//
-	
+
 	auto bloodBar = ui::Slider::create();
 	bloodBar->setEnabled(false);
 	bloodBar->loadBarTexture("emptybar.png");
@@ -130,24 +131,24 @@ bool SecureMap::init()
 	blueBar->loadBarTexture("emptybar.png");
 	blueBar->loadProgressBarTexture("fullblue.png");
 	blueBar->setPercent(100);
-	blueBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height-blueBar->getContentSize().height/2-10));
+	blueBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height / 2 - 10));
 	this->addChild(blueBar, 200);
-	
+
 	auto shieldBar = ui::Slider::create();
 	shieldBar->setEnabled(false);
 	shieldBar->loadBarTexture("emptybar.png");
 	shieldBar->loadProgressBarTexture("fullshield.png");
 	shieldBar->setPercent(100);
-	shieldBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height -shieldBar->getContentSize().height/2 - 20));
+	shieldBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height - shieldBar->getContentSize().height / 2 - 20));
 	this->addChild(shieldBar, 200);
-	
+
 	/*auto bloodBar = ui::LoadingBar::create("fullblood.png");
 	bloodBar->setDirection(ui::LoadingBar::Direction::RIGHT);
 	bloodBar->setPercent(1.0f);
 	//bloodBar->setPosition(Vec2(1024, 768));
 	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
 	this->addChild(bloodBar, 100);*/
-	
+
 	/////////////////////////////
 	// 9. 菜单初始化											hth
 	//
@@ -177,14 +178,17 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 }
 
 void SecureMap::initHero() {
+	_hero->setAnchorPoint(Vec2(0.38, 0.1));
+
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
-		_hero->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+		Size(_hero->getContentSize().width, _hero->getContentSize().height / 5),
+		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.4f*_hero->getContentSize().height));
 	physicsBody->setDynamic(true);
 	physicsBody->setGravityEnable(false);
 	physicsBody->setRotationEnable(false);
 	physicsBody->setTag(HERO);
 	physicsBody->setCategoryBitmask(0x02);
-	physicsBody->setCollisionBitmask(0x06);
+	physicsBody->setCollisionBitmask(0x07);
 	physicsBody->setContactTestBitmask(0x04);
 
 	_hero->addComponent(physicsBody);
@@ -198,6 +202,55 @@ void SecureMap::initWall(Sprite *wall) {
 	physicsBody->setCategoryBitmask(0x01);
 	physicsBody->setCollisionBitmask(0x02);
 	physicsBody->setContactTestBitmask(0x08);
+
+	wall->addComponent(physicsBody);
+}
+
+void SecureMap::initLayer() {
+	//wall
+	auto layer2 = _tiledmap->getLayer("layer2");
+	for (int i = 3; i < 26; ++i) {
+		initWall(layer2->getTileAt(Vec2(1, i)));
+	}
+	for (int i = 1; i < 62; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 26)));
+	}
+	for (int i = 26; i > 3; --i) {
+		initWall(layer2->getTileAt(Vec2(62, i)));
+	}
+	for (int i = 62; i > 1; --i) {
+		initWall(layer2->getTileAt(Vec2(i, 3)));
+	}
+
+	//tree
+	auto layer6 = _tiledmap->getLayer("layer6");
+	for (int i = 4; i < 26; ++i) {
+		initWall(layer6->getTileAt(Vec2(2, i)));
+		initWall(layer6->getTileAt(Vec2(61, i)));
+	}
+
+	//bookshelf
+	auto layer7 = _tiledmap->getLayer("layer7");
+	for (int i = 42; i < 50; ++i) {
+		initWall(layer7->getTileAt(Vec2(i, 4)));
+	}
+	for (int i = 15; i < 23; ++i) {
+		initWall(layer7->getTileAt(Vec2(i, 4)));
+	}
+	auto layer8 = _tiledmap->getLayer("layer8");
+	initWall(layer8->getTileAt(Vec2(13, 4)));
+	initWall(layer8->getTileAt(Vec2(14, 4)));
+	initWall(layer8->getTileAt(Vec2(50, 4)));
+	initWall(layer8->getTileAt(Vec2(51, 4)));
+
+	//seat
+	auto layer9 = _tiledmap->getLayer("layer9");
+	initWall(layer9->getTileAt(Vec2(39, 4)));
+	initWall(layer9->getTileAt(Vec2(40, 4)));
+	initWall(layer9->getTileAt(Vec2(41, 4)));
+	initWall(layer9->getTileAt(Vec2(23, 4)));
+	initWall(layer9->getTileAt(Vec2(24, 4)));
+	initWall(layer9->getTileAt(Vec2(25, 4)));
 }
 
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {

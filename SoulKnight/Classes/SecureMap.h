@@ -41,6 +41,8 @@ private:
 
 	//场景物件初始化
 	void initWall(Sprite *wall);
+	void initDoor(Sprite *door);
+	void initLayer();
 
 	//键盘监听
 	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
