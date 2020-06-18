@@ -1,22 +1,7 @@
 #ifndef _SECURE_MAP_H_
 #define _SECURE_MAP_H_
 
-#include "cocos2d.h"
-#include "class/Item.h"
-#include "class/ElementalBullet.h"
-#include "class/CloseInWeapon.h"
-#include "class/RangedWeapon.h"
-#include "class/Boss.h"
-#include "class/Hero.h"
-#include <string>
-
-#define HERO 0x01
-#define ENEMY 0x02
-#define MY_BULLET 0x04
-#define ENEMY_BULLET 0x08
-#define WALL 0x10
-#define DOOR 0x20
-#define NPC 0x40
+#include "GlobalVariable.h"
 
 class SecureMap : public cocos2d::Scene
 {

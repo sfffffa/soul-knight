@@ -2,6 +2,8 @@
 #include "ui/CocosGUI.h"
 
 USING_NS_CC;
+extern std::shared_ptr<Hero> globalHero;
+extern int globalCoin;
 
 Scene* SecureMap::createScene()
 {
