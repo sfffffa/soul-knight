@@ -11,6 +11,8 @@
 #include "class/Boss.h"
 #include "class/Hero.h"
 
+
+
 #define HERO 0x01
 #define ENEMY 0x02
 #define MY_BULLET 0x04
@@ -28,6 +30,22 @@ public:
 	CREATE_FUNC(WildMap);
 
 private:
+	TMXTiledMap* _tiledmap;
+	std::shared_ptr<Hero> _hero;
+	//Vector<std::shared_ptr<Weapon>> weaponVec;
+
+	//赋予NPC图片及PhysicsBody
+	Sprite *initNPC(const std::string& spriteFrameName);
+
+	//赋予hero PhysicsBody
+	void initHero();
+
+	//场景物件初始化
+	void initWall(Sprite *wall);
+
+	//键盘监听
+	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
+	bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
 };
 
 #endif // __WILD_MAP_H__

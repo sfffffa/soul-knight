@@ -1,6 +1,8 @@
 #include "WildMap.h"
+#include <memory>
 
 USING_NS_CC;
+using namespace std;
 
 Scene* WildMap::createScene()
 {
@@ -32,23 +34,70 @@ bool WildMap::init()
 	//
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
+	Vec2 destination(origin.x + visibleSize.width, origin.y + visibleSize.height);
+
 
 	/////////////////////
 	// 1.3 资源加载											hth
 	//
+	auto spritecache = SpriteFrameCache::getInstance();
+	spritecache->addSpriteFramesWithFile("new.plist");
+	
+	
 
-	/////////////////////
+/////////////////////
 	// 1.3.1 武器库初始化（相应子弹初始化）					hth
 	//想法大概是在一个vector<std::shared_ptr<Weapon>>里提前初始化好所有武器，以供小怪爆武器时直接复制Weapon
+	auto gun1left = RangedWeapon::createWithSpriteFrameName("gun1left.png");
+	auto gun1right = RangedWeapon::createWithSpriteFrameName("gun1right.png");
+	auto gun2left = RangedWeapon::createWithSpriteFrameName("gun2left.png");
+	auto gun2right = RangedWeapon::createWithSpriteFrameName("gun2right.png");
+	auto gun3left = RangedWeapon::createWithSpriteFrameName("gun3left.png");
+	auto gun3right = RangedWeapon::createWithSpriteFrameName("gun3right.png");
+	auto swordleft = CloseInWeapon::createWithSpriteFrameName("swordleft.png");
+	auto swordright = CloseInWeapon::createWithSpriteFrameName("swordright.png");
+	auto blade1left = CloseInWeapon::createWithSpriteFrameName("blade1left.png");
+	auto blade1right = CloseInWeapon::createWithSpriteFrameName("blade1right.png");
+	auto meteorhammerleft = CloseInWeapon::createWithSpriteFrameName("meteorhammerleft.png");
+	auto meteorhammerright = CloseInWeapon::createWithSpriteFrameName("meteorhammerright.png");
+	auto wandleft = RangedWeapon::createWithSpriteFrameName("wandleft.png");
+	auto wandright = RangedWeapon::createWithSpriteFrameName("wandright.png");
+	
+	auto bulletleft = Bullet::createWithSpriteFrameName("bulletleft.png");
+	auto bulletright = Bullet::createWithSpriteFrameName("bulletright.png");
+	auto elementalbulletleft = Bullet::createWithSpriteFrameName("bluefireleft.png");
+	auto elementalbulletright = Bullet::createWithSpriteFrameName("bluefireright.png");
+	/*weaponVec.push_back(gun1left);
+	weaponVec.push_back(gun1right);
+	weaponVec.push_back(gun2left);
+	weaponVec.push_back(gun2right);
+	weaponVec.push_back(gun3left);
+	weaponVec.push_back(gun3right);
+	weaponVec.push_back(swordleft);
+	weaponVec.push_back(swordright);
+	weaponVec.push_back(blade1left);
+	weaponVec.push_back(blade1right);
+	weaponVec.push_back(wandleft);
+	weaponVec.push_back(wandright);
+	weaponVec.push_back(meteorhammerleft);
+	weaponVec.push_back(meteorhammerright);*/
+
+
+
 
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				hth
 	//
-
+	auto background = DrawNode::create();
+	background->drawSolidRect(origin, destination, cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
+	this->addChild(background, -10);
 	/////////////////////////////
 	// 3. 地图初始化											hth、cyf
 	//
-
+	_tiledmap = TMXTiledMap::create("map1.tmx");
+	_tiledmap->setAnchorPoint(Vec2(0,1));
+	_tiledmap->setPosition(Vec2(origin.x+320, origin.y+visibleSize.height-70 ));
+	this->addChild(_tiledmap, -1);
 	/////////////////////////////
 	// 4. 小怪（及Boss）初始化								xyc
 	//……
