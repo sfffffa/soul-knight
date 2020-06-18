@@ -35,6 +35,13 @@ bool SecureMap::init()
 	}
 
 	/////////////////////
+	// 1.2 成员初始化
+	//
+	interactStatus.door = 0;
+	interactStatus.hunter = 0;
+	interactStatus.oldMan = 0;
+
+	/////////////////////
 	// 1.2 基础信息提取
 	//
 	auto visibleSize = Director::getInstance()->getVisibleSize();
@@ -112,9 +119,14 @@ bool SecureMap::init()
 	keyBoardListener->onKeyPressed = CC_CALLBACK_2(SecureMap::onKeyPressed, this);
 	keyBoardListener->onKeyReleased = CC_CALLBACK_2(SecureMap::onKeyReleased, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyBoardListener, _tiledmap);
+
 	/////////////////////
 	// 7 碰撞检测（NPC与Hero对话）（子弹与NPC）（子弹与墙体）	cyf
 	//
+	auto contactListener = EventListenerPhysicsContact::create();
+	contactListener->onContactBegin = CC_CALLBACK_1(SecureMap::onContactBegin, this);
+	contactListener->onContactSeparate = CC_CALLBACK_1(SecureMap::onContactSeparate, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, _tiledmap);
 
 	/////////////////////////////
 	// 8. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
@@ -329,11 +341,21 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	return true;
 }
 
+void SecureMap::interact() {
+	if (interactStatus.door) {
+		_hero->removeFromParentAndCleanup(false);
+		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, WildMap::createScene()));
+		return;
+	}
+	//NPC交互
+}
+
 bool SecureMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
 	Vec2 velocity = _hero->getPhysicsBody()->getVelocity();
 	switch (keyCode)
 	{
 	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
+		interact();
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_W:
 		if (velocity.y > 0)
@@ -362,4 +384,37 @@ bool SecureMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
 		break;
 	}
 	return true;
+}
+
+bool SecureMap::onContactBegin(cocos2d::PhysicsContact& contact) {
+	auto bodyA = contact.getShapeA()->getBody();
+	auto bodyB = contact.getShapeB()->getBody();
+	//子弹和其他
+	if (bodyA->getTag()&MY_BULLET) {
+		bodyA->getNode()->removeFromParentAndCleanup(true);
+		return true;
+	}
+	if (bodyB->getTag()&MY_BULLET) {
+		bodyB->getNode()->removeFromParentAndCleanup(true);
+		return true;
+	}
+	//Hero和门
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&DOOR) ||
+		(bodyA->getTag()&DOOR && bodyB->getTag()&HERO)) {
+		interactStatus.door = 1;
+		return false;
+	}
+	//Hero与Npc
+}
+
+bool SecureMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
+	auto bodyA = contact.getShapeA()->getBody();
+	auto bodyB = contact.getShapeB()->getBody();
+	//Hero和门
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&DOOR) ||
+		(bodyA->getTag()&DOOR && bodyB->getTag()&HERO)) {
+		interactStatus.door = 0;
+		return false;
+	}
+	//Hero和NPC
 }

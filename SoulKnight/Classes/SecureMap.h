@@ -2,6 +2,7 @@
 #define _SECURE_MAP_H_
 
 #include "GlobalVariable.h"
+#include "WildMap.h"
 
 class SecureMap : public cocos2d::Scene
 {
@@ -18,6 +19,12 @@ private:
 
 	TMXTiledMap* _tiledmap;
 	std::shared_ptr<Hero> _hero;
+	struct {
+		unsigned int door : 1;
+		unsigned int oldMan : 1;
+		unsigned int hunter : 1;
+		unsigned int : 1;
+	} interactStatus;
 
 	//¸³ÓèNPCÍ¼Æ¬¼°PhysicsBody
 	Sprite *initNPC(const std::string& spriteFrameName);
@@ -36,6 +43,13 @@ private:
 	//¼üÅÌ¼àÌý
 	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
 	bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
+
+	//Åö×²¼ì²â
+	bool onContactBegin(cocos2d::PhysicsContact& contact);
+	bool onContactSeparate(cocos2d::PhysicsContact& contact);
+
+	//½»»¥
+	void interact();
 };
 
 #endif // _SECURE_MAP_H_#pragma once
