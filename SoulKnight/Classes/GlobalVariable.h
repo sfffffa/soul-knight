@@ -11,13 +11,16 @@
 #include <string>
 #include <vector>
 
-#define HERO 0x01
-#define ENEMY 0x02
-#define MY_BULLET 0x04
-#define ENEMY_BULLET 0x08
-#define WALL 0x10
-#define DOOR 0x20
-#define NPC 0x40
+#define HERO 0x0001
+#define ENEMY 0x0002
+#define MY_BULLET 0x0004
+#define ENEMY_BULLET 0x0008
+#define WALL 0x0010
+#define DOOR 0x0020
+#define BOX 0x0040
+#define NPC 0x0180
+#define SPEEDNPC 0x0080
+#define ASPDNPC 0x0100
 
 extern std::shared_ptr<Hero> globalHero;
 extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
