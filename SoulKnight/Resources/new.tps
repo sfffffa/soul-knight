@@ -187,6 +187,51 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../../../../Desktop/元气骑士/素材/interact.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>95,93,189,186</rect>
+                <key>scale9Paddings</key>
+                <rect>95,93,189,186</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../../Desktop/元气骑士/素材/interact1.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>81,84,161,167</rect>
+                <key>scale9Paddings</key>
+                <rect>81,84,161,167</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../../Desktop/元气骑士/素材/skill.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>52,52,103,103</rect>
+                <key>scale9Paddings</key>
+                <rect>52,52,103,103</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../../Desktop/元气骑士/素材镜像/bigblue.png</key>
             <key type="filename">../../../../Desktop/元气骑士/素材镜像/bigred.png</key>
             <struct type="IndividualSpriteSettings">
@@ -728,6 +773,9 @@
             <filename>../../../../Desktop/元气骑士/素材镜像/wandleft.png</filename>
             <filename>../../../../Desktop/元气骑士/素材镜像/wandright.png</filename>
             <filename>../../../../Desktop/元气骑士/素材镜像/fullshield.png</filename>
+            <filename>../../../../Desktop/元气骑士/素材/interact.png</filename>
+            <filename>../../../../Desktop/元气骑士/素材/interact1.png</filename>
+            <filename>../../../../Desktop/元气骑士/素材/skill.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
