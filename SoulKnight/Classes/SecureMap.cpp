@@ -54,16 +54,15 @@ bool SecureMap::init()
 	//
 	auto spritecache = SpriteFrameCache::getInstance();
 	spritecache->addSpriteFramesWithFile("new.plist");
-    if (AudioEngine::getPlayingAudioCount())
+	if (AudioEngine::getPlayingAudioCount())
 	{
 		AudioEngine::resume(0);
 	}
 	else
 	{
 		auto backgroundAudioID = AudioEngine::play2d("bgm2.mp3", true);
-
 	}
-	
+
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				hth
 	//
@@ -166,16 +165,14 @@ bool SecureMap::init()
 	shieldBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height - shieldBar->getContentSize().height / 2 - 20));
 	this->addChild(shieldBar, 200);
 
-
-
 	/////////////////////////////
 	// 9. 菜单初始化											hth
 	//
-    auto pause = MenuItemLabel::create(Label::createWithTTF("pause", "fonts/Marker Felt.ttf", 48), CC_CALLBACK_1(SecureMap::pausemenu, this));
+	auto pause = MenuItemLabel::create(Label::createWithTTF("pause", "fonts/Marker Felt.ttf", 48), CC_CALLBACK_1(SecureMap::pausemenu, this));
 	auto menu = Menu::createWithItem(pause);
 	menu->setPosition(Vec2(origin.x + visibleSize.width - pause->getContentSize().width / 2 - 20, origin.y + visibleSize.height - pause->getContentSize().height / 2));
 	this->addChild(menu, 300);
-	
+
 	/////////////////////////////
 	// 10 鼠标的监听										hth
 	//
@@ -212,7 +209,7 @@ void SecureMap::initHero() {
 	physicsBody->setRotationEnable(false);
 	physicsBody->setTag(HERO);
 	physicsBody->setCategoryBitmask(0x02);
-	physicsBody->setCollisionBitmask(0x07);
+	physicsBody->setCollisionBitmask(0x05);
 	physicsBody->setContactTestBitmask(0x14);
 
 	_hero->addComponent(physicsBody);
@@ -414,6 +411,7 @@ bool SecureMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 		return false;
 	}
 	//Hero与Npc
+	return true;
 }
 
 bool SecureMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
@@ -434,5 +432,4 @@ void SecureMap::pausemenu(cocos2d::Ref* pSender)
 	Director::getInstance()->pause();
 	Scene* settingScene = Setting::createScene();
 	Director::getInstance()->pushScene(settingScene);
-
 }
