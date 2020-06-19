@@ -2,6 +2,8 @@
 #include "ui/CocosGUI.h"
 #include "AudioEngine.h"
 #include "SettingScene.h"
+#include "WildMap.h"
+
 USING_NS_CC;
 extern std::shared_ptr<Hero> globalHero;
 extern int globalCoin;
@@ -74,13 +76,16 @@ bool SecureMap::init()
 	// 3. NPC初始化（addNPC函数）								hth、cyf
 	//
 	auto hunter = initNPC("hunter.png");
+	hunter->getPhysicsBody()->setTag(ASPDNPC);
 	auto oldMan = initNPC("oldman.png");
+	oldMan->getPhysicsBody()->setTag(SPEEDNPC);
 
 	/////////////////////////////
 	//  4. hero 初始化										cyf
 	//
 	//依靠前一场景传参,此次初始化仅设置位置及physicsBody
 	_hero = Hero::createWithSpriteFrameName("hero1right.png");
+	globalHero = _hero;
 	_hero->setSpeed(500.0f);
 	_hero->setScale(0.3f, 0.3f);
 	initHero();
@@ -187,10 +192,9 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
 		npc->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
-	physicsBody->setTag(NPC);
-	physicsBody->setCategoryBitmask(0x04);
-	physicsBody->setCollisionBitmask(0x02);
-	physicsBody->setContactTestBitmask(0x0A);
+	physicsBody->setCategoryBitmask(NPC);
+	physicsBody->setCollisionBitmask(HERO);
+	physicsBody->setContactTestBitmask(HERO | MY_BULLET);
 
 	npc->addComponent(physicsBody);
 
@@ -208,9 +212,9 @@ void SecureMap::initHero() {
 	physicsBody->setGravityEnable(false);
 	physicsBody->setRotationEnable(false);
 	physicsBody->setTag(HERO);
-	physicsBody->setCategoryBitmask(0x02);
-	physicsBody->setCollisionBitmask(0x05);
-	physicsBody->setContactTestBitmask(0x14);
+	physicsBody->setCategoryBitmask(HERO);
+	physicsBody->setCollisionBitmask(WALL | NPC);
+	physicsBody->setContactTestBitmask(DOOR | NPC);
 
 	_hero->addComponent(physicsBody);
 }
@@ -222,9 +226,9 @@ void SecureMap::initBullet(std::shared_ptr<Damage> bullet) {
 	physicsBody->setGravityEnable(false);
 	physicsBody->setRotationEnable(false);
 	physicsBody->setTag(MY_BULLET);
-	physicsBody->setCategoryBitmask(0x08);
+	physicsBody->setCategoryBitmask(MY_BULLET);
 	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(0x15);
+	physicsBody->setContactTestBitmask(DOOR | NPC | WALL);
 
 	bullet->addComponent(physicsBody);
 }
@@ -234,9 +238,9 @@ void SecureMap::initWall(Sprite *wall) {
 		wall->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(WALL);
-	physicsBody->setCategoryBitmask(0x01);
-	physicsBody->setCollisionBitmask(0x02);
-	physicsBody->setContactTestBitmask(0x08);
+	physicsBody->setCategoryBitmask(WALL);
+	physicsBody->setCollisionBitmask(HERO);
+	physicsBody->setContactTestBitmask(MY_BULLET);
 
 	wall->addComponent(physicsBody);
 }
@@ -246,9 +250,9 @@ void SecureMap::initDoor(Sprite *door) {
 		door->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(DOOR);
-	physicsBody->setCategoryBitmask(0x10);
+	physicsBody->setCategoryBitmask(DOOR);
 	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(0x02);
+	physicsBody->setContactTestBitmask(HERO);
 
 	door->addComponent(physicsBody);
 }

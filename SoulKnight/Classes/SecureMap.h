@@ -2,7 +2,6 @@
 #define _SECURE_MAP_H_
 
 #include "GlobalVariable.h"
-#include "WildMap.h"
 
 class SecureMap : public cocos2d::Scene
 {
@@ -11,7 +10,7 @@ public:
 	static cocos2d::Scene* createScene();
 
 	virtual bool init();
-	
+
 	void pausemenu(cocos2d::Ref* pSender);//pause
 
 	// implement the "static create()" method manually

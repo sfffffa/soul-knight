@@ -1,23 +1,7 @@
 #ifndef __WILD_MAP_H__
 #define __WILD_MAP_H__
 
-#include "cocos2d.h"
-#include "class/LimitedAttribute.h"
-#include "class/AttributeChanger.h"
-#include "class/Item.h"
-#include "class/ElementalBullet.h"
-#include "class/CloseInWeapon.h"
-#include "class/RangedWeapon.h"
-#include "class/Boss.h"
-#include "class/Hero.h"
-
-
-
-#define HERO 0x01
-#define ENEMY 0x02
-#define MY_BULLET 0x04
-#define ENEMY_BULLET 0x08
-#define NPC 0x10
+#include "GlobalVariable.h"
 
 class WildMap : public cocos2d::Scene
 {
@@ -34,18 +18,24 @@ private:
 	std::shared_ptr<Hero> _hero;
 	//Vector<std::shared_ptr<Weapon>> weaponVec;
 
-	//¸³ÓèNPCÍ¼Æ¬¼°PhysicsBody
-	Sprite *initNPC(const std::string& spriteFrameName);
-
-	//¸³Óèhero PhysicsBody
-	void initHero();
+	//×Óµ¯³õÊ¼»¯
+	void initBullet(std::shared_ptr<Damage> bullet);
 
 	//³¡¾°Îï¼þ³õÊ¼»¯
 	void initWall(Sprite *wall);
+	void initDoor(Sprite *door);
+	void initLayer();
 
 	//¼üÅÌ¼àÌý
 	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
 	bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
+
+	//Åö×²¼ì²â
+	bool onContactBegin(cocos2d::PhysicsContact& contact);
+	bool onContactSeparate(cocos2d::PhysicsContact& contact);
+
+	//½»»¥
+	void interact();
 };
 
 #endif // __WILD_MAP_H__
