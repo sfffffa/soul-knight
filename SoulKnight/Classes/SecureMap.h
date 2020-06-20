@@ -2,6 +2,7 @@
 #define _SECURE_MAP_H_
 
 #include "GlobalVariable.h"
+#include <map>
 
 class SecureMap : public cocos2d::Scene
 {
@@ -19,13 +20,14 @@ public:
 private:
 
 	TMXTiledMap* _tiledmap;
-	std::shared_ptr<Hero> _hero;
 	struct {
 		unsigned int door : 1;
 		unsigned int oldMan : 1;
 		unsigned int hunter : 1;
 		unsigned int : 1;
 	} interactStatus;
+	std::map<int, std::shared_ptr<Damage>> bulletManagement;
+	int bulletIndex;
 
 	//∏≥”ËNPCÕº∆¨º∞PhysicsBody
 	Sprite *initNPC(const std::string& spriteFrameName);

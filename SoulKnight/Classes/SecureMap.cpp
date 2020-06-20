@@ -43,6 +43,7 @@ bool SecureMap::init()
 	interactStatus.door = 0;
 	interactStatus.hunter = 0;
 	interactStatus.oldMan = 0;
+	bulletIndex = 0;
 
 	/////////////////////
 	// 1.2 基础信息提取
@@ -84,10 +85,9 @@ bool SecureMap::init()
 	//  4. hero 初始化										cyf
 	//
 	//依靠前一场景传参,此次初始化仅设置位置及physicsBody
-	_hero = Hero::createWithSpriteFrameName("hero1right.png");
-	globalHero = _hero;
-	_hero->setSpeed(500.0f);
-	_hero->setScale(0.3f, 0.3f);
+	globalHero = Hero::createWithSpriteFrameName("hero1right.png");
+	globalHero->setSpeed(500.0f);
+	globalHero->setScale(0.3f, 0.3f);
 	initHero();
 
 	/////////////////////////////
@@ -118,13 +118,13 @@ bool SecureMap::init()
 	float oldmanX = oldmanBornPlace["x"].asFloat();
 	float oldmanY = oldmanBornPlace["y"].asFloat();
 
-	_hero->setPosition(Vec2(bornX, bornY));
+	globalHero->setPosition(Vec2(bornX, bornY));
 	hunter->setPosition(Vec2(hunterX, hunterY));
 	oldMan->setPosition(Vec2(oldmanX, oldmanY));
 
 	_tiledmap->addChild(hunter, 11);
 	_tiledmap->addChild(oldMan, 20);
-	_tiledmap->addChild(_hero.get(), 30);
+	_tiledmap->addChild(globalHero.get(), 30);
 
 	/////////////////////
 	// 6 键盘监听														cyf
@@ -203,11 +203,11 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 }
 
 void SecureMap::initHero() {
-	_hero->setAnchorPoint(Vec2(0.38, 0.1));
+	globalHero->setAnchorPoint(Vec2(0.38, 0.1));
 
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
-		Size(_hero->getContentSize().width, _hero->getContentSize().height * 2 / 5),
-		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*_hero->getContentSize().height));
+		Size(globalHero->getContentSize().width, globalHero->getContentSize().height * 2 / 5),
+		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*globalHero->getContentSize().height));
 	physicsBody->setDynamic(true);
 	physicsBody->setGravityEnable(false);
 	physicsBody->setRotationEnable(false);
@@ -216,21 +216,25 @@ void SecureMap::initHero() {
 	physicsBody->setCollisionBitmask(WALL | NPC);
 	physicsBody->setContactTestBitmask(DOOR | NPC);
 
-	_hero->addComponent(physicsBody);
+	globalHero->addComponent(physicsBody);
 }
 
 void SecureMap::initBullet(std::shared_ptr<Damage> bullet) {
 	auto physicsBody = PhysicsBody::createBox(
 		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(true);
-	physicsBody->setGravityEnable(false);
-	physicsBody->setRotationEnable(false);
+	physicsBody->setDynamic(false);
+	//physicsBody->setGravityEnable(false);
+	//physicsBody->setRotationEnable(false);
 	physicsBody->setTag(MY_BULLET);
 	physicsBody->setCategoryBitmask(MY_BULLET);
 	physicsBody->setCollisionBitmask(0x00);
 	physicsBody->setContactTestBitmask(DOOR | NPC | WALL);
 
 	bullet->addComponent(physicsBody);
+
+	bullet->setTag(++bulletIndex);
+	bulletManagement[bullet->getTag()] = bullet;
+	bullet->setPosition(globalHero->getPosition());
 }
 
 void SecureMap::initWall(Sprite *wall) {
@@ -328,18 +332,24 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_W:
-		_hero->getPhysicsBody()->setVelocity(Vec2(0, _hero->getSpeed()));
+		globalHero->getPhysicsBody()->setVelocity(Vec2(0, globalHero->getSpeed()));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
-		_hero->setSpriteFrame(heroLeft);
-		_hero->getPhysicsBody()->setVelocity(Vec2(-_hero->getSpeed(), 0));
+		if (!globalHero->isTowardLeft()) {
+			globalHero->setSpriteFrame(heroLeft);
+			globalHero->setToward(true);
+		}
+		globalHero->getPhysicsBody()->setVelocity(Vec2(-globalHero->getSpeed(), 0));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_S:
-		_hero->getPhysicsBody()->setVelocity(Vec2(0, -_hero->getSpeed()));
+		globalHero->getPhysicsBody()->setVelocity(Vec2(0, -globalHero->getSpeed()));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
-		_hero->setSpriteFrame(heroRight);
-		_hero->getPhysicsBody()->setVelocity(Vec2(_hero->getSpeed(), 0));
+		if (globalHero->isTowardLeft()) {
+			globalHero->setSpriteFrame(heroRight);
+			globalHero->setToward(false);
+		}
+		globalHero->getPhysicsBody()->setVelocity(Vec2(globalHero->getSpeed(), 0));
 		break;
 
 	case cocos2d::EventKeyboard::KeyCode::KEY_J:
@@ -354,17 +364,8 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	return true;
 }
 
-void SecureMap::interact() {
-	if (interactStatus.door) {
-		_hero->removeFromParentAndCleanup(false);
-		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, WildMap::createScene()));
-		return;
-	}
-	//NPC交互
-}
-
 bool SecureMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
-	Vec2 velocity = _hero->getPhysicsBody()->getVelocity();
+	Vec2 velocity = globalHero->getPhysicsBody()->getVelocity();
 	switch (keyCode)
 	{
 	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
@@ -372,19 +373,19 @@ bool SecureMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_W:
 		if (velocity.y > 0)
-			_hero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+			globalHero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_S:
 		if (velocity.y < 0)
-			_hero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+			globalHero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
 		if (velocity.x < 0)
-			_hero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+			globalHero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
 		if (velocity.x > 0)
-			_hero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+			globalHero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
 		break;
 
 	case cocos2d::EventKeyboard::KeyCode::KEY_J:
@@ -439,4 +440,26 @@ void SecureMap::pausemenu(cocos2d::Ref* pSender)
 	Director::getInstance()->pause();
 	Scene* settingScene = Setting::createScene();
 	Director::getInstance()->pushScene(settingScene);
+}
+
+void SecureMap::interact() {
+	if (interactStatus.door) {
+		globalHero->removeFromParentAndCleanup(false);
+		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, WildMap::createScene()));
+		return;
+	}
+	//NPC交互
+}
+
+void SecureMap::shoot() {
+	if (!globalHero->shoot()) {
+		return;
+	}
+	auto haveBullet = globalHero->getWeaponInstance()->getBulletInstance();
+	if (!haveBullet) {//近战
+	}
+	else {//远程
+		auto bullet = static_cast<std::shared_ptr<Damage>>(haveBullet->clone(false));
+		initBullet(bullet);
+	}
 }
