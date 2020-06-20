@@ -2,6 +2,7 @@
 #define _ELEMENTAL_BULLET_
 
 #include "Bullet.h"
+#include <new>
 
 class ElementalBullet :public Bullet {
 public:
@@ -16,17 +17,16 @@ public:
 	static std::shared_ptr<ElementalBullet> createWithSpriteFrameName(const std::string &spriteFrameName,
 		int damage = 0, float speed = 0.0f, bool crit = false, Element element = ICE);
 
-	virtual void setElement(Element element) { _element->setValue(element); }
+	virtual void setElement(Element element) { *_element = element; }
 
-	virtual Element getElement()const { return _element->getValue(); }
+	virtual Element getElement()const { return *_element; }
 
-	virtual std::shared_ptr<Attribute<Element>> getElementInstance()const { return _element; }
+	ElementalBullet *clone(bool crit)const override;
 
-	ElementalBullet *clone()const override;
-
-protected:
 	//destructor
 	virtual ~ElementalBullet() = default;
+
+protected:
 
 	bool init(
 		int damage, float speed, bool crit, Element element);
@@ -37,7 +37,7 @@ protected:
 	bool initWithSpriteFrameName(const std::string &spriteFrameName,
 		int damage, float speed, bool crit, Element element);
 
-	std::shared_ptr<Attribute<Element>> _element;//ÔªËØ
+	std::shared_ptr<Element> _element;//ÔªËØ
 
 private:
 

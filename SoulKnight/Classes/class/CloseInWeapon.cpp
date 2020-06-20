@@ -1,7 +1,7 @@
 #include "CloseInWeapon.h"
 
 inline bool CloseInWeapon::initMember(int damage, float rang) {
-	auto ranTemp = Attribute<float>::createWithValue(rang);
+	auto ranTemp = std::make_shared<float>(rang);
 	if (!ranTemp) {
 		return false;
 	}
@@ -9,7 +9,7 @@ inline bool CloseInWeapon::initMember(int damage, float rang) {
 		_range = ranTemp;
 	}
 
-	auto damTemp = Attribute<int>::createWithValue(damage);
+	auto damTemp = std::make_shared<int>(damage);
 	if (!damTemp) {
 		return false;
 	}
@@ -30,22 +30,21 @@ bool CloseInWeapon::init(
 }
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::create(
-	int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f) {
-	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
+	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
+	auto temp = std::make_shared<CloseInWeapon>();
 
 	if (temp && temp->init(MPconsume, damage, rang, aspd, critRate, critMultiple)) {
-		return std::shared_ptr<CloseInWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<CloseInWeapon>(nullptr);
 	}
 }
 
 bool CloseInWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
-	if (!Weapon::initWithSpriteFrame(spriteFrame, MPconsume, aspd, critRate, critMultiple) || !initMember(damage, rang)) {
+	if (!Weapon::initWithSpriteFrame(spriteFrame, MPconsume, aspd, critRate, critMultiple)
+		|| !initMember(damage, rang)) {
 		return false;
 	}
 
@@ -53,22 +52,21 @@ bool CloseInWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f) {
-	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
+	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
+	auto temp = std::make_shared<CloseInWeapon>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, MPconsume, damage, rang, aspd, critRate, critMultiple)) {
-		return std::shared_ptr<CloseInWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<CloseInWeapon>(nullptr);
 	}
 }
 
 bool CloseInWeapon::initWithSpriteFrameName(const std::string &spriteFrameName,
 	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
-	if (!Weapon::initWithSpriteFrameName(spriteFrameName, MPconsume, aspd, critRate, critMultiple) || !initMember(damage, rang)) {
+	if (!Weapon::initWithSpriteFrameName(spriteFrameName, MPconsume, aspd, critRate, critMultiple)
+		|| !initMember(damage, rang)) {
 		return false;
 	}
 
@@ -76,15 +74,13 @@ bool CloseInWeapon::initWithSpriteFrameName(const std::string &spriteFrameName,
 }
 
 std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrameName(const std::string &spriteFrameName,
-	int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f) {
-	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
+	int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple) {
+	auto temp = std::make_shared<CloseInWeapon>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, MPconsume, damage, rang, aspd, critRate, critMultiple)) {
-		return std::shared_ptr<CloseInWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<CloseInWeapon>(nullptr);
 	}
 }
@@ -92,8 +88,14 @@ std::shared_ptr<CloseInWeapon> CloseInWeapon::createWithSpriteFrameName(const st
 CloseInWeapon *CloseInWeapon::clone()const {
 	CloseInWeapon *temp = new(std::nothrow) CloseInWeapon();
 
-	if (temp && temp->initWithSpriteFrame(this->getSpriteFrame(),
-		_MPconsume->getValue(), _damage->getValue(), _range->getValue(), _aspd->getValue(), _critRate->getValue(), _critMultiple->getValue())) {
+	if (temp) {
+		temp->setSpriteFrame(this->getSpriteFrame());
+		temp->_MPconsume = _MPconsume;
+		temp->_damage = _damage;
+		temp->_range = _range;
+		temp->_aspd = _aspd;
+		temp->_critRate = _critRate;
+		temp->_critMultiple = _critMultiple;
 		return temp;
 	}
 	else {
@@ -101,8 +103,4 @@ CloseInWeapon *CloseInWeapon::clone()const {
 		temp = nullptr;
 		return nullptr;
 	}
-}
-
-void CloseInWeapon::use() {
-	//create
 }

@@ -3,23 +3,25 @@
 
 #include <memory>
 #include <new>
+#include "cocos2d.h"
 
 template<typename T>
-class Attribute {
+class Attribute :public cocos2d::Ref {
 	friend class AttributeChanger;
 
 public:
 	//create
-	static std::shared_ptr<Attribute> createWithValue(T value) {
+	static Attribute *createWithValue(T value) {
 		Attribute *temp = new(std::nothrow) Attribute();
 
 		if (temp && temp->initMember(value)) {
-			return std::shared_ptr<Attribute>(temp);
+			temp->autorelease();
+			return temp;
 		}
 		else {
 			delete temp;
 			temp = nullptr;
-			return std::shared_ptr<Attribute>(nullptr);
+			return nullptr;
 		}
 	}
 
@@ -33,11 +35,11 @@ protected:
 	//destructor
 	virtual ~Attribute() = default;
 
-	virtual Attribute &operator=(T value) { _value = value; return *this }
-	virtual Attribute &operator+=(T value) { _value += value; return *this }
+	/*virtual Attribute &operator=(T value) { _value = value; return *this; }
+	virtual Attribute &operator+=(T value) { _value += value; return *this; }
 	virtual void operator+(T value) { *this + value; }
-	virtual Attribute &operator*=(T fold) { _value *= value; return *this }
-	virtual void operator*(T fold) { *this * fold; }
+	virtual Attribute &operator*=(T fold) { _value *= fold; return *this; }
+	virtual void operator*(T fold) { *this * fold; }*/
 
 	T _value;//µ±Ç°Öµ
 

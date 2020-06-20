@@ -1,7 +1,7 @@
 #include "Bullet.h"
 
 inline bool Bullet::initMember(float speed) {
-	auto spe = Attribute<float>::createWithValue(speed);
+	auto spe = std::make_shared<float>(speed);
 	if (!spe) {
 		return false;
 	}
@@ -22,15 +22,13 @@ bool Bullet::init(
 }
 
 std::shared_ptr<Bullet> Bullet::create(
-	int damage = 0, float speed = 0.0f, bool crit = false) {
-	Bullet *temp = new(std::nothrow) Bullet();
+	int damage, float speed, bool crit) {
+	auto temp = std::make_shared<Bullet>();
 
 	if (temp && temp->init(damage, speed, crit)) {
-		return std::shared_ptr<Bullet>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Bullet>(nullptr);
 	}
 }
@@ -45,15 +43,13 @@ bool Bullet::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<Bullet> Bullet::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int damage = 0, float speed = 0.0f, bool crit = false) {
-	Bullet *temp = new(std::nothrow) Bullet();
+	int damage, float speed, bool crit) {
+	auto temp = std::make_shared<Bullet>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, damage, speed, crit)) {
-		return std::shared_ptr<Bullet>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Bullet>(nullptr);
 	}
 }
@@ -68,24 +64,25 @@ bool Bullet::initWithSpriteFrameName(const std::string &spriteFrameName,
 }
 
 std::shared_ptr<Bullet> Bullet::createWithSpriteFrameName(const std::string &spriteFrameName,
-	int damage = 0, float speed = 0.0f, bool crit = false) {
-	Bullet *temp = new(std::nothrow) Bullet();
+	int damage, float speed, bool crit) {
+	auto temp = std::make_shared<Bullet>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, damage, speed, crit)) {
-		return std::shared_ptr<Bullet>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Bullet>(nullptr);
 	}
 }
 
-Bullet *Bullet::clone()const {
+Bullet *Bullet::clone(bool crit)const {
 	Bullet *temp = new(std::nothrow) Bullet();
 
-	if (temp && temp->initWithSpriteFrame(this->getSpriteFrame(),
-		_damage->getValue(), _speed->getValue(), _crit)) {
+	if (temp) {
+		temp->setSpriteFrame(this->getSpriteFrame());
+		temp->_damage = _damage;
+		temp->_speed = _speed;
+		temp->_crit = crit;
 		return temp;
 	}
 	else {

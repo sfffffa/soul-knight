@@ -2,6 +2,7 @@
 #define _BULLET_
 
 #include "Damage.h"
+#include <new>
 
 class Bullet :public Damage {
 public:
@@ -14,17 +15,15 @@ public:
 	static std::shared_ptr<Bullet> createWithSpriteFrameName(const std::string &spriteFrameName,
 		int damage = 0, float speed = 0.0f, bool crit = false);
 
-	virtual void setSpeed(float speed) { _speed->setValue(speed); }
+	virtual void setSpeed(float speed) { *_speed = speed; }
 
-	virtual float getSpeed()const { return _speed->getValue(); }
+	virtual float getSpeed()const { return *_speed; }
 
-	virtual std::shared_ptr<Attribute<float>> getSpeedInstance()const { return _speed; }
+	Bullet *clone(bool crit)const override;
 
-	Bullet *clone()const override;
-
-protected:
 	//destructor
 	virtual ~Bullet() = default;
+protected:
 
 	bool init(int damage, float speed, bool crit);
 
@@ -34,10 +33,9 @@ protected:
 	bool initWithSpriteFrameName(const std::string &spriteFrameName,
 		int damage, float speed, bool crit);
 
-	std::shared_ptr<Attribute<float>> _speed;//速度
+	std::shared_ptr<float> _speed;//速度
 
 private:
-
 	bool initMember(float speed);
 };
 

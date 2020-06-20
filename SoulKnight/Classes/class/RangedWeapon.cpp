@@ -1,6 +1,6 @@
 #include "RangedWeapon.h"
 
-inline bool RangedWeapon::initMember(std::shared_ptr<Damage> bullet) {
+inline bool RangedWeapon::initMember(std::shared_ptr<Bullet> bullet) {
 	if (!bullet) {
 		return false;
 	}
@@ -10,7 +10,7 @@ inline bool RangedWeapon::initMember(std::shared_ptr<Damage> bullet) {
 }
 
 bool RangedWeapon::init(
-	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Bullet> bullet) {
 	if (!Weapon::init(MPconsume, aspd, critRate, critMultiple) || !initMember(bullet)) {
 		return false;
 	}
@@ -18,22 +18,19 @@ bool RangedWeapon::init(
 }
 
 std::shared_ptr<RangedWeapon> RangedWeapon::create(
-	int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-	std::shared_ptr<Damage> bullet = Bullet::create()) {
-	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Bullet> bullet) {
+	auto temp = std::make_shared<RangedWeapon>();
 
 	if (temp && temp->init(MPconsume, aspd, critRate, critMultiple, bullet)) {
-		return std::shared_ptr<RangedWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<RangedWeapon>(nullptr);
 	}
 }
 
 bool RangedWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
-	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Bullet> bullet) {
 	if (!Weapon::initWithSpriteFrame(spriteFrame, MPconsume, aspd, critRate, critMultiple) || !initMember(bullet)) {
 		return false;
 	}
@@ -41,22 +38,19 @@ bool RangedWeapon::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-	std::shared_ptr<Damage> bullet = Bullet::create()) {
-	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Bullet> bullet) {
+	auto temp = std::make_shared<RangedWeapon>();
 
 	if (temp && temp->initWithSpriteFrame(spriteFrame, MPconsume, aspd, critRate, critMultiple, bullet)) {
-		return std::shared_ptr<RangedWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<RangedWeapon>(nullptr);
 	}
 }
 
 bool RangedWeapon::initWithSpriteFrameName(const std::string& spriteFrameName,
-	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Damage> bullet) {
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Bullet> bullet) {
 	if (!Weapon::initWithSpriteFrameName(spriteFrameName, MPconsume, aspd, critRate, critMultiple) || !initMember(bullet)) {
 		return false;
 	}
@@ -64,16 +58,13 @@ bool RangedWeapon::initWithSpriteFrameName(const std::string& spriteFrameName,
 }
 
 std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrameName(const std::string& spriteFrameName,
-	int MPconsume = 0, float aspd = 0, float critRate = 0.0f, float critMultiple = 0.0f,
-	std::shared_ptr<Damage> bullet = Bullet::create()) {
-	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
+	int MPconsume, float aspd, float critRate, float critMultiple, std::shared_ptr<Bullet> bullet) {
+	auto temp = std::make_shared<RangedWeapon>();
 
 	if (temp && temp->initWithSpriteFrameName(spriteFrameName, MPconsume, aspd, critRate, critMultiple, bullet)) {
-		return std::shared_ptr<RangedWeapon>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<RangedWeapon>(nullptr);
 	}
 }
@@ -81,9 +72,13 @@ std::shared_ptr<RangedWeapon> RangedWeapon::createWithSpriteFrameName(const std:
 RangedWeapon *RangedWeapon::clone()const {
 	RangedWeapon *temp = new(std::nothrow) RangedWeapon();
 
-	if (temp && temp->initWithSpriteFrame(
-		this->getSpriteFrame(), _MPconsume->getValue(), _aspd->getValue(), _critRate->getValue(), _critMultiple->getValue(),
-		std::shared_ptr<Damage>(_bullet->clone()))) {
+	if (temp) {
+		temp->setSpriteFrame(this->getSpriteFrame());
+		temp->_MPconsume = _MPconsume;
+		temp->_aspd = _aspd;
+		temp->_critRate = _critRate;
+		temp->_critMultiple = _critMultiple;
+		temp->_bullet = _bullet;
 		return temp;
 	}
 	else {

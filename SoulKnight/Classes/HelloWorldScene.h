@@ -27,6 +27,7 @@
 
 #include "cocos2d.h"
 
+
 class HelloWorld : public cocos2d::Scene
 {
 public:
@@ -36,6 +37,8 @@ public:
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
+	void start(cocos2d::Ref* pSender);
+	void setting(cocos2d::Ref* pSender);
     
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);

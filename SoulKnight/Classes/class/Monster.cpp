@@ -2,7 +2,7 @@
 
 inline bool Monster::initMember(
 	float coinChance, float healthPotChance, float magicPotChance) {
-	auto coin = Attribute<float>::createWithValue(coinChance);
+	auto coin = std::make_shared<float>(coinChance);
 	if (!coin) {
 		return false;
 	}
@@ -10,7 +10,7 @@ inline bool Monster::initMember(
 		_coinChance = coin;
 	}
 
-	auto health = Attribute<float>::createWithValue(healthPotChance);
+	auto health = std::make_shared<float>(healthPotChance);
 	if (!health) {
 		return false;
 	}
@@ -18,7 +18,7 @@ inline bool Monster::initMember(
 		_healthPotChance = health;
 	}
 
-	auto magic = Attribute<float>::createWithValue(magicPotChance);
+	auto magic = std::make_shared<float>(magicPotChance);
 	if (!magic) {
 		return false;
 	}
@@ -41,17 +41,14 @@ bool Monster::init(
 }
 
 std::shared_ptr<Monster> Monster::create(
-	int HPMax = 0, int MPMax = 0, float speed = 0.0f,
-	std::shared_ptr<Weapon> weapon = CloseInWeapon::create(),
-	float coinChance = 0.0f, float healthPotChance = 0.0f, float magicPotChance = 0.0f) {
-	Monster *temp = new(std::nothrow) Monster();
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon,
+	float coinChance, float healthPotChance, float magicPotChance) {
+	auto temp = std::make_shared<Monster>();
 	if (temp &&
 		temp->init(HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance)) {
-		return std::shared_ptr<Monster>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Monster>(nullptr);
 	}
 }
@@ -68,17 +65,14 @@ bool Monster::initWithSpriteFrame(SpriteFrame *spriteFrame,
 }
 
 std::shared_ptr<Monster> Monster::createWithSpriteFrame(SpriteFrame *spriteFrame,
-	int HPMax = 0, int MPMax = 0, float speed = 0.0f,
-	std::shared_ptr<Weapon> weapon = CloseInWeapon::create(),
-	float coinChance = 0.0f, float healthPotChance = 0.0f, float magicPotChance = 0.0f) {
-	Monster *temp = new(std::nothrow) Monster();
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon,
+	float coinChance, float healthPotChance, float magicPotChance) {
+	auto temp = std::make_shared<Monster>();
 	if (temp &&
 		temp->initWithSpriteFrame(spriteFrame, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance)) {
-		return std::shared_ptr<Monster>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Monster>(nullptr);
 	}
 }
@@ -95,28 +89,31 @@ bool Monster::initWithSpriteFrameName(const std::string& spriteFrameName,
 }
 
 std::shared_ptr<Monster> Monster::createWithSpriteFrameName(const std::string& spriteFrameName,
-	int HPMax = 0, int MPMax = 0, float speed = 0.0f,
-	std::shared_ptr<Weapon> weapon = CloseInWeapon::create(),
-	float coinChance = 0.0f, float healthPotChance = 0.0f, float magicPotChance = 0.0f) {
-	Monster *temp = new(std::nothrow) Monster();
+	int HPMax, int MPMax, float speed, std::shared_ptr<Weapon> weapon,
+	float coinChance, float healthPotChance, float magicPotChance) {
+	auto temp = std::make_shared<Monster>();
 	if (temp &&
 		temp->initWithSpriteFrameName(spriteFrameName, HPMax, MPMax, speed, weapon, coinChance, healthPotChance, magicPotChance)) {
-		return std::shared_ptr<Monster>(temp);
+		return temp;
 	}
 	else {
-		delete temp;
-		temp = nullptr;
 		return std::shared_ptr<Monster>(nullptr);
 	}
 }
 
 Monster *Monster::clone()const {
 	Monster *temp = new(std::nothrow) Monster();
-	if (temp &&
-		temp->initWithSpriteFrame(this->getSpriteFrame(),
-			_HP->getValueMax(), _MP->getValueMax(), _speed->getValue(),
-			std::shared_ptr<Weapon>(_weapon->clone()),
-			_coinChance->getValue(), _healthPotChance->getValue(), _magicPotChance->getValue())) {
+	if (temp) {
+		temp->setSpriteFrame(this->getSpriteFrame());
+		temp->_HPMAX = _HPMAX;
+		temp->_HP = *_HPMAX;
+		temp->_MPMAX = _MPMAX;
+		temp->_MP = *_MPMAX;
+		temp->_speed = _speed;
+		temp->_weapon = static_cast<std::shared_ptr<Weapon>>(_weapon->clone());
+		temp->_coinChance = _coinChance;
+		temp->_healthPotChance = _healthPotChance;
+		temp->_magicPotChance = _magicPotChance;
 		return temp;
 	}
 	else {
@@ -124,4 +121,21 @@ Monster *Monster::clone()const {
 		temp = nullptr;
 		return nullptr;
 	}
+}
+
+bool Monster::shoot() {
+	if (_MP < _weapon->getMPCosume()) {
+		return false;
+	}
+	_MP -= _weapon->getMPCosume();
+	return true;
+}
+
+bool Monster::beShot(int damage) {
+	if (_HP <= damage) {
+		_HP = 0;
+		return true;
+	}
+	_HP -= damage;
+	return false;
 }

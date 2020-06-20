@@ -1,20 +1,20 @@
 #include "Damage.h"
 
 inline bool Damage::initMember(int damage, bool crit) {
-	auto dam = Attribute<int>::createWithValue(damage);
-	if (!dam) {
+	auto damTemp = std::make_shared<int>(damage);
+	if (!damTemp) {
 		return false;
 	}
 	else {
-		_damage = dam;
-		_crit = crit;
+		_damage = damTemp;
 	}
 
+	_crit = crit;
 	return true;
 }
 
 bool Damage::init(int damage, bool crit) {
-	if (!Sprite::init || !initMember(damage, crit)); {
+	if (!Sprite::init() || !initMember(damage, crit)) {
 		return false;
 	}
 

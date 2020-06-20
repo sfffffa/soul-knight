@@ -9,29 +9,32 @@ inline bool Character::initMember(
 		_weapon = weapon;
 	}
 
-	auto HPTemp = LimitedAttribute<int>::createWithValue(HPMax);
+	auto HPTemp = std::make_shared<int>(HPMax);
 	if (!HPTemp) {
 		return false;
 	}
 	else {
-		_HP = HPTemp;
+		_HPMAX = HPTemp;
 	}
 
-	auto MPTemp = LimitedAttribute<int>::createWithValue(MPMax);
+	auto MPTemp = std::make_shared<int>(MPMax);
 	if (!MPTemp) {
 		return false;
 	}
 	else {
-		_MP = MPTemp;
+		_MPMAX = MPTemp;
 	}
 
-	auto speedTemp = Attribute<float>::createWithValue(speed);
+	auto speedTemp = std::make_shared<float>(speed);
 	if (!speedTemp) {
 		return false;
 	}
 	else {
 		_speed = speedTemp;
 	}
+
+	_HP = HPMax;
+	_MP = MPMax;
 
 	return true;
 }

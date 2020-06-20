@@ -7,30 +7,30 @@ class CloseInWeapon :public Weapon {
 public:
 
 	static std::shared_ptr<CloseInWeapon> create(
-		int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f);
+		int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f,
+		float critRate = 0.0f, float critMultiple = 0.0f);
 
 	static std::shared_ptr<CloseInWeapon> createWithSpriteFrame(SpriteFrame *spriteFrame,
-		int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f);
+		int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f,
+		float critRate = 0.0f, float critMultiple = 0.0f);
 
 	static std::shared_ptr<CloseInWeapon> createWithSpriteFrameName(const std::string &spriteFrameName,
-		int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f, float critRate = 0.0f, float critMultiple = 0.0f);
+		int MPconsume = 0, int damage = 0, float rang = 0.0f, float aspd = 0.0f,
+		float critRate = 0.0f, float critMultiple = 0.0f);
 
-	virtual void setDamage(int damage) { _damage->setValue(damage); }
-	virtual void setRange(float rang) { _range->setValue(rang); }
+	virtual void setDamage(int damage) { *_damage = damage; }
+	virtual void setRange(float rang) { *_range = rang; }
 
-	virtual int getDamage()const { return _damage->getValue(); }
-	virtual float getRange()const { return _range->getValue(); }
-
-	virtual std::shared_ptr<Attribute<int>> getDamageInstance()const { return _damage; }
-	virtual std::shared_ptr<Attribute<float>> getRangeInstance()const { return _range; }
+	virtual int getDamage()const { return *_damage; }
+	virtual float getRange()const { return *_range; }
+	std::shared_ptr<Bullet> getBulletInstance()const override { return std::shared_ptr<Bullet>(nullptr); }
 
 	CloseInWeapon *clone()const override;
 
-	void use()override;
-
-protected:
 	//destructor
 	virtual ~CloseInWeapon() = default;
+
+protected:
 
 	bool init(
 		int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple);
@@ -41,8 +41,8 @@ protected:
 	bool initWithSpriteFrameName(const std::string &spriteFrameName,
 		int MPconsume, int damage, float rang, float aspd, float critRate, float critMultiple);
 
-	std::shared_ptr<Attribute<int>> _damage;//¹¥»÷ÉËº¦
-	std::shared_ptr<Attribute<float>> _range;//¹¥»÷·¶Î§
+	std::shared_ptr<int> _damage;//¹¥»÷ÉËº¦
+	std::shared_ptr<float> _range;//¹¥»÷·¶Î§
 
 private:
 

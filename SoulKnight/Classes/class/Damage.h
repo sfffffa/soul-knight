@@ -2,29 +2,25 @@
 #define _DAMAGE_
 
 #include "cocos2d.h"
-#include "Attribute.h"
 #include <memory>
 #include <string>
+#include <new>
 
 USING_NS_CC;
 
-//ÉËº¦ÊµÌå
 class Damage :public Sprite {
 public:
 
-	virtual void setDamage(int damage) { _damage->setValue(damage); }
+	virtual void setDamage(int damage) { *_damage = damage; }
 	virtual void setCritOrNot(bool crit) { _crit = crit; }
 
-	virtual int getDamage()const { return _damage->getValue(); }
+	virtual int getDamage()const { return *_damage; }
 	virtual bool getCritOrNot()const { return _crit; }
 
-	virtual std::shared_ptr<Attribute<int>> getDamageInatance() { return _damage; }
-
-	virtual Damage *clone()const = 0;
-
-protected:
+	virtual Damage *clone(bool crit)const = 0;
 	//destructor
 	virtual ~Damage() = default;
+protected:
 
 	bool init(int damage, bool crit);
 
@@ -34,7 +30,7 @@ protected:
 	bool initWithSpriteFrameName(const std::string &spriteFrameName,
 		int damage, bool crit);
 
-	std::shared_ptr<Attribute<int>> _damage;//ÉËº¦Öµ
+	std::shared_ptr<int> _damage;//ÉËº¦Öµ
 	bool _crit;//ÊÇ·ñ±©»÷
 
 private:

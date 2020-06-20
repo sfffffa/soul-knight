@@ -1,10 +1,10 @@
-#ifndef _ATTRIBUTE_CHANGER_
+/*#ifndef _ATTRIBUTE_CHANGER_
 #define _ATTRIBUTE_CHANGER_
 
 #include "Attribute.h"
 
 template<typename T>
-class AttrbuteChanger {
+class AttributeChanger {
 public:
 	enum OpSym { ADD, SUBTRACT, MULTIPLY, DIVIDE, ASSIGN };
 
@@ -31,6 +31,6 @@ public:
 
 protected:
 	std::shared_ptr<Attribute<T>> _targetAttribute;
-}
+};
 
-#endif // _ATTRIBUTE_CHANGER_
+#endif // _ATTRIBUTE_CHANGER_*/
