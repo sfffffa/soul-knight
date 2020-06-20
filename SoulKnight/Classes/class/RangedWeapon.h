@@ -21,7 +21,7 @@ public:
 
 	virtual void setBullet(std::shared_ptr<Damage> bullet) { _bullet = bullet; }
 
-	virtual std::shared_ptr<Damage> getBulletInstance()const { return _bullet; }
+	std::shared_ptr<Damage> getBulletInstance()const override { return _bullet; }
 
 	RangedWeapon *clone()const override;
 

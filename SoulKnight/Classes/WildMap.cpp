@@ -108,7 +108,7 @@ bool WildMap::init()
 
 	initLayer();
 
-	TMXObjectGroup* objectGroup = _tiledmap->getObjectGroup("hero");
+	TMXObjectGroup* objectGroup = _tiledmap->getObjectGroup("room1");
 	auto heroBornPlace = objectGroup->getObject("heroborn");
 	float bornX = heroBornPlace["x"].asFloat();
 	float bornY = heroBornPlace["y"].asFloat();
