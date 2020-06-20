@@ -2,7 +2,7 @@
 #define _WEAPON_
 
 #include "cocos2d.h"
-#include "Damage.h"
+#include "Bullet.h"
 #include <new>
 #include <memory>
 #include <string>
@@ -21,7 +21,7 @@ public:
 	virtual float getAspd()const { return *_aspd; }
 	virtual float getCritRate()const { return *_critRate; }
 	virtual float getCritMultiple()const { return *_critMultiple; }
-	virtual std::shared_ptr<Damage> getBulletInstance()const = 0;
+	virtual std::shared_ptr<Bullet> getBulletInstance()const = 0;
 
 	virtual Weapon *clone()const = 0;
 

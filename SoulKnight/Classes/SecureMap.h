@@ -26,7 +26,7 @@ private:
 		unsigned int hunter : 1;
 		unsigned int : 1;
 	} interactStatus;
-	std::map<int, std::shared_ptr<Damage>> bulletManagement;
+	std::map<int, std::shared_ptr<Bullet>> bulletManagement;
 	int bulletIndex;
 
 	//赋予NPC图片及PhysicsBody
@@ -36,7 +36,7 @@ private:
 	void initHero();
 
 	//武器初始化
-	void initBullet(std::shared_ptr<Damage> bullet);
+	void initBullet(std::shared_ptr<Bullet> bullet);
 
 	//场景物件初始化
 	void initWall(Sprite *wall);

@@ -219,7 +219,7 @@ void SecureMap::initHero() {
 	globalHero->addComponent(physicsBody);
 }
 
-void SecureMap::initBullet(std::shared_ptr<Damage> bullet) {
+void SecureMap::initBullet(std::shared_ptr<Bullet> bullet) {
 	auto physicsBody = PhysicsBody::createBox(
 		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
@@ -353,6 +353,7 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 		break;
 
 	case cocos2d::EventKeyboard::KeyCode::KEY_J:
+		shoot();
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_K:
 		break;
@@ -406,13 +407,15 @@ bool SecureMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 	//子弹和其他
 	if (bodyA->getTag()&MY_BULLET) {
 		bodyA->getNode()->removeFromParentAndCleanup(true);
+		bulletManagement.erase(bodyA->getNode()->getTag());
 		return true;
 	}
 	if (bodyB->getTag()&MY_BULLET) {
 		bodyB->getNode()->removeFromParentAndCleanup(true);
+		bulletManagement.erase(bodyB->getNode()->getTag());
 		return true;
 	}
-	//Hero和门
+	//Hero 和门
 	if ((bodyA->getTag()&HERO && bodyB->getTag()&DOOR) ||
 		(bodyA->getTag()&DOOR && bodyB->getTag()&HERO)) {
 		interactStatus.door = 1;
@@ -425,7 +428,7 @@ bool SecureMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 bool SecureMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
 	auto bodyA = contact.getShapeA()->getBody();
 	auto bodyB = contact.getShapeB()->getBody();
-	//Hero和门
+	//Hero 和门
 	if ((bodyA->getTag()&HERO && bodyB->getTag()&DOOR) ||
 		(bodyA->getTag()&DOOR && bodyB->getTag()&HERO)) {
 		interactStatus.door = 0;
@@ -444,7 +447,11 @@ void SecureMap::pausemenu(cocos2d::Ref* pSender)
 
 void SecureMap::interact() {
 	if (interactStatus.door) {
+		//切换场景前的处理
+		//1.删除场景内Hero的显示
 		globalHero->removeFromParentAndCleanup(false);
+		//2.bulletMangement清空
+		bulletManagement.clear();
 		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, WildMap::createScene()));
 		return;
 	}
@@ -459,7 +466,17 @@ void SecureMap::shoot() {
 	if (!haveBullet) {//近战
 	}
 	else {//远程
-		auto bullet = static_cast<std::shared_ptr<Damage>>(haveBullet->clone(false));
+		auto bullet = static_cast<std::shared_ptr<Bullet>>(haveBullet->clone(false));
 		initBullet(bullet);
+		if (globalHero->isTowardLeft()) {
+			bullet->setSpriteFrame(
+				SpriteFrameCache::getInstance()->getSpriteFrameByName("bulletleft.png"));
+			bullet->getPhysicsBody()->setVelocity(Vec2(-bullet->getSpeed(), 0));
+		}
+		else {
+			bullet->setSpriteFrame(
+				SpriteFrameCache::getInstance()->getSpriteFrameByName("bulletright.png"));
+			bullet->getPhysicsBody()->setVelocity(Vec2(bullet->getSpeed(), 0));
+		}
 	}
 }

@@ -24,6 +24,7 @@
 
 #include "AppDelegate.h"
 #include "SecureMap.h"
+#include "HelloWorldScene.h"
 
  // #define USE_AUDIO_ENGINE 1
 
