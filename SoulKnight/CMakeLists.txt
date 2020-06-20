@@ -57,6 +57,10 @@ endif()
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
+	 Classes/GlobalVariable.cpp
+	 Classes/SettingScene.cpp
+	 Classes/HelloWorldScene.cpp
+	 Classes/SelectingScene.cpp
 	 Classes/SecureMap.cpp
 	 Classes/WildMap.cpp
 	 Classes/class/Damage.cpp
@@ -73,6 +77,10 @@ list(APPEND GAME_SOURCE
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
+	 Classes/GlobalVariable.h
+	 Classes/SettingScene.h
+	 Classes/HelloWorldScene.h
+	 Classes/SelectingScene.h
 	 Classes/SecureMap.h
 	 Classes/WildMap.h
 	 Classes/class/Attribute.h
