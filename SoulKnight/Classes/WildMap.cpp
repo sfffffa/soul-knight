@@ -42,6 +42,8 @@ bool WildMap::init()
 	globalHero->setSpriteFrame(
 		SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png"));
 	globalHero->setToward(false);
+	interactStatus.box = 0;
+	interactStatus.conductor = 0;
 
 	/////////////////////
 	// 1.2 基础信息提取
@@ -57,8 +59,8 @@ bool WildMap::init()
 	spritecache->addSpriteFramesWithFile("new.plist");
 
 	/////////////////////
-		// 1.3.1 武器库初始化（相应子弹初始化）					hth
-		//想法大概是在一个vector<std::shared_ptr<Weapon>>里提前初始化好所有武器，以供小怪爆武器时直接复制Weapon
+	// 1.3.1 武器库初始化（相应子弹初始化）					hth
+	//想法大概是在一个vector<std::shared_ptr<Weapon>>里提前初始化好所有武器，以供小怪爆武器时直接复制Weapon
 	auto gun1left = RangedWeapon::createWithSpriteFrameName("gun1left.png");
 	auto gun1right = RangedWeapon::createWithSpriteFrameName("gun1right.png");
 	auto gun2left = RangedWeapon::createWithSpriteFrameName("gun2left.png");
@@ -99,6 +101,12 @@ bool WildMap::init()
 	auto background = DrawNode::create();
 	background->drawSolidRect(origin, destination, cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
 	this->addChild(background, -10);
+
+	/////////////////////////////
+	// 3. Hero初始化											hth、cyf
+	//
+	initHero();
+
 	/////////////////////////////
 	// 3. 地图初始化											hth、cyf
 	//
@@ -194,9 +202,63 @@ bool WildMap::init()
 }
 
 void WildMap::initHero() {
+	//hero本身physicsBody属性设置
+	auto heroPhyBody = globalHero->getPhysicsBody();
+	heroPhyBody->setCollisionBitmask(ENEMY | WALL | BOX);
+	heroPhyBody->setContactTestBitmask(BOX | CONDUCTOR | ITEM);
+
+	//跟随方块（用于渲染顺序及伤害判定）
+	auto heroContact = DrawNode::create();
+	heroContact->drawSolidRect(Vec2::ZERO, globalHero->getContentSize(),
+		cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
+
+	auto physicsBody = PhysicsBody::createBox(
+		heroContact->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(HEROCONTACT);
+	physicsBody->setCategoryBitmask(HEROCONTACT);
+	physicsBody->setCollisionBitmask(0x00);
+	physicsBody->setContactTestBitmask(ENEMY_BULLET | ENEMYCONTACT);
+	heroContact->addComponent(physicsBody);
+
+	globalHero->addChild(heroContact, -1);
 }
 
-void WildMap::initBullet(std::shared_ptr<Damage> bullet) {
+void WildMap::initEnemy(std::shared_ptr<Monster> monster) {
+	//init enemy
+	monster->setAnchorPoint(Vec2(0.38, 0.1));
+
+	auto monsterPhyBody = cocos2d::PhysicsBody::createBox(
+		Size(monster->getContentSize().width, monster->getContentSize().height * 2 / 5),
+		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*monster->getContentSize().height));
+	monsterPhyBody->setDynamic(true);
+	monsterPhyBody->setGravityEnable(false);
+	monsterPhyBody->setRotationEnable(false);
+	monsterPhyBody->setTag(ENEMY);
+	monsterPhyBody->setCategoryBitmask(ENEMY);
+	monsterPhyBody->setCollisionBitmask(WALL | HERO | DOOR);
+	monsterPhyBody->setContactTestBitmask(0x00);
+
+	monster->addComponent(monsterPhyBody);
+
+	//init enemy contact
+	auto monsterContact = DrawNode::create();
+	monsterContact->drawSolidRect(Vec2::ZERO, monster->getContentSize(),
+		cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
+
+	auto physicsBody = PhysicsBody::createBox(
+		monsterContact->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(ENEMYCONTACT);
+	physicsBody->setCategoryBitmask(ENEMYCONTACT);
+	physicsBody->setCollisionBitmask(0x00);
+	physicsBody->setContactTestBitmask(MY_BULLET | HEROCONTACT);
+	monsterContact->addComponent(physicsBody);
+
+	monster->addChild(monsterContact, -1);
+}
+
+void WildMap::initMyBullet(std::shared_ptr<Bullet> bullet) {
 	auto physicsBody = PhysicsBody::createBox(
 		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(true);
@@ -205,9 +267,27 @@ void WildMap::initBullet(std::shared_ptr<Damage> bullet) {
 	physicsBody->setTag(MY_BULLET);
 	physicsBody->setCategoryBitmask(MY_BULLET);
 	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(DOOR | NPC | WALL);
+	physicsBody->setContactTestBitmask(DOOR | ENEMYCONTACT | WALL | BOX);
 
 	bullet->addComponent(physicsBody);
+	bullet->setTag(++bulletIndex);
+	bulletManagement[bullet->getTag()] = bullet;
+}
+
+void WildMap::initEnemyBullet(std::shared_ptr<Bullet> bullet) {
+	auto physicsBody = PhysicsBody::createBox(
+		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(true);
+	physicsBody->setGravityEnable(false);
+	physicsBody->setRotationEnable(false);
+	physicsBody->setTag(ENEMY_BULLET);
+	physicsBody->setCategoryBitmask(ENEMY_BULLET);
+	physicsBody->setCollisionBitmask(0x00);
+	physicsBody->setContactTestBitmask(DOOR | HEROCONTACT | WALL);
+
+	bullet->addComponent(physicsBody);
+	bullet->setTag(++bulletIndex);
+	bulletManagement[bullet->getTag()] = bullet;
 }
 
 void WildMap::initWall(Sprite *wall) {
@@ -216,10 +296,58 @@ void WildMap::initWall(Sprite *wall) {
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(WALL);
 	physicsBody->setCategoryBitmask(WALL);
-	physicsBody->setCollisionBitmask(HERO);
-	physicsBody->setContactTestBitmask(MY_BULLET);
+	physicsBody->setCollisionBitmask(HERO | ENEMY | ITEM);
+	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
 
 	wall->addComponent(physicsBody);
+}
+
+void WildMap::initDoor(Sprite *door) {
+	auto physicsBody = PhysicsBody::createBox(
+		door->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(DOOR);
+	physicsBody->setCategoryBitmask(DOOR);
+	physicsBody->setCollisionBitmask(HERO | ENEMY);
+	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
+
+	door->addComponent(physicsBody);
+}
+
+void WildMap::initBox(Sprite *box) {
+	auto physicsBody = PhysicsBody::createBox(
+		box->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(BOX);
+	physicsBody->setCategoryBitmask(BOX);
+	physicsBody->setCollisionBitmask(HERO | ITEM);
+	physicsBody->setContactTestBitmask(MY_BULLET | HERO);
+
+	box->addComponent(physicsBody);
+}
+
+void WildMap::initConductor(Sprite *conductor) {
+	auto physicsBody = PhysicsBody::createBox(
+		conductor->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(CONDUCTOR);
+	physicsBody->setCategoryBitmask(CONDUCTOR);
+	physicsBody->setCollisionBitmask(0x00);
+	physicsBody->setContactTestBitmask(HERO);
+
+	conductor->addComponent(physicsBody);
+}
+
+void WildMap::initItem(std::shared_ptr<Item> item) {
+	auto physicsBody = PhysicsBody::createBox(
+		item->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+	physicsBody->setDynamic(false);
+	physicsBody->setTag(ITEM);
+	physicsBody->setCategoryBitmask(ITEM);
+	physicsBody->setCollisionBitmask(WALL | BOX);
+	physicsBody->setContactTestBitmask(HERO);
+
+	item->addComponent(physicsBody);
 }
 
 void WildMap::initLayer() {
@@ -376,8 +504,75 @@ bool WildMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
 	return true;
 }
 
+bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
+	auto bodyA = contact.getShapeA()->getBody();
+	auto bodyB = contact.getShapeB()->getBody();
+
+	//子弹
+	if (bodyA->getTag()&MY_BULLET) {
+		if (bodyB->getTag()&ENEMYCONTACT) {
+			//if()
+		}
+		bodyA->getNode()->removeFromParentAndCleanup(true);
+		bulletManagement.erase(bodyA->getNode()->getTag());
+		return true;
+	}
+	if (bodyB->getTag()&MY_BULLET) {
+		if (bodyA->getTag()&ENEMYCONTACT) {
+			//if ()
+		}
+		bodyB->getNode()->removeFromParentAndCleanup(true);
+		bulletManagement.erase(bodyB->getNode()->getTag());
+		return true;
+	}
+	if (bodyA->getTag()&ENEMY_BULLET) {
+		if (bodyB->getTag()&HEROCONTACT) {
+			if (globalHero->beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+				//
+			}
+		}
+		bodyA->getNode()->removeFromParentAndCleanup(true);
+		bulletManagement.erase(bodyA->getNode()->getTag());
+		return true;
+	}
+	if (bodyB->getTag()&ENEMY_BULLET) {
+		if (bodyA->getTag()&HEROCONTACT) {
+			if (globalHero->beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+				//
+			}
+		}
+		bodyB->getNode()->removeFromParentAndCleanup(true);
+		bulletManagement.erase(bodyB->getNode()->getTag());
+		return true;
+	}
+
+	//渲染顺序
+	if (bodyA->getTag()&HEROCONTACT && bodyB->getTag()&ENEMYCONTACT) {
+	}
+	if (bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&HEROCONTACT) {
+	}
+	if (bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&ENEMYCONTACT) {
+	}
+
+	//交互
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&CONDUCTOR) ||
+		(bodyA->getTag()&CONDUCTOR && bodyB->getTag()&HERO)) {
+		interactStatus.conductor = 1;
+	}
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&BOX) ||
+		(bodyA->getTag()&BOX && bodyB->getTag()&HERO)) {
+		interactStatus.box = 1;
+	}
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&ITEM) ||
+		(bodyA->getTag()&ITEM && bodyB->getTag()&HERO)) {
+		//
+	}
+
+	return true;
+}
+
 void WildMap::interact() {
-	if (interactStatus.door) {
+	if (interactStatus.conductor) {
 		globalHero->removeFromParentAndCleanup(false);
 		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, SecureMap::createScene()));
 		return;

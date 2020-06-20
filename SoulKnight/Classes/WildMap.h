@@ -16,7 +16,7 @@ public:
 private:
 	TMXTiledMap* _tiledmap;
 	struct {
-		unsigned int door : 1;
+		unsigned int conductor : 1;
 		unsigned int box : 1;
 		unsigned int : 1;
 		unsigned int : 1;
@@ -24,16 +24,21 @@ private:
 	//Vector<std::shared_ptr<Weapon>> weaponVec;
 	Vec2 _initiativeHeroOffset;
 	Vec2 _initiativeMapOffset;
+	int bulletIndex;
+	std::map<int, std::shared_ptr<Bullet>> bulletManagement;
 
 	//子弹初始化
-	void initBullet(std::shared_ptr<Damage> bullet);
 
 	//场景物件初始化
 	void initHero();
-
+	void initEnemy(std::shared_ptr<Monster> monster);
+	void initMyBullet(std::shared_ptr<Bullet> bullet);
+	void initEnemyBullet(std::shared_ptr<Bullet> bullet);
 	void initWall(Sprite *wall);
 	void initDoor(Sprite *door);
 	void initBox(Sprite *box);
+	void initConductor(Sprite *conductor);
+	void initItem(std::shared_ptr<Item> item);
 	void initLayer();
 
 	//键盘监听

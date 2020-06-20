@@ -20,9 +20,11 @@
 #define WALL 0x0040
 #define DOOR 0x0080
 #define BOX 0x0100
-#define NPC 0x0600
-#define SPEEDNPC 0x0200
-#define ASPDNPC 0x0400
+#define CONDUCTOR 0x0200
+#define ITEM 0x0400
+#define NPC 0x1800
+#define SPEEDNPC 0x0800
+#define ASPDNPC 0x1000
 
 extern std::shared_ptr<Hero> globalHero;
 extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
