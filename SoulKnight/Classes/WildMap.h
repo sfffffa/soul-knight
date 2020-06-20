@@ -15,6 +15,7 @@ public:
 
 private:
 	TMXTiledMap* _tiledmap;
+	std::shared_ptr<Hero> _hero;
 	struct {
 		unsigned int door : 1;
 		unsigned int box : 1;
@@ -22,15 +23,11 @@ private:
 		unsigned int : 1;
 	} interactStatus;
 	//Vector<std::shared_ptr<Weapon>> weaponVec;
-	Vec2 _initiativeHeroOffset;
-	Vec2 _initiativeMapOffset;
 
 	//子弹初始化
 	void initBullet(std::shared_ptr<Damage> bullet);
 
 	//场景物件初始化
-	void initHero();
-
 	void initWall(Sprite *wall);
 	void initDoor(Sprite *door);
 	void initBox(Sprite *box);
@@ -50,8 +47,6 @@ private:
 	void shoot();
 	//技能
 	void skill();
-
-	void update(float delta);
 };
 
 #endif // __WILD_MAP_H__

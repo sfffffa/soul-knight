@@ -41,7 +41,6 @@ bool WildMap::init()
 
 	globalHero->setSpriteFrame(
 		SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png"));
-	globalHero->setToward(false);
 
 	/////////////////////
 	// 1.2 基础信息提取
@@ -115,8 +114,6 @@ bool WildMap::init()
 	float bornY = heroBornPlace["y"].asFloat();
 	globalHero->setPosition(Vec2(bornX, bornY));
 	_tiledmap->addChild(globalHero.get(), 30);
-	_initiativeMapOffset = _tiledmap->getPosition();
-	_initiativeHeroOffset = globalHero->getPosition();
 	//_tiledmap->setViewpointCenter(_player->getPosition());
 	/////////////////////////////
 	// 4. 小怪（及Boss）初始化								xyc
@@ -186,14 +183,10 @@ bool WildMap::init()
 	//
 
 	/////////////////////////////
-	// 8 camera 跟随									cyf
+	// 8 camera 初始化										cyf
 	//
-	scheduleUpdate();
 
 	return true;
-}
-
-void WildMap::initHero() {
 }
 
 void WildMap::initBullet(std::shared_ptr<Damage> bullet) {
@@ -311,20 +304,14 @@ bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 		globalHero->getPhysicsBody()->setVelocity(Vec2(0, globalHero->getSpeed()));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
-		if (!globalHero->isTowardLeft()) {
-			globalHero->setSpriteFrame(heroLeft);
-			globalHero->setToward(true);
-		}
+		globalHero->setSpriteFrame(heroLeft);
 		globalHero->getPhysicsBody()->setVelocity(Vec2(-globalHero->getSpeed(), 0));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_S:
 		globalHero->getPhysicsBody()->setVelocity(Vec2(0, -globalHero->getSpeed()));
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
-		if (globalHero->isTowardLeft()) {
-			globalHero->setSpriteFrame(heroRight);
-			globalHero->setToward(false);
-		}
+		globalHero->setSpriteFrame(heroRight);
 		globalHero->getPhysicsBody()->setVelocity(Vec2(globalHero->getSpeed(), 0));
 		break;
 
@@ -338,6 +325,15 @@ bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 		break;
 	}
 	return true;
+}
+
+void WildMap::interact() {
+	if (interactStatus.door) {
+		globalHero->removeFromParentAndCleanup(false);
+		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, SecureMap::createScene()));
+		return;
+	}
+	//NPC交互
 }
 
 bool WildMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
@@ -374,17 +370,4 @@ bool WildMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
 		break;
 	}
 	return true;
-}
-
-void WildMap::interact() {
-	if (interactStatus.door) {
-		globalHero->removeFromParentAndCleanup(false);
-		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, SecureMap::createScene()));
-		return;
-	}
-	//NPC交互
-}
-
-void WildMap::update(float delta) {
-	_tiledmap->setPosition(_initiativeHeroOffset + _initiativeMapOffset - globalHero->getPosition());
 }
