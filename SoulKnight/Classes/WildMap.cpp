@@ -1,4 +1,5 @@
 #include "WildMap.h"
+#include "SecureMap.h"
 
 USING_NS_CC;
 using namespace std;
@@ -37,8 +38,8 @@ bool WildMap::init()
 	/////////////////////
 	// 1.2成员初始化
 	//
-	_hero = globalHero;
-	_hero->setSpriteFrame(
+
+	globalHero->setSpriteFrame(
 		SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png"));
 
 	/////////////////////
@@ -104,6 +105,16 @@ bool WildMap::init()
 	_tiledmap->setAnchorPoint(Vec2(0, 1));
 	_tiledmap->setPosition(Vec2(origin.x + 320, origin.y + visibleSize.height - 70));
 	this->addChild(_tiledmap, -1);
+
+	initLayer();
+
+	TMXObjectGroup* objectGroup = _tiledmap->getObjectGroup("hero");
+	auto heroBornPlace = objectGroup->getObject("heroborn");
+	float bornX = heroBornPlace["x"].asFloat();
+	float bornY = heroBornPlace["y"].asFloat();
+	globalHero->setPosition(Vec2(bornX, bornY));
+	_tiledmap->addChild(globalHero.get(), 30);
+	//_tiledmap->setViewpointCenter(_player->getPosition());
 	/////////////////////////////
 	// 4. 小怪（及Boss）初始化								xyc
 	//……
@@ -119,6 +130,10 @@ bool WildMap::init()
 	/////////////////////
 	// 5.2 键盘监听（NPC与Hero对话）							cyf
 	//
+	auto keyBoardListener = EventListenerKeyboard::create();
+	keyBoardListener->onKeyPressed = CC_CALLBACK_2(WildMap::onKeyPressed, this);
+	keyBoardListener->onKeyReleased = CC_CALLBACK_2(WildMap::onKeyReleased, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyBoardListener, _tiledmap);
 	/////////////////////
 	// 5.2.1 键盘监听（移动）（WASD）							cyf
 	//
@@ -203,4 +218,156 @@ void WildMap::initWall(Sprite *wall) {
 void WildMap::initLayer() {
 	//wall
 	auto layer2 = _tiledmap->getLayer("layer2");
+	for (int i = 0; i < 44; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 1)));
+		initWall(layer2->getTileAt(Vec2(i, 110)));
+	}
+	for (int i = 0; i < 19; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 32)));
+		initWall(layer2->getTileAt(Vec2(i, 40)));
+		initWall(layer2->getTileAt(Vec2(i, 71)));
+		initWall(layer2->getTileAt(Vec2(i, 79)));
+	}
+	for (int i = 25; i < 44; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 32)));
+		initWall(layer2->getTileAt(Vec2(i, 40)));
+		initWall(layer2->getTileAt(Vec2(i, 71)));
+		initWall(layer2->getTileAt(Vec2(i, 79)));
+	}
+	for (int i = 53; i < 97; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 40)));
+		initWall(layer2->getTileAt(Vec2(i, 110)));
+	}
+	for (int i = 53; i < 72; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 71)));
+		initWall(layer2->getTileAt(Vec2(i, 79)));
+	}
+	for (int i = 78; i < 97; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 71)));
+		initWall(layer2->getTileAt(Vec2(i, 79)));
+	}
+	for (int i = 43; i < 54; ++i) {
+		initWall(layer2->getTileAt(Vec2(i, 52)));
+		initWall(layer2->getTileAt(Vec2(i, 59)));
+		initWall(layer2->getTileAt(Vec2(i, 91)));
+		initWall(layer2->getTileAt(Vec2(i, 98)));
+	}
+	for (int i = 2; i < 32; ++i) {
+		initWall(layer2->getTileAt(Vec2(0, i)));
+		initWall(layer2->getTileAt(Vec2(43, i)));
+	}
+	for (int i = 41; i < 71; ++i) {
+		initWall(layer2->getTileAt(Vec2(0, i)));
+		initWall(layer2->getTileAt(Vec2(96, i)));
+	}
+	for (int i = 80; i < 110; ++i) {
+		initWall(layer2->getTileAt(Vec2(0, i)));
+		initWall(layer2->getTileAt(Vec2(96, i)));
+	}
+	for (int i = 33; i < 40; ++i) {
+		initWall(layer2->getTileAt(Vec2(18, i)));
+		initWall(layer2->getTileAt(Vec2(25, i)));
+	}
+	for (int i = 72; i < 79; ++i) {
+		initWall(layer2->getTileAt(Vec2(18, i)));
+		initWall(layer2->getTileAt(Vec2(25, i)));
+		initWall(layer2->getTileAt(Vec2(71, i)));
+		initWall(layer2->getTileAt(Vec2(78, i)));
+	}
+	for (int i = 41; i < 52; ++i) {
+		initWall(layer2->getTileAt(Vec2(43, i)));
+		initWall(layer2->getTileAt(Vec2(53, i)));
+	}
+	for (int i = 60; i < 71; ++i) {
+		initWall(layer2->getTileAt(Vec2(43, i)));
+		initWall(layer2->getTileAt(Vec2(53, i)));
+	}
+	for (int i = 80; i < 91; ++i) {
+		initWall(layer2->getTileAt(Vec2(43, i)));
+		initWall(layer2->getTileAt(Vec2(53, i)));
+	}
+	for (int i = 99; i < 110; ++i) {
+		initWall(layer2->getTileAt(Vec2(43, i)));
+		initWall(layer2->getTileAt(Vec2(53, i)));
+	}
+}
+
+bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
+	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1left.png");
+	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png");
+
+	switch (keyCode)
+	{
+	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_W:
+		globalHero->getPhysicsBody()->setVelocity(Vec2(0, globalHero->getSpeed()));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_A:
+		globalHero->setSpriteFrame(heroLeft);
+		globalHero->getPhysicsBody()->setVelocity(Vec2(-globalHero->getSpeed(), 0));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_S:
+		globalHero->getPhysicsBody()->setVelocity(Vec2(0, -globalHero->getSpeed()));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_D:
+		globalHero->setSpriteFrame(heroRight);
+		globalHero->getPhysicsBody()->setVelocity(Vec2(globalHero->getSpeed(), 0));
+		break;
+
+	case cocos2d::EventKeyboard::KeyCode::KEY_J:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_K:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_L:
+		break;
+	default:
+		break;
+	}
+	return true;
+}
+
+void WildMap::interact() {
+	if (interactStatus.door) {
+		globalHero->removeFromParentAndCleanup(false);
+		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, SecureMap::createScene()));
+		return;
+	}
+	//NPC交互
+}
+
+bool WildMap::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
+	Vec2 velocity = globalHero->getPhysicsBody()->getVelocity();
+	switch (keyCode)
+	{
+	case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
+		interact();
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_W:
+		if (velocity.y > 0)
+			globalHero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_S:
+		if (velocity.y < 0)
+			globalHero->getPhysicsBody()->setVelocity(Vec2(velocity.x, 0));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_A:
+		if (velocity.x < 0)
+			globalHero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_D:
+		if (velocity.x > 0)
+			globalHero->getPhysicsBody()->setVelocity(Vec2(0, velocity.y));
+		break;
+
+	case cocos2d::EventKeyboard::KeyCode::KEY_J:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_K:
+		break;
+	case cocos2d::EventKeyboard::KeyCode::KEY_L:
+		break;
+	default:
+		break;
+	}
+	return true;
 }

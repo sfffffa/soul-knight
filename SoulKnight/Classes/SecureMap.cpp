@@ -122,9 +122,9 @@ bool SecureMap::init()
 	hunter->setPosition(Vec2(hunterX, hunterY));
 	oldMan->setPosition(Vec2(oldmanX, oldmanY));
 
-	_tiledmap->addChild(hunter, 100);
-	_tiledmap->addChild(oldMan, 100);
-	_tiledmap->addChild(_hero.get(), 1000);
+	_tiledmap->addChild(hunter, 11);
+	_tiledmap->addChild(oldMan, 20);
+	_tiledmap->addChild(_hero.get(), 30);
 
 	/////////////////////
 	// 6 ¼üÅÌ¼àÌý														cyf
@@ -206,8 +206,8 @@ void SecureMap::initHero() {
 	_hero->setAnchorPoint(Vec2(0.38, 0.1));
 
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
-		Size(_hero->getContentSize().width, _hero->getContentSize().height / 5),
-		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.4f*_hero->getContentSize().height));
+		Size(_hero->getContentSize().width, _hero->getContentSize().height * 2 / 5),
+		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*_hero->getContentSize().height));
 	physicsBody->setDynamic(true);
 	physicsBody->setGravityEnable(false);
 	physicsBody->setRotationEnable(false);
@@ -260,13 +260,16 @@ void SecureMap::initDoor(Sprite *door) {
 void SecureMap::initLayer() {
 	//wall
 	auto layer2 = _tiledmap->getLayer("layer2");
-	for (int i = 3; i < 26; ++i) {
+	for (int i = 3; i < 28; ++i) {
 		initWall(layer2->getTileAt(Vec2(1, i)));
 	}
-	for (int i = 1; i < 62; ++i) {
+	for (int i = 2; i < 62; ++i) {
 		initWall(layer2->getTileAt(Vec2(i, 26)));
+		//layer2->getTileAt(Vec2(i, 26))->setGlobalZOrder(100);
+		//layer2->getTileAt(Vec2(i, 27))->setGlobalZOrder(100);
+		//layer2->getTileAt(Vec2(i, 26))//->getParent()->reorderChild(layer2->getTileAt(Vec2(i, 26)), 666);
 	}
-	for (int i = 26; i > 3; --i) {
+	for (int i = 28; i > 3; --i) {
 		initWall(layer2->getTileAt(Vec2(62, i)));
 	}
 	for (int i = 62; i > 1; --i) {
