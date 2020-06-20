@@ -51,6 +51,10 @@ private:
 
 	//½»»¥
 	void interact();
+	//¹¥»÷
+	void shoot();
+	//¼¼ÄÜ
+	void skill();
 };
 
 #endif // _SECURE_MAP_H_#pragma once
