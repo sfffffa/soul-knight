@@ -74,6 +74,8 @@ RangedWeapon *RangedWeapon::clone()const {
 
 	if (temp) {
 		temp->setSpriteFrame(this->getSpriteFrame());
+		temp->setAnchorPoint(getAnchorPoint());
+		temp->setScale(getScale());
 		temp->_MPconsume = _MPconsume;
 		temp->_aspd = _aspd;
 		temp->_critRate = _critRate;

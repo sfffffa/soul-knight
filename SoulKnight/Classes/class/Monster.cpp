@@ -114,6 +114,8 @@ Monster *Monster::clone()const {
 		temp->_coinChance = _coinChance;
 		temp->_healthPotChance = _healthPotChance;
 		temp->_magicPotChance = _magicPotChance;
+		temp->_charaName = _charaName;
+		temp->setScale(getScale());
 		return temp;
 	}
 	else {

@@ -47,6 +47,8 @@ bool SelectingScene::init()
 	meteorhammerright->setWeaponName("meteorhammer");
 	auto wandright = RangedWeapon::createWithSpriteFrameName("wandright.png", 0, 0.3f, 0.1f, 2.5f, elementalbulletright);
 	wandright->setWeaponName("wand");
+	wandright->setAnchorPoint(Vec2(0.35, 0.5));
+	wandright->setScale(3.5f);
 
 	globalWeaponRepository.push_back(gun1right);
 	globalWeaponRepository.push_back(gun2right);

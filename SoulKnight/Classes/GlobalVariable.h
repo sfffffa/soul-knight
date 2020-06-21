@@ -29,9 +29,23 @@
 extern std::shared_ptr<Hero> globalHero;
 extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
 extern std::vector<std::shared_ptr<Monster>> globalMonsterRepository;
+extern std::vector<std::shared_ptr<Boss>> globalBossRepository;
 extern int globalCoin;
 
 extern std::map<int, std::shared_ptr<Bullet>> bulletManagement;
 extern int bulletIndex;
+
+extern int itemIndex;
+extern std::map<int, std::shared_ptr<Item>> itemManagement;
+
+extern std::vector<char> roomStatus;
+extern int room2Index;
+extern std::map<int, std::shared_ptr<Monster>> room2;
+extern int room3Index;
+extern std::map<int, std::shared_ptr<Monster>> room3;
+extern int room4Index;
+extern std::map<int, std::shared_ptr<Monster>> room4;
+extern int room5Index;
+extern std::map<int, std::shared_ptr<Boss>> room5;
 
 #endif // _GLOBAL_VARIABLE_
