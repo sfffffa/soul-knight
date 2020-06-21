@@ -26,8 +26,6 @@ private:
 		unsigned int hunter : 1;
 		unsigned int : 1;
 	} interactStatus;
-	std::map<int, std::shared_ptr<Bullet>> bulletManagement;
-	int bulletIndex;
 
 	//∏≥”ËNPCÕº∆¨º∞PhysicsBody
 	Sprite *initNPC(const std::string& spriteFrameName);

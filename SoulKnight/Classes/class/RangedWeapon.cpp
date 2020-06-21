@@ -79,6 +79,7 @@ RangedWeapon *RangedWeapon::clone()const {
 		temp->_critRate = _critRate;
 		temp->_critMultiple = _critMultiple;
 		temp->_bullet = _bullet;
+		temp->_weaponName = _weaponName;
 		return temp;
 	}
 	else {

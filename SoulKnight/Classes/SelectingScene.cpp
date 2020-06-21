@@ -24,22 +24,29 @@ bool SelectingScene::init()
 
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
-	
+
 	auto spritecache = SpriteFrameCache::getInstance();
 	spritecache->addSpriteFramesWithFile("new.plist");
-	
+
 	//ÎäÆ÷×é×°
 	//bullet
-	auto bulletright = Bullet::createWithSpriteFrameName("bulletright.png", 10, 2000.0f);
-	auto elementalbulletright = Bullet::createWithSpriteFrameName("bluefireright.png", 20, 2000.0f);
+	auto bulletright = Bullet::createWithSpriteFrameName("bulletright.png", 2, 2000.0f);
+	auto elementalbulletright = Bullet::createWithSpriteFrameName("bluefireright.png", 2, 2000.0f);
 	//weapon
 	auto gun1right = RangedWeapon::createWithSpriteFrameName("gun1right.png", 0, 0.3f, 0.1f, 2.5f, bulletright);
+	gun1right->setWeaponName("gun1");
 	auto gun2right = RangedWeapon::createWithSpriteFrameName("gun2right.png", 2, 0.5f, 0.2f, 3.0f, bulletright);
+	gun2right->setWeaponName("gun2");
 	auto gun3right = RangedWeapon::createWithSpriteFrameName("gun3right.png", 4, 0.5f, 0.3f, 5.0f, bulletright);
+	gun3right->setWeaponName("gun3");
 	auto swordright = CloseInWeapon::createWithSpriteFrameName("swordright.png", 0, 8, 500.0f, 0.6f, 0.3f, 3.0f);
+	swordright->setWeaponName("sword");
 	auto blade1right = CloseInWeapon::createWithSpriteFrameName("blade1right.png", 2, 10, 550.0f, 0.6f, 0.4f, 4.0f);
+	blade1right->setWeaponName("blade1");
 	auto meteorhammerright = CloseInWeapon::createWithSpriteFrameName("meteorhammerright.png", 5, 25, 550.0f, 0.8f, 0.5f, 5.0f);
+	meteorhammerright->setWeaponName("meteorhammer");
 	auto wandright = RangedWeapon::createWithSpriteFrameName("wandright.png", 0, 0.3f, 0.1f, 2.5f, elementalbulletright);
+	wandright->setWeaponName("wand");
 
 	globalWeaponRepository.push_back(gun1right);
 	globalWeaponRepository.push_back(gun2right);
@@ -57,8 +64,6 @@ bool SelectingScene::init()
 	float y1 = origin.y + visibleSize.height - selectLabel->getContentSize().width / 2;
 	selectLabel->setPosition(Point(x1, y1));
 	this->addChild(selectLabel);
-
-	
 
 	globalHero = Hero::createWithSpriteFrameName("hero1right.png");
 
@@ -101,7 +106,12 @@ inline void SelectingScene::initKnight() {
 
 inline void SelectingScene::initWizard()
 {
-	globalHero = Hero::createWithSpriteFrameName("hero2right.png", 6, 9, 200, 500.0f);
+	auto weaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[6]->clone());
+	weaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
+	weaponDefault->setScale(3.5f);
+	globalHero = Hero::createWithSpriteFrameName("hero2right.png", 6, 9, 200, 500.0f, weaponDefault);
+	weaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	globalHero->addChild(weaponDefault.get(), 1);
 	globalHero->setHeroName("hero2");
 	globalHero->setAnchorPoint(Vec2(0.28f, 0.1f));
 }

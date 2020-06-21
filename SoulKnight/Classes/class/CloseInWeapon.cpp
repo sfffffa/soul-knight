@@ -96,6 +96,7 @@ CloseInWeapon *CloseInWeapon::clone()const {
 		temp->_aspd = _aspd;
 		temp->_critRate = _critRate;
 		temp->_critMultiple = _critMultiple;
+		temp->_weaponName = _weaponName;
 		return temp;
 	}
 	else {
