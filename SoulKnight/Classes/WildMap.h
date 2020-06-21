@@ -38,6 +38,9 @@ private:
 	std::map<int, std::shared_ptr<Monster>> _room3;
 	int _room4Index;
 	std::map<int, std::shared_ptr<Boss>> _room4;
+	//ZOrder
+	int _bulletZOrder;
+	int _monsterZorder;
 
 	void initMember();
 	void releaseMember();

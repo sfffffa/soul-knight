@@ -119,7 +119,8 @@ bool WildMap::init()
 	float bornX = heroBornPlace["x"].asFloat();
 	float bornY = heroBornPlace["y"].asFloat();
 	globalHero->setPosition(Vec2(bornX, bornY));
-	_tiledmap->addChild(globalHero.get(), 30);
+	_tiledmap->addChild(globalHero.get(), _monsterZorder);
+
 	_initiativeMapOffset = _tiledmap->getPosition();
 	_initiativeHeroOffset = globalHero->getPosition();
 	//_tiledmap->setViewpointCenter(_player->getPosition());
@@ -215,6 +216,9 @@ void WildMap::initMember() {
 	_room3Index = 0;
 	_room4Index = 0;
 	_roomStatus = { 0,0,0,0,0 };
+
+	_bulletZOrder = 0;
+	_monsterZorder = 10000;
 }
 
 void WildMap::releaseMember() {
@@ -238,7 +242,7 @@ void WildMap::initHero() {
 		cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
 
 	auto physicsBody = PhysicsBody::createBox(
-		heroContact->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+		globalHero->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(HEROCONTACT);
 	physicsBody->setCategoryBitmask(HEROCONTACT);
@@ -272,7 +276,7 @@ void WildMap::initEnemy(std::shared_ptr<Monster> monster, int roomNum) {
 		cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
 
 	auto physicsBody = PhysicsBody::createBox(
-		monsterContact->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
+		monster->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
 	physicsBody->setDynamic(false);
 	physicsBody->setTag(ENEMYCONTACT);
 	physicsBody->setCategoryBitmask(ENEMYCONTACT);
@@ -493,6 +497,7 @@ bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 		break;
 
 	case cocos2d::EventKeyboard::KeyCode::KEY_J:
+		shoot();
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_K:
 		break;
@@ -668,9 +673,41 @@ void WildMap::interact() {
 }
 
 void WildMap::shoot() {
+	Vec2 shootDir = Vec2::ZERO;
+	float distanceMIN = 100000.0f;
 	if (!globalHero->shoot()) {
 		return;
 	}
+	this->getPhysicsWorld()->queryRect(
+		[&](PhysicsWorld& world, PhysicsShape& shape, void* userData)->bool {
+		if (shape.getBody()->getTag()&ENEMY) {
+			auto distance = shape.getCenter().distance(globalHero->getPosition());
+			if (distance < distanceMIN) {
+				distanceMIN = distance;
+				shootDir = shape.getCenter() - globalHero->getPosition();
+			}
+		}
+		return true;
+	}, Rect::Rect(globalHero->getPositionX() - 1000, globalHero->getPositionY() - 1000, 2000, 2000), nullptr);
+
+	auto bullet = static_cast<std::shared_ptr<Bullet>>(
+		globalHero->getWeaponInstance()->getBulletInstance()->clone(false));
+	initMyBullet(bullet);
+	if (shootDir == Vec2::ZERO) {
+		if (globalHero->isTowardLeft()) {
+			shootDir = (-1, 0);
+		}
+		else {
+			shootDir = (1, 0);
+		}
+	}
+	else {
+		shootDir.normalize();
+	}
+	bullet->setPosition(globalHero->getPosition());
+	bullet->setRotation(shootDir.getAngle());
+	bullet->getPhysicsBody()->setVelocity(bullet->getSpeed()*shootDir);
+	_tiledmap->addChild(bullet.get(), 1);
 }
 
 void WildMap::update(float delta) {
