@@ -1,5 +1,7 @@
 #include "WildMap.h"
 #include "SecureMap.h"
+#include <random>
+#include <ctime>
 
 USING_NS_CC;
 using namespace std;
@@ -1071,9 +1073,117 @@ void WildMap::initMonsters()
 
 void WildMap::monstersAi()
 {
-	//room2
+	int currentRoom = 0;
+	for (int i = 1;i < 6; i++)
+	{
+		if (_roomStatus[i] == 1)
+		{
+			currentRoom = i;
+			break;
+		}
+	}
+	
+	if (currentRoom == 0 || currentRoom == 1)
+	{
+		return;
+	}
+	
+	if (currentRoom == 2)//room2
+	{
+		for (int i = 1; i <=4; i++)
+		{
+			std::default_random_engine e(static_cast<unsigned>(time(0)));
+			float Y = _room2[i]->getPosition().y;
+			float X = _room2[i]->getPosition().x;
+			float maxY = Y + 100;
+			float minY = Y - 100;
+			float maxX = X + 100;
+			float minX = X - 100;
+			int dirChosen = random(0,1);
+			if (dirChosen)
+			{
+				std::uniform_real_distribution<float> randomY(minY, maxY);
+				_room2[i]->setPosition(Vec2(_room2[i]->getPosition().x, randomY(e)));
+			}
+			else
+			{
+				std::uniform_real_distribution<float> randomX(minX, maxX);
+				_room2[i]->setPosition(Vec2(randomX(e),_room2[i]->getPosition().y));
+			}
 
-	//room3
+		}
+	}
+	if (currentRoom == 3)//room3
+	{
+		for (int i = 1; i <= 4; i++)
+		{
+			std::default_random_engine e(static_cast<unsigned>(time(0)));
+			float Y = _room3[i]->getPosition().y;
+			float X = _room3[i]->getPosition().x;
+			float maxY = Y + 100;
+			float minY = Y - 100;
+			float maxX = X + 100;
+			float minX = X - 100;
+			int dirChosen = random(0, 1);
+			if (dirChosen)
+			{
+				std::uniform_real_distribution<float> randomY(minY, maxY);
+				_room3[i]->setPosition(Vec2(_room3[i]->getPosition().x, randomY(e)));
+			}
+			else
+			{
+				std::uniform_real_distribution<float> randomX(minX, maxX);
+				_room3[i]->setPosition(Vec2(randomX(e), _room3[i]->getPosition().y));
+			}
+		}
+	}
+	if (currentRoom == 4)//room4
+	{
+		for (int i = 1; i <= 4; i++)
+		{
+			std::default_random_engine e(static_cast<unsigned>(time(0)));
+			float Y = _room4[i]->getPosition().y;
+			float X = _room4[i]->getPosition().x;
+			float maxY = Y +100;
+			float minY = Y - 100;
+			float maxX = X + 100;
+			float minX = X - 100;
+			int dirChosen = random(0, 1);
+			if (dirChosen)
+			{
+				std::uniform_real_distribution<float> randomY(minY, maxY);
+				_room4[i]->setPosition(Vec2(_room4[i]->getPosition().x, randomY(e)));
+			}
+			else
+			{
+				std::uniform_real_distribution<float> randomX(minX, maxX);
+				_room4[i]->setPosition(Vec2(randomX(e), _room4[i]->getPosition().y));
+			}
+		}
+	}
+	if (currentRoom == 5)//room5
+	{
+		std::default_random_engine e(static_cast<unsigned>(time(0)));
+		float Y = _room5[1]->getPosition().y;
+		float X = _room5[1]->getPosition().x;
+		float maxY = Y + 150;
+		float minY = Y - 150;
+		float maxX = X + 150;
+		float minX = X - 150;
+		int dirChosen = random(0, 1);
+		if (dirChosen)
+		{
+			std::uniform_real_distribution<float> randomY(minY, maxY);
+			_room5[1]->setPosition(Vec2(_room5[1]->getPosition().x, randomY(e)));
+		}
+		else
+		{
+			std::uniform_real_distribution<float> randomX(minX, maxX);
+			_room5[1]->setPosition(Vec2(randomX(e), _room5[1]->getPosition().y));
+		}
 
-	//room4
+	}
+	
+
+	
 }
