@@ -31,13 +31,15 @@ private:
 	int _itemIndex;
 	std::map<int, std::shared_ptr<Item>> _itemManagement;
 	//小怪资源管理器（房间）
-	std::vector<char> _roomStatus;
+	std::vector<char> _roomStatus;//0表示未进入，1表示正在房间里，2表示已探索
 	int _room2Index;
 	std::map<int, std::shared_ptr<Monster>> _room2;
 	int _room3Index;
 	std::map<int, std::shared_ptr<Monster>> _room3;
 	int _room4Index;
-	std::map<int, std::shared_ptr<Boss>> _room4;
+	std::map<int, std::shared_ptr<Monster>> _room4;
+	int _room5Index;
+	std::map<int, std::shared_ptr<Boss>> _room5;
 	//ZOrder
 	int _bulletZOrder;
 	int _monsterZorder;
@@ -71,6 +73,8 @@ private:
 	void shoot();
 	//技能
 	void skill();
+
+	void positionMonitor();
 
 	void update(float delta);
 };

@@ -315,7 +315,8 @@ void WildMap::initMember() {
 	_room2Index = 0;
 	_room3Index = 0;
 	_room4Index = 0;
-	_roomStatus = { 0,0,0,0,0 };
+	_room5Index = 0;
+	_roomStatus = { 0,0,0,0,0,0 };
 
 	_bulletZOrder = 0;
 	_monsterZorder = 10000;
@@ -327,6 +328,7 @@ void WildMap::releaseMember() {
 	_room2.clear();
 	_room3.clear();
 	_room4.clear();
+	_room5.clear();
 	globalHero->removeFromParentAndCleanup(false);
 }
 
@@ -810,9 +812,97 @@ void WildMap::shoot() {
 	_tiledmap->addChild(bullet.get(), 1);
 }
 
+void WildMap::positionMonitor() {
+	//Œª÷√≈–∂œ
+	auto curHeroPosition = globalHero->getPosition();
+	TMXObjectGroup* room2 = _tiledmap->getObjectGroup("room2");
+	TMXObjectGroup* room3 = _tiledmap->getObjectGroup("room3");
+	TMXObjectGroup* room4 = _tiledmap->getObjectGroup("room4");
+	TMXObjectGroup* room5 = _tiledmap->getObjectGroup("room5");
+	auto room2DL = room2->getObject("monsterborn3");
+	auto room3DL = room3->getObject("monsterborn3");
+	auto room4DL = room4->getObject("monsterborn3");
+	auto room5DL = room5->getObject("monsterborn3");
+	auto room2UR = room2->getObject("monsterborn2");
+	auto room3UR = room3->getObject("monsterborn2");
+	auto room4UR = room4->getObject("monsterborn2");
+	auto room5UR = room5->getObject("monsterborn2");
+	if (_roomStatus[2] != 2) {
+		if (_room2.empty() && _roomStatus[2] == 1) {			
+				_roomStatus[2] = 2;
+				//door;
+				return;
+		}
+		else if (_roomStatus[2] == 0) {
+			if ((globalHero->getPositionX() > room2DL["x"].asFloat() &&
+				globalHero->getPositionY() > room2DL["y"].asFloat()) &&
+				(globalHero->getPositionX() < room2UR["x"].asFloat() &&
+					globalHero->getPositionY() < room2UR["y"].asFloat())) {
+				_roomStatus[2] = 1;
+				//door
+				return;
+			}
+		}
+	}
+	if (_roomStatus[3] != 2) {
+		if (_room3.empty() && _roomStatus[3] == 1) {
+			_roomStatus[3] = 2;
+			//door;
+			return;
+		}
+		else if (_roomStatus[3] == 0) {
+			if ((globalHero->getPositionX() > room3DL["x"].asFloat() &&
+				globalHero->getPositionY() > room3DL["y"].asFloat()) &&
+				(globalHero->getPositionX() < room3UR["x"].asFloat() &&
+					globalHero->getPositionY() < room3UR["y"].asFloat())) {
+				_roomStatus[3] = 1;
+				//door
+				return;
+			}
+		}
+	}
+	if (_roomStatus[4] != 2) {
+		if (_room4.empty() && _roomStatus[4] == 1) {
+			_roomStatus[4] = 2;
+			//door;
+			return;
+		}
+		else if (_roomStatus[4] == 0) {
+			if ((globalHero->getPositionX() > room4DL["x"].asFloat() &&
+				globalHero->getPositionY() > room4DL["y"].asFloat()) &&
+				(globalHero->getPositionX() < room4UR["x"].asFloat() &&
+					globalHero->getPositionY() < room4UR["y"].asFloat())) {
+				_roomStatus[4] = 1;
+				//door
+				return;
+			}
+		}
+	}
+	if (_roomStatus[5] != 2) {
+		if (_room5.empty() && _roomStatus[5] == 1) {
+			_roomStatus[5] = 2;
+			//door;
+			return;
+		}
+		else if (_roomStatus[5] == 0) {
+			if ((globalHero->getPositionX() > room5DL["x"].asFloat() &&
+				globalHero->getPositionY() > room5DL["y"].asFloat()) &&
+				(globalHero->getPositionX() < room5UR["x"].asFloat() &&
+					globalHero->getPositionY() < room5UR["y"].asFloat())) {
+				_roomStatus[5] = 1;
+				//door
+				return;
+			}
+		}
+	}
+}
+
 void WildMap::update(float delta) {
 	//œ‡ª˙∏˙ÀÊ
 	_tiledmap->setPosition(_initiativeHeroOffset + _initiativeMapOffset - globalHero->getPosition());
 
 	//Œª÷√≈–∂œ
+	positionMonitor();
+
+
 }
