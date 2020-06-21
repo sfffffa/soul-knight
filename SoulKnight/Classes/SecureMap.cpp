@@ -7,6 +7,8 @@
 USING_NS_CC;
 extern std::shared_ptr<Hero> globalHero;
 extern int globalCoin;
+extern std::map<int, std::shared_ptr<Bullet>> bulletManagement;
+extern int bulletIndex;
 
 Scene* SecureMap::createScene()
 {
@@ -322,6 +324,10 @@ void SecureMap::initLayer() {
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
 	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
+	auto weaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getWeaponInstance()->getWeaponName() + "left.png");
+	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getWeaponInstance()->getWeaponName() + "right.png");
 
 	switch (keyCode)
 	{
@@ -333,6 +339,9 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
 		if (!globalHero->isTowardLeft()) {
 			globalHero->setSpriteFrame(heroLeft);
+			globalHero->getWeaponInstance()->setSpriteFrame(weaponLeft);
+			globalHero->getWeaponInstance()->setPosition(
+				Vec2(-globalHero->getContentSize().width *0.25, globalHero->getContentSize().height / 2));
 			globalHero->setToward(true);
 		}
 		globalHero->getPhysicsBody()->setVelocity(Vec2(-globalHero->getSpeed(), 0));
@@ -343,6 +352,9 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
 		if (globalHero->isTowardLeft()) {
 			globalHero->setSpriteFrame(heroRight);
+			globalHero->getWeaponInstance()->setSpriteFrame(weaponRight);
+			globalHero->getWeaponInstance()->setPosition(
+				Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
 			globalHero->setToward(false);
 		}
 		globalHero->getPhysicsBody()->setVelocity(Vec2(globalHero->getSpeed(), 0));
@@ -404,11 +416,15 @@ bool SecureMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 	if (bodyA->getTag()&MY_BULLET) {
 		bodyA->getNode()->removeFromParentAndCleanup(true);
 		bulletManagement.erase(bodyA->getNode()->getTag());
+		bodyA->setTag(0);
+		bodyA->removeFromWorld();
 		return true;
 	}
 	if (bodyB->getTag()&MY_BULLET) {
 		bodyB->getNode()->removeFromParentAndCleanup(true);
 		bulletManagement.erase(bodyB->getNode()->getTag());
+		bodyB->setTag(0);
+		bodyB->removeFromWorld();
 		return true;
 	}
 	//Hero ºÍÃÅ
@@ -448,6 +464,7 @@ void SecureMap::interact() {
 		globalHero->removeFromParentAndCleanup(false);
 		//2.bulletMangementÇå¿Õ
 		bulletManagement.clear();
+		bulletIndex = 0;
 		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, WildMap::createScene()));
 		return;
 	}
@@ -474,5 +491,6 @@ void SecureMap::shoot() {
 				SpriteFrameCache::getInstance()->getSpriteFrameByName("bulletright.png"));
 			bullet->getPhysicsBody()->setVelocity(Vec2(bullet->getSpeed(), 0));
 		}
+		_tiledmap->addChild(bullet.get(), 11);
 	}
 }

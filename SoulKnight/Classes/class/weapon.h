@@ -16,11 +16,13 @@ public:
 	virtual void setAspd(float aspd) { *_aspd = aspd; }
 	virtual void setCritRate(float critRate) { *_critRate = critRate; }
 	virtual void setCritMultiple(float critMultiple) { *_critMultiple = critMultiple; }
+	virtual void setWeaponName(const std::string &name) { _weaponName = name; }
 
 	virtual int getMPCosume()const { return *_MPconsume; }
 	virtual float getAspd()const { return *_aspd; }
 	virtual float getCritRate()const { return *_critRate; }
 	virtual float getCritMultiple()const { return *_critMultiple; }
+	virtual std::string getWeaponName()const { return _weaponName; }
 	virtual std::shared_ptr<Bullet> getBulletInstance()const = 0;
 
 	virtual Weapon *clone()const = 0;
@@ -45,6 +47,7 @@ protected:
 	std::shared_ptr<float> _aspd;//¹¥ËÙ
 	std::shared_ptr<float> _critRate;//±©»÷ÂÊ
 	std::shared_ptr<float> _critMultiple;//±©»÷±¶Êý
+	std::string _weaponName;
 
 private:
 

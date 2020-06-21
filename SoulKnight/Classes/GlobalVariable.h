@@ -31,4 +31,7 @@ extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
 extern std::vector<std::shared_ptr<Monster>> globalMonsterRepository;
 extern int globalCoin;
 
+extern std::map<int, std::shared_ptr<Bullet>> bulletManagement;
+extern int bulletIndex;
+
 #endif // _GLOBAL_VARIABLE_
