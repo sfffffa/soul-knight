@@ -2,6 +2,8 @@
 #define __WILD_MAP_H__
 
 #include "GlobalVariable.h"
+#include <ctime>
+#include <random>
 
 class WildMap : public cocos2d::Scene
 {
@@ -21,29 +23,18 @@ private:
 		unsigned int : 1;
 		unsigned int : 1;
 	} _interactStatus;
-	
 
 	Vec2 _initiativeHeroOffset;
 	Vec2 _initiativeMapOffset;
-	//子弹资源管理器
-	int _bulletIndex;
-	std::map<int, std::shared_ptr<Bullet>> _bulletManagement;
-	//道具资源管理器
-	int _itemIndex;
-	std::map<int, std::shared_ptr<Item>> _itemManagement;
+
 	//小怪资源管理器（房间）
-	std::vector<char> _roomStatus;//0表示未进入，1表示正在房间里，2表示已探索
-	int _room2Index;
-	std::map<int, std::shared_ptr<Monster>> _room2;
-	int _room3Index;
-	std::map<int, std::shared_ptr<Monster>> _room3;
-	int _room4Index;
-	std::map<int, std::shared_ptr<Monster>> _room4;
-	int _room5Index;
-	std::map<int, std::shared_ptr<Boss>> _room5;
+	//std::vector<char> _roomStatus;//0表示未进入，1表示正在房间里，2表示已探索
+
 	//ZOrder
 	int _bulletZOrder;
 	int _monsterZorder;
+
+	int curRoomNum = 0;
 
 	void initMember();
 	void releaseMember();
@@ -60,11 +51,11 @@ private:
 	void initItem(std::shared_ptr<Item> item);
 	void initLayer();
 
-	void initMonsters();
 	void monstersAi();
-	
-	void addconductor();
 
+	void addMonsterInRoom();
+	void addconductor();
+	//void addItem(Item::Type type);
 	//键盘监听
 	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
 	bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);

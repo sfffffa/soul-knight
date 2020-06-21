@@ -101,6 +101,7 @@ bool Hero::shoot() {
 		return false;
 	}
 	_MP -= ((_weaponStatus) ? _offhandWeapon->getMPCosume() : _weapon->getMPCosume());
+	return true;
 }
 
 bool Hero::beShot(int damage) {

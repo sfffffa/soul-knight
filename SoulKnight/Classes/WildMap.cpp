@@ -8,6 +8,23 @@ extern std::shared_ptr<Hero> globalHero;
 extern int globalCoin;
 extern std::vector<std::shared_ptr<Monster>> globalMonsterRepository;
 extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
+extern std::vector<std::shared_ptr<Boss>> globalBossRepository;
+extern int bulletIndex;
+extern std::map<int, std::shared_ptr<Bullet>> bulletManagement;
+extern int itemIndex;
+extern std::map<int, std::shared_ptr<Item>> itemManagement;
+
+extern std::vector<char> roomStatus;
+extern int room2Index;
+extern std::map<int, std::shared_ptr<Monster>> room2;
+extern int room3Index;
+extern std::map<int, std::shared_ptr<Monster>> room3;
+extern int room4Index;
+extern std::map<int, std::shared_ptr<Monster>> room4;
+extern int room5Index;
+extern std::map<int, std::shared_ptr<Boss>> room5;
+
+std::default_random_engine engine(static_cast<unsigned>(time(0)));
 
 Scene* WildMap::createScene()
 {
@@ -61,8 +78,6 @@ bool WildMap::init()
 	// 1.3.1 武器库初始化（相应子弹初始化）					hth
 	//想法大概是在一个vector<std::shared_ptr<Weapon>>里提前初始化好所有武器，以供小怪爆武器时直接复制Weapon
 
-    
-
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				cyf
 	//
@@ -98,123 +113,35 @@ bool WildMap::init()
 	/////////////////////////////
 	// 4. 小怪（及Boss）初始化								xyc
 	//……
-	auto monster1 = Monster::createWithSpriteFrameName("monster1right.png");
-	auto monster2 = Monster::createWithSpriteFrameName("monster2right.png");
-	auto boss = Boss::createWithSpriteFrameName("boss1right.png");
+	//怪物图集初始化
+	auto weapon1 = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[0]->clone());
+	auto monster1 = Monster::createWithSpriteFrameName(
+		"monster1right.png", 15, 100, 400.0f, weapon1, 0.5, 0.1, 0.2);
+	monster1->setCharacterName("monster1");
+	monster1->setScale(0.3f);
+	monster1->addChild(weapon1.get(), 1);
+
+	auto weapon2 = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[2]->clone());
+	auto monster2 = Monster::createWithSpriteFrameName(
+		"monster2right.png", 20, 50, 300.0f, weapon2, 0.3, 0.2, 0.1);
+	monster2->setCharacterName("monster2");
+	monster2->setScale(0.3f);
+	monster2->addChild(weapon2.get(), 1);
+
+	auto weapon3 = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[1]->clone());
+	auto boss = Boss::createWithSpriteFrameName(
+		"boss1right.png", 200, 1000, 800.0f, globalWeaponRepository[1], 0.0f, 0.0f, 0.3f);
+	boss->setCharacterName("boss1");
+	boss->setScale(0.5, 0.5);
+	boss->addChild(weapon3.get(), 1);
+
 	globalMonsterRepository.push_back(monster1);
 	globalMonsterRepository.push_back(monster2);
+	globalBossRepository.push_back(boss);
 	//globalMonsterRepository.push_back(boss1);
 
-	TMXObjectGroup* room2 = _tiledmap->getObjectGroup("room2");
-	TMXObjectGroup* room3 = _tiledmap->getObjectGroup("room3");
-	TMXObjectGroup* room4 = _tiledmap->getObjectGroup("room4");
-	TMXObjectGroup* room5 = _tiledmap->getObjectGroup("room5");
-	//room2
-	auto monsterborn2_1 = room2->getObject("monsterborn1");
-	auto monsterborn2_2 = room2->getObject("monsterborn2");
-	auto monsterborn2_3 = room2->getObject("monsterborn3");
-	auto monsterborn2_4 = room2->getObject("monsterborn4");
-	float born2_X1 = monsterborn2_1["x"].asFloat();
-	float born2_Y1 = monsterborn2_1["y"].asFloat();
-	float born2_X2 = monsterborn2_2["x"].asFloat();
-	float born2_Y2 = monsterborn2_2["y"].asFloat();
-	float born2_X3 = monsterborn2_3["x"].asFloat();
-	float born2_Y3 = monsterborn2_3["y"].asFloat();
-	float born2_X4 = monsterborn2_4["x"].asFloat();
-	float born2_Y4 = monsterborn2_4["y"].asFloat();
-
-	auto monster2_1 = globalMonsterRepository[0]->clone();
-	auto monster2_2 = globalMonsterRepository[0]->clone();
-	auto monster2_3 = globalMonsterRepository[0]->clone();
-	auto monster2_4 = globalMonsterRepository[0]->clone();
-
-	monster2_1->setPosition(Vec2(born2_X1, born2_Y1));
-	monster2_2->setPosition(Vec2(born2_X2, born2_Y2));
-	monster2_3->setPosition(Vec2(born2_X3, born2_Y3));
-	monster2_4->setPosition(Vec2(born2_X4, born2_Y4));
-	monster2_1->setScale(0.3, 0.3);
-	monster2_2->setScale(0.3, 0.3);
-	monster2_3->setScale(0.3, 0.3);
-	monster2_4->setScale(0.3, 0.3);
-	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster2_1));
-	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster2_2));
-	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster2_3));
-	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster2_4));
-
-	//room3
-	auto monsterborn3_1 = room3->getObject("monsterborn1");
-	auto monsterborn3_2 = room3->getObject("monsterborn2");
-	auto monsterborn3_3 = room3->getObject("monsterborn3");
-	auto monsterborn3_4 = room3->getObject("monsterborn4");
-	float born3_X1 = monsterborn3_1["x"].asFloat();
-	float born3_Y1 = monsterborn3_1["y"].asFloat();
-	float born3_X2 = monsterborn3_2["x"].asFloat();
-	float born3_Y2 = monsterborn3_2["y"].asFloat();
-	float born3_X3 = monsterborn3_3["x"].asFloat();
-	float born3_Y3 = monsterborn3_3["y"].asFloat();
-	float born3_X4 = monsterborn3_4["x"].asFloat();
-	float born3_Y4 = monsterborn3_4["y"].asFloat();
-
-	auto monster3_1 = globalMonsterRepository[1]->clone();
-	auto monster3_2 = globalMonsterRepository[1]->clone();
-	auto monster3_3 = globalMonsterRepository[1]->clone();
-	auto monster3_4 = globalMonsterRepository[1]->clone();
-
-	monster3_1->setPosition(Vec2(born3_X1, born3_Y1));
-	monster3_2->setPosition(Vec2(born3_X2, born3_Y2));
-	monster3_3->setPosition(Vec2(born3_X3, born3_Y3));
-	monster3_4->setPosition(Vec2(born3_X4, born3_Y4));
-	monster3_1->setScale(0.3, 0.3);
-	monster3_2->setScale(0.3, 0.3);
-	monster3_3->setScale(0.3, 0.3);
-	monster3_4->setScale(0.3, 0.3);
-	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster3_1));
-	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster3_2));
-	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster3_3));
-	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster3_4));
-	
-	//room4
-	auto monsterborn4_1 = room4->getObject("monsterborn1");
-	auto monsterborn4_2 = room4->getObject("monsterborn2");
-	auto monsterborn4_3 = room4->getObject("monsterborn3");
-	auto monsterborn4_4 = room4->getObject("monsterborn4");
-	float born4_X1 = monsterborn4_1["x"].asFloat();
-	float born4_Y1 = monsterborn4_1["y"].asFloat();
-	float born4_X2 = monsterborn4_2["x"].asFloat();
-	float born4_Y2 = monsterborn4_2["y"].asFloat();
-	float born4_X3 = monsterborn4_3["x"].asFloat();
-	float born4_Y3 = monsterborn4_3["y"].asFloat();
-	float born4_X4 = monsterborn4_4["x"].asFloat();
-	float born4_Y4 = monsterborn4_4["y"].asFloat();
-
-	auto monster4_1 = globalMonsterRepository[0]->clone();
-	auto monster4_2 = globalMonsterRepository[0]->clone();
-	auto monster4_3 = globalMonsterRepository[0]->clone();
-	auto monster4_4 = globalMonsterRepository[0]->clone();
-
-	monster4_1->setPosition(Vec2(born4_X1, born4_Y1));
-	monster4_2->setPosition(Vec2(born4_X2, born4_Y2));
-	monster4_3->setPosition(Vec2(born4_X3, born4_Y3));
-	monster4_4->setPosition(Vec2(born4_X4, born4_Y4));
-	monster4_1->setScale(0.3, 0.3);
-	monster4_2->setScale(0.3, 0.3);
-	monster4_3->setScale(0.3, 0.3);
-	monster4_4->setScale(0.3, 0.3);
-	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster4_1));
-	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster4_2));
-	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster4_3));
-	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster4_4));
-	//room5
-	
-	auto bossborn = room5->getObject("bossborn");
-	float bossX = bossborn["x"].asFloat();
-	float bossY = bossborn["y"].asFloat();
-	boss->setPosition(Vec2(bossX, bossY));
-	boss->setScale(0.5, 0.5);
-	_room5.insert(map<int, std::shared_ptr<Boss>>::value_type(1, boss));
 	//把所有monstermap元素放到位置上去
-	initMonsters();
-
+	addMonsterInRoom();
 
 	/////////////////////////////
 	// 5. Hero 初始化										cyf
@@ -265,7 +192,6 @@ bool WildMap::init()
 	// 5.3.1.1 小怪激活（开始自由移动、攻击）					xyc
 	//……
 
-
 	/////////////////////
 	// 5.3.2 碰撞检测（我方子弹与敌人）（敌方子弹与我方）（双方子弹与墙体）		cyf
 	//
@@ -300,25 +226,26 @@ void WildMap::initMember() {
 
 	_interactStatus.box = 0;
 	_interactStatus.conductor = 0;
-	_itemIndex = 0;
-	_bulletIndex = 0;
-	_room2Index = 0;
-	_room3Index = 0;
-	_room4Index = 0;
-	_room5Index = 0;
-	_roomStatus = { 0,0,0,0,0,0 };
+	itemIndex = 0;
+	bulletIndex = 0;
+	room2Index = 0;
+	room3Index = 0;
+	room4Index = 0;
+	room5Index = 0;
+	roomStatus = { 0,0,0,0,0,0 };
 
 	_bulletZOrder = 0;
 	_monsterZorder = 10000;
 }
 
 void WildMap::releaseMember() {
-	_bulletManagement.clear();
-	_itemManagement.clear();
-	_room2.clear();
-	_room3.clear();
-	_room4.clear();
-	_room5.clear();
+	bulletManagement.clear();
+	itemManagement.clear();
+	room2.clear();
+	room3.clear();
+	room4.clear();
+	room5.clear();
+	roomStatus.clear();
 	globalHero->removeFromParentAndCleanup(false);
 }
 
@@ -340,7 +267,8 @@ void WildMap::initHero() {
 	physicsBody->setCategoryBitmask(HEROCONTACT);
 	physicsBody->setCollisionBitmask(0x00);
 	physicsBody->setContactTestBitmask(ENEMY_BULLET | ENEMYCONTACT);
-	heroContact->addComponent(physicsBody);
+	heroContact->setPhysicsBody(physicsBody);
+	heroContact->setVisible(false);
 
 	globalHero->addChild(heroContact, -1);
 }
@@ -360,7 +288,7 @@ void WildMap::initEnemy(std::shared_ptr<Monster> monster, int roomNum) {
 	monsterPhyBody->setCollisionBitmask(WALL | HERO | DOOR | ENEMY);
 	monsterPhyBody->setContactTestBitmask(0x00);
 
-	monster->addComponent(monsterPhyBody);
+	monster->setPhysicsBody(monsterPhyBody);
 
 	//init enemy contact
 	auto monsterContact = DrawNode::create();
@@ -374,18 +302,27 @@ void WildMap::initEnemy(std::shared_ptr<Monster> monster, int roomNum) {
 	physicsBody->setCategoryBitmask(ENEMYCONTACT);
 	physicsBody->setCollisionBitmask(0x00);
 	physicsBody->setContactTestBitmask(MY_BULLET | HEROCONTACT | ENEMYCONTACT);
-	monsterContact->addComponent(physicsBody);
+	monsterContact->setPhysicsBody(physicsBody);
+	monsterContact->setVisible(false);
 
 	monster->addChild(monsterContact, -1);
 
 	if (roomNum == 2) {
-		monster->setTag(++_room2Index);
-		_room2[monster->getTag()] = monster;
+		monster->setTag(++room2Index);
+		room2[monster->getTag()] = monster;
 	}
 	else if (roomNum == 3) {
-		monster->setTag(++_room3Index);
-		_room3[monster->getTag()] = monster;
+		monster->setTag(++room3Index);
+		room3[monster->getTag()] = monster;
 	}
+	else if (roomNum == 4) {
+		monster->setTag(++room3Index);
+		room4[monster->getTag()] = monster;
+	}
+	/*else if (roomNum == 5) {
+		monster->setTag(++room3Index);
+		room5[monster->getTag()] = monster;
+	}*/
 }
 
 void WildMap::initMyBullet(std::shared_ptr<Bullet> bullet) {
@@ -399,9 +336,9 @@ void WildMap::initMyBullet(std::shared_ptr<Bullet> bullet) {
 	physicsBody->setCollisionBitmask(0x00);
 	physicsBody->setContactTestBitmask(DOOR | ENEMYCONTACT | WALL | BOX);
 
-	bullet->addComponent(physicsBody);
-	bullet->setTag(++_bulletIndex);
-	_bulletManagement[bullet->getTag()] = bullet;
+	bullet->setPhysicsBody(physicsBody);
+	bullet->setTag(++bulletIndex);
+	bulletManagement[bullet->getTag()] = bullet;
 }
 
 void WildMap::initEnemyBullet(std::shared_ptr<Bullet> bullet) {
@@ -415,9 +352,9 @@ void WildMap::initEnemyBullet(std::shared_ptr<Bullet> bullet) {
 	physicsBody->setCollisionBitmask(0x00);
 	physicsBody->setContactTestBitmask(DOOR | HEROCONTACT | WALL);
 
-	bullet->addComponent(physicsBody);
-	bullet->setTag(++_bulletIndex);
-	_bulletManagement[bullet->getTag()] = bullet;
+	bullet->setPhysicsBody(physicsBody);
+	bullet->setTag(++bulletIndex);
+	bulletManagement[bullet->getTag()] = bullet;
 }
 
 void WildMap::initWall(Sprite *wall) {
@@ -429,7 +366,7 @@ void WildMap::initWall(Sprite *wall) {
 	physicsBody->setCollisionBitmask(HERO | ENEMY | ITEM);
 	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
 
-	wall->addComponent(physicsBody);
+	wall->setPhysicsBody(physicsBody);
 }
 
 void WildMap::initDoor(Sprite *door) {
@@ -442,7 +379,7 @@ void WildMap::initDoor(Sprite *door) {
 	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
 
 	door->setVisible(false);
-	door->addComponent(physicsBody);
+	door->setPhysicsBody(physicsBody);
 }
 
 void WildMap::initBox(Sprite *box) {
@@ -454,7 +391,7 @@ void WildMap::initBox(Sprite *box) {
 	physicsBody->setCollisionBitmask(HERO | ITEM);
 	physicsBody->setContactTestBitmask(MY_BULLET | HERO);
 
-	box->addComponent(physicsBody);
+	box->setPhysicsBody(physicsBody);
 }
 
 void WildMap::initConductor(Sprite *conductor) {
@@ -466,7 +403,7 @@ void WildMap::initConductor(Sprite *conductor) {
 	physicsBody->setCollisionBitmask(0x00);
 	physicsBody->setContactTestBitmask(HERO);
 
-	conductor->addComponent(physicsBody);
+	conductor->setPhysicsBody(physicsBody);
 }
 
 void WildMap::initItem(std::shared_ptr<Item> item) {
@@ -478,9 +415,9 @@ void WildMap::initItem(std::shared_ptr<Item> item) {
 	physicsBody->setCollisionBitmask(WALL | BOX);
 	physicsBody->setContactTestBitmask(HERO);
 
-	item->addComponent(physicsBody);
-	item->setTag(++_itemIndex);
-	_itemManagement[item->getTag()] = item;
+	item->setPhysicsBody(physicsBody);
+	item->setTag(++itemIndex);
+	itemManagement[item->getTag()] = item;
 }
 
 void WildMap::initLayer() {
@@ -600,9 +537,97 @@ void WildMap::addconductor() {
 	hasAdded = true;
 }
 
+void WildMap::addMonsterInRoom() {
+	//room2
+	TMXObjectGroup* roomm2 = _tiledmap->getObjectGroup("room2");
+	std::uniform_int_distribution<int> room2Num(0, 10);
+	auto roomm2Num = room2Num(engine);
+	for (int i = 0; i <= roomm2Num; ++i) {
+		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[0]->clone());
+		initEnemy(monster, 2);
+		auto bornLD = roomm2->getObject("monsterborn3");
+		auto bornRU = roomm2->getObject("monsterborn2");
+		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
+		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+	for (int i = 0; i < 10 - roomm2Num; ++i) {
+		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[1]->clone());
+		initEnemy(monster, 2);
+		auto bornLD = roomm2->getObject("monsterborn3");
+		auto bornRU = roomm2->getObject("monsterborn2");
+		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
+		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+
+	//room3
+	TMXObjectGroup* roomm3 = _tiledmap->getObjectGroup("room3");
+	std::uniform_int_distribution<int> room3Num(0, 10);
+	auto roomm3Num = room3Num(engine);
+	for (int i = 0; i <= roomm3Num; ++i) {
+		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[0]->clone());
+		initEnemy(monster, 3);
+		auto bornLD = roomm3->getObject("monsterborn3");
+		auto bornRU = roomm3->getObject("monsterborn2");
+		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
+		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+	for (int i = 0; i < 10 - roomm3Num; ++i) {
+		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[1]->clone());
+		initEnemy(monster, 3);
+		auto bornLD = roomm3->getObject("monsterborn3");
+		auto bornRU = roomm3->getObject("monsterborn2");
+		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
+		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+
+	//room4
+	TMXObjectGroup* roomm4 = _tiledmap->getObjectGroup("room4");
+	std::uniform_int_distribution<int> room4Num(0, 10);
+	auto roomm4Num = room4Num(engine);
+	for (int i = 0; i <= roomm4Num; ++i) {
+		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[0]->clone());
+		initEnemy(monster, 4);
+		auto bornLD = roomm4->getObject("monsterborn3");
+		auto bornRU = roomm4->getObject("monsterborn2");
+		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
+		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+	for (int i = 0; i < 10 - roomm4Num; ++i) {
+		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[1]->clone());
+		initEnemy(monster, 4);
+		auto bornLD = roomm4->getObject("monsterborn3");
+		auto bornRU = roomm4->getObject("monsterborn2");
+		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
+		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+
+	//room5
+	/*TMXObjectGroup* roomm5 = _tiledmap->getObjectGroup("room5");
+	auto bossBorn = roomm5->getObject("bossborn");
+	initEnemy(globalBossRepository[0], 5);
+	globalBossRepository[0]->setPosition(Vec2(bossBorn["x"].asFloat(), bossBorn["y"].asFloat()));
+	_tiledmap->addChild(globalBossRepository[0].get(), ++_monsterZorder);*/
+}
+
 bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
 	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
+	auto weaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getWeaponInstance()->getWeaponName() + "left.png");
+	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getWeaponInstance()->getWeaponName() + "right.png");
 
 	switch (keyCode)
 	{
@@ -614,6 +639,9 @@ bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
 		if (!globalHero->isTowardLeft()) {
 			globalHero->setSpriteFrame(heroLeft);
+			globalHero->getWeaponInstance()->setSpriteFrame(weaponLeft);
+			globalHero->getWeaponInstance()->setPosition(
+				Vec2(-globalHero->getContentSize().width *0.25, globalHero->getContentSize().height / 2));
 			globalHero->setToward(true);
 		}
 		globalHero->getPhysicsBody()->setVelocity(Vec2(-globalHero->getSpeed(), 0));
@@ -624,6 +652,9 @@ bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
 		if (globalHero->isTowardLeft()) {
 			globalHero->setSpriteFrame(heroRight);
+			globalHero->getWeaponInstance()->setSpriteFrame(weaponRight);
+			globalHero->getWeaponInstance()->setPosition(
+				Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
 			globalHero->setToward(false);
 		}
 		globalHero->getPhysicsBody()->setVelocity(Vec2(globalHero->getSpeed(), 0));
@@ -685,40 +716,92 @@ bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 	//子弹
 	if (bodyA->getTag()&MY_BULLET) {
 		if (bodyB->getTag()&ENEMYCONTACT) {
-			//if()
+			/*switch (curRoomNum) {
+			case 2:
+				if (room2[bodyB->getNode()->getTag()]->
+					beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+					room2.erase(bodyB->getNode()->getTag());
+					bodyB->getNode()->removeFromParentAndCleanup(true);
+					bodyB->setTag(0);
+				}break;
+			case 3:
+				if (room3[bodyB->getNode()->getTag()]->
+					beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+					room3.erase(bodyB->getNode()->getTag());
+					bodyB->getNode()->removeFromParentAndCleanup(true);
+					bodyB->setTag(0);
+				}break;
+			case 4:
+				if (room4[bodyB->getNode()->getTag()]->
+					beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+					room4.erase(bodyB->getNode()->getTag());
+					bodyB->getNode()->removeFromParentAndCleanup(true);
+					bodyB->setTag(0);
+				}break;
+			}*/
 		}
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		_bulletManagement.erase(bodyA->getNode()->getTag());
+		bulletManagement.erase(bodyA->getNode()->getTag());
+		bodyA->setTag(0);
+		bodyA->removeFromWorld();
 		return true;
 	}
 	if (bodyB->getTag()&MY_BULLET) {
 		if (bodyA->getTag()&ENEMYCONTACT) {
-			//if ()
+			/*switch (curRoomNum) {
+			case 2:
+				if (room2[bodyA->getNode()->getTag()]->
+					beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+					room2.erase(bodyA->getNode()->getTag());
+					bodyA->getNode()->removeFromParentAndCleanup(true);
+					bodyA->setTag(0);
+				}break;
+			case 3:
+				if (room3[bodyA->getNode()->getTag()]->
+					beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+					room3.erase(bodyA->getNode()->getTag());
+					bodyA->getNode()->removeFromParentAndCleanup(true);
+					bodyA->setTag(0);
+				}break;
+			case 4:
+				if (room4[bodyA->getNode()->getTag()]->
+					beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+					room4.erase(bodyA->getNode()->getTag());
+					bodyA->getNode()->removeFromParentAndCleanup(true);
+					bodyA->setTag(0);
+				}break;
+			}*/
 		}
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		_bulletManagement.erase(bodyB->getNode()->getTag());
+		bulletManagement.erase(bodyB->getNode()->getTag());
+		bodyB->setTag(0);
+		bodyB->removeFromWorld();
 		return true;
 	}
 	if (bodyA->getTag()&ENEMY_BULLET) {
 		if (bodyB->getTag()&HEROCONTACT) {
-			if (globalHero->beShot(_bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+			if (globalHero->beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
 				//加载死亡动画
 				//回城
 			}
 		}
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		_bulletManagement.erase(bodyA->getNode()->getTag());
+		bulletManagement.erase(bodyA->getNode()->getTag());
+		bodyA->setTag(0);
+		bodyA->removeFromWorld();
 		return true;
 	}
 	if (bodyB->getTag()&ENEMY_BULLET) {
 		if (bodyA->getTag()&HEROCONTACT) {
-			if (globalHero->beShot(_bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+			if (globalHero->beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
 				//加载死亡动画
 				//回城
 			}
 		}
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		_bulletManagement.erase(bodyB->getNode()->getTag());
+		bulletManagement.erase(bodyB->getNode()->getTag());
+		bodyB->setTag(0);
+		bodyB->removeFromWorld();
 		return true;
 	}
 
@@ -749,30 +832,30 @@ bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 		return false;
 	}
 	if (bodyA->getTag()&HERO && bodyB->getTag()&ITEM) {
-		auto curItem = _itemManagement[bodyB->getNode()->getTag()];
+		auto curItem = itemManagement[bodyB->getNode()->getTag()];
 		if (curItem->getType() == Item::Type::COIN) {
 			globalCoin += curItem->getValue();
 			bodyB->getNode()->removeFromParentAndCleanup(true);
-			_itemManagement.erase(curItem->getTag());
+			itemManagement.erase(curItem->getTag());
 		}
 		else {
 			globalHero->getItem(curItem);
 			bodyB->getNode()->removeFromParentAndCleanup(true);
-			_itemManagement.erase(curItem->getTag());
+			itemManagement.erase(curItem->getTag());
 		}
 		return true;
 	}
 	if (bodyA->getTag()&ITEM && bodyB->getTag()&HERO) {
-		auto curItem = _itemManagement[bodyA->getNode()->getTag()];
+		auto curItem = itemManagement[bodyA->getNode()->getTag()];
 		if (curItem->getType() == Item::Type::COIN) {
 			globalCoin += curItem->getValue();
 			bodyA->getNode()->removeFromParentAndCleanup(true);
-			_itemManagement.erase(curItem->getTag());
+			itemManagement.erase(curItem->getTag());
 		}
 		else {
 			globalHero->getItem(curItem);
 			bodyA->getNode()->removeFromParentAndCleanup(true);
-			_itemManagement.erase(curItem->getTag());
+			itemManagement.erase(curItem->getTag());
 		}
 		return true;
 	}
@@ -814,24 +897,25 @@ void WildMap::shoot() {
 	this->getPhysicsWorld()->queryRect(
 		[&](PhysicsWorld& world, PhysicsShape& shape, void* userData)->bool {
 		if (shape.getBody()->getTag()&ENEMY) {
-			auto distance = shape.getCenter().distance(globalHero->getPosition());
+			auto distance = shape.getBody()->getNode()->getPosition().distance(globalHero->getPosition());
 			if (distance < distanceMIN) {
 				distanceMIN = distance;
-				shootDir = shape.getCenter() - globalHero->getPosition();
+				shootDir = shape.getBody()->getNode()->getPosition() - globalHero->getPosition();
 			}
 		}
 		return true;
-	}, Rect::Rect(globalHero->getPositionX() - 1000, globalHero->getPositionY() - 1000, 2000, 2000), nullptr);
+	}, Rect::Rect(globalHero->getPhysicsBody()->getPosition().x - 500,
+		globalHero->getPhysicsBody()->getPosition().y - 500, 1000, 1000), nullptr);
 
 	auto bullet = static_cast<std::shared_ptr<Bullet>>(
 		globalHero->getWeaponInstance()->getBulletInstance()->clone(false));
 	initMyBullet(bullet);
 	if (shootDir == Vec2::ZERO) {
 		if (globalHero->isTowardLeft()) {
-			shootDir = (-1, 0);
+			shootDir = Vec2(-1, 0);
 		}
 		else {
-			shootDir = (1, 0);
+			shootDir = Vec2(1, 0);
 		}
 	}
 	else {
@@ -840,27 +924,28 @@ void WildMap::shoot() {
 	bullet->setPosition(globalHero->getPosition());
 	bullet->setRotation(shootDir.getAngle());
 	bullet->getPhysicsBody()->setVelocity(bullet->getSpeed()*shootDir);
-	_tiledmap->addChild(bullet.get(), 1);
+	_tiledmap->addChild(bullet.get(), 10000);
 }
 
 void WildMap::positionMonitor() {
 	//位置判断
 	auto curHeroPosition = globalHero->getPosition();
-	TMXObjectGroup* room2 = _tiledmap->getObjectGroup("room2");
-	TMXObjectGroup* room3 = _tiledmap->getObjectGroup("room3");
-	TMXObjectGroup* room4 = _tiledmap->getObjectGroup("room4");
-	TMXObjectGroup* room5 = _tiledmap->getObjectGroup("room5");
-	auto room2DL = room2->getObject("monsterborn3");
-	auto room3DL = room3->getObject("monsterborn3");
-	auto room4DL = room4->getObject("monsterborn3");
-	auto room5DL = room5->getObject("monsterborn3");
-	auto room2UR = room2->getObject("monsterborn2");
-	auto room3UR = room3->getObject("monsterborn2");
-	auto room4UR = room4->getObject("monsterborn2");
-	auto room5UR = room5->getObject("monsterborn2");
-	if (_roomStatus[2] != 2) {
-		if (_room2.empty() && _roomStatus[2] == 1) {
-			_roomStatus[2] = 2;
+	TMXObjectGroup* roomm2 = _tiledmap->getObjectGroup("room2");
+	TMXObjectGroup* roomm3 = _tiledmap->getObjectGroup("room3");
+	TMXObjectGroup* roomm4 = _tiledmap->getObjectGroup("room4");
+	TMXObjectGroup* roomm5 = _tiledmap->getObjectGroup("room5");
+	auto room2DL = roomm2->getObject("monsterborn3");
+	auto room3DL = roomm3->getObject("monsterborn3");
+	auto room4DL = roomm4->getObject("monsterborn3");
+	auto room5DL = roomm5->getObject("monsterborn3");
+	auto room2UR = roomm2->getObject("monsterborn2");
+	auto room3UR = roomm3->getObject("monsterborn2");
+	auto room4UR = roomm4->getObject("monsterborn2");
+	auto room5UR = roomm5->getObject("monsterborn2");
+	if (roomStatus[2] != 2) {
+		if (room2.empty() && roomStatus[2] == 1) {
+			curRoomNum = 0;
+			roomStatus[2] = 2;
 			//hero 碰撞设置
 			globalHero->getPhysicsBody()->setCollisionBitmask(
 				globalHero->getPhysicsBody()->getCollisionBitmask() ^ DOOR);
@@ -878,12 +963,13 @@ void WildMap::positionMonitor() {
 
 			return;
 		}
-		else if (_roomStatus[2] == 0) {
+		else if (roomStatus[2] == 0) {
 			if ((globalHero->getPositionX() > room2DL["x"].asFloat() &&
 				globalHero->getPositionY() > room2DL["y"].asFloat()) &&
 				(globalHero->getPositionX() < room2UR["x"].asFloat() &&
 					globalHero->getPositionY() < room2UR["y"].asFloat())) {
-				_roomStatus[2] = 1;
+				curRoomNum = 2;
+				roomStatus[2] = 1;
 				//door
 				auto layer3 = _tiledmap->getLayer("layer3");
 				for (int i = 19; i < 25; ++i) {
@@ -902,9 +988,10 @@ void WildMap::positionMonitor() {
 			}
 		}
 	}
-	if (_roomStatus[3] != 2) {
-		if (_room3.empty() && _roomStatus[3] == 1) {
-			_roomStatus[3] = 2;
+	if (roomStatus[3] != 2) {
+		if (room3.empty() && roomStatus[3] == 1) {
+			curRoomNum = 0;
+			roomStatus[3] = 2;
 			//door;
 			//hero 碰撞设置
 			globalHero->getPhysicsBody()->setCollisionBitmask(
@@ -920,12 +1007,13 @@ void WildMap::positionMonitor() {
 			}
 			return;
 		}
-		else if (_roomStatus[3] == 0) {
+		else if (roomStatus[3] == 0) {
 			if ((globalHero->getPositionX() > room3DL["x"].asFloat() &&
 				globalHero->getPositionY() > room3DL["y"].asFloat()) &&
 				(globalHero->getPositionX() < room3UR["x"].asFloat() &&
 					globalHero->getPositionY() < room3UR["y"].asFloat())) {
-				_roomStatus[3] = 1;
+				curRoomNum = 3;
+				roomStatus[3] = 1;
 				//door
 				auto layer3 = _tiledmap->getLayer("layer3");
 				for (int i = 52; i < 59; ++i) {
@@ -942,9 +1030,10 @@ void WildMap::positionMonitor() {
 			}
 		}
 	}
-	if (_roomStatus[4] != 2) {
-		if (_room4.empty() && _roomStatus[4] == 1) {
-			_roomStatus[4] = 2;
+	if (roomStatus[4] != 2) {
+		if (room4.empty() && roomStatus[4] == 1) {
+			curRoomNum = 0;
+			roomStatus[4] = 2;
 			//door;
 			//hero 碰撞设置
 			globalHero->getPhysicsBody()->setCollisionBitmask(
@@ -963,12 +1052,13 @@ void WildMap::positionMonitor() {
 
 			return;
 		}
-		else if (_roomStatus[4] == 0) {
+		else if (roomStatus[4] == 0) {
 			if ((globalHero->getPositionX() > room4DL["x"].asFloat() &&
 				globalHero->getPositionY() > room4DL["y"].asFloat()) &&
 				(globalHero->getPositionX() < room4UR["x"].asFloat() &&
 					globalHero->getPositionY() < room4UR["y"].asFloat())) {
-				_roomStatus[4] = 1;
+				curRoomNum = 4;
+				roomStatus[4] = 1;
 				//door
 				auto layer3 = _tiledmap->getLayer("layer3");
 				for (int i = 91; i < 98; ++i) {
@@ -985,9 +1075,9 @@ void WildMap::positionMonitor() {
 			}
 		}
 	}
-	if (_roomStatus[5] != 2) {
-		if (_room5.empty() && _roomStatus[5] == 1) {
-			_roomStatus[5] = 2;
+	if (roomStatus[5] != 2) {
+		if (room5.empty() && roomStatus[5] == 1) {
+			roomStatus[5] = 2;
 			//door;
 			//hero 碰撞设置
 			globalHero->getPhysicsBody()->setCollisionBitmask(
@@ -1005,12 +1095,12 @@ void WildMap::positionMonitor() {
 			addconductor();
 			return;
 		}
-		else if (_roomStatus[5] == 0) {
+		else if (roomStatus[5] == 0) {
 			if ((globalHero->getPositionX() > room5DL["x"].asFloat() &&
 				globalHero->getPositionY() > room5DL["y"].asFloat()) &&
 				(globalHero->getPositionX() < room5UR["x"].asFloat() &&
 					globalHero->getPositionY() < room5UR["y"].asFloat())) {
-				_roomStatus[5] = 1;
+				roomStatus[5] = 1;
 				//door
 				auto layer3 = _tiledmap->getLayer("layer3");
 				for (int i = 91; i < 98; ++i) {
@@ -1035,38 +1125,6 @@ void WildMap::update(float delta) {
 
 	//位置判断
 	positionMonitor();
-}
-
-void WildMap::initMonsters()
-{
-	initEnemy(_room2[1], 2);
-	initEnemy(_room2[2], 2);
-	initEnemy(_room2[3], 2);
-	initEnemy(_room2[4], 2);
-	initEnemy(_room3[1], 3);
-	initEnemy(_room3[2], 3);
-	initEnemy(_room3[3], 3);
-	initEnemy(_room3[4], 3);
-	initEnemy(_room4[1], 4);
-	initEnemy(_room4[2], 4);
-	initEnemy(_room4[3], 4);
-	initEnemy(_room4[4], 4);
-	initEnemy(_room5[1], 5);
-	
-	_tiledmap->addChild(_room2[1].get(), 30);
-	_tiledmap->addChild(_room2[2].get(), 30);
-	_tiledmap->addChild(_room2[3].get(), 30);
-	_tiledmap->addChild(_room2[4].get(), 30);
-	
-	_tiledmap->addChild(_room3[1].get(), 30);
-	_tiledmap->addChild(_room3[2].get(), 30);
-	_tiledmap->addChild(_room3[3].get(), 30);
-	_tiledmap->addChild(_room3[4].get(), 30);
-
-	_tiledmap->addChild(_room4[1].get(), 30);
-	_tiledmap->addChild(_room4[2].get(), 30);
-	_tiledmap->addChild(_room4[3].get(), 30);
-	_tiledmap->addChild(_room4[4].get(), 30);
 }
 
 void WildMap::monstersAi()
