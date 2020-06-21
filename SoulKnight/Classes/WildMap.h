@@ -68,6 +68,8 @@ private:
 	void interact();
 	//¹¥»÷
 	void shoot();
+	//ÎäÆ÷ÇĞ»»
+	void changeWeaponActive();
 	//¼¼ÄÜ
 	void skill();
 

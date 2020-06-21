@@ -101,7 +101,16 @@ void SelectingScene::hero2Chosen(Ref* pSender)
 }
 
 inline void SelectingScene::initKnight() {
-	globalHero = Hero::createWithSpriteFrameName("hero1right.png", 8, 8, 120, 600.0f);
+	auto weaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[0]->clone());
+	auto offHandWeaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[3]->clone());
+	weaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
+	weaponDefault->setScale(3.5f);
+	offHandWeaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
+	offHandWeaponDefault->setScale(3.5f);
+	globalHero = Hero::createWithSpriteFrameName("hero1right.png", 8, 8, 120, 600.0f, weaponDefault, offHandWeaponDefault);
+	weaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	offHandWeaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	globalHero->addChild(weaponDefault.get(), 1);
 	globalHero->setHeroName("hero1");
 	globalHero->setAnchorPoint(Vec2(0.38f, 0.1f));
 }
@@ -109,9 +118,12 @@ inline void SelectingScene::initKnight() {
 inline void SelectingScene::initWizard()
 {
 	auto weaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[6]->clone());
+	auto offHandWeaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[1]->clone());
 	weaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
 	weaponDefault->setScale(3.5f);
-	globalHero = Hero::createWithSpriteFrameName("hero2right.png", 6, 9, 200, 500.0f, weaponDefault);
+	offHandWeaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
+	offHandWeaponDefault->setScale(3.5f);
+	globalHero = Hero::createWithSpriteFrameName("hero2right.png", 6, 9, 200, 500.0f, weaponDefault, offHandWeaponDefault);
 	weaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
 	globalHero->addChild(weaponDefault.get(), 1);
 	globalHero->setHeroName("hero2");
