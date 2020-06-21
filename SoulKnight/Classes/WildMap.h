@@ -21,7 +21,11 @@ private:
 		unsigned int : 1;
 		unsigned int : 1;
 	} _interactStatus;
-	//Vector<std::shared_ptr<Weapon>> weaponVec;
+	
+	std::map<int, std::shared_ptr<Monster>> monsterMap2;
+	std::map<int, std::shared_ptr<Monster>> monsterMap3;
+	std::map<int, std::shared_ptr<Monster>> monsterMap4;
+
 	Vec2 _initiativeHeroOffset;
 	Vec2 _initiativeMapOffset;
 	//子弹资源管理器

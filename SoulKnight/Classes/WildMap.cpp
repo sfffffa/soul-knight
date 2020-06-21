@@ -61,25 +61,7 @@ bool WildMap::init()
 	// 1.3.1 武器库初始化（相应子弹初始化）					hth
 	//想法大概是在一个vector<std::shared_ptr<Weapon>>里提前初始化好所有武器，以供小怪爆武器时直接复制Weapon
 
-    //bullet
-	auto bulletright = Bullet::createWithSpriteFrameName("bulletright.png", 10, 2000.0f);
-	auto elementalbulletright = Bullet::createWithSpriteFrameName("bluefireright.png", 20, 2000.0f);
-	//weapon
-	auto gun1right = RangedWeapon::createWithSpriteFrameName("gun1right.png", 0, 0.3f, 0.1f, 2.5f, bulletright);
-	auto gun2right = RangedWeapon::createWithSpriteFrameName("gun2right.png", 2, 0.5f, 0.2f, 3.0f, bulletright);
-	auto gun3right = RangedWeapon::createWithSpriteFrameName("gun3right.png", 4, 0.5f, 0.3f, 5.0f, bulletright);
-	auto swordright = CloseInWeapon::createWithSpriteFrameName("swordright.png", 0, 8, 500.0f, 0.6f, 0.3f, 3.0f);
-	auto blade1right = CloseInWeapon::createWithSpriteFrameName("blade1right.png", 2, 10, 550.0f, 0.6f, 0.4f, 4.0f);
-	auto meteorhammerright = CloseInWeapon::createWithSpriteFrameName("meteorhammerright.png", 5, 25, 550.0f, 0.8f, 0.5f, 5.0f);
-	auto wandright = RangedWeapon::createWithSpriteFrameName("wandright.png", 0, 0.3f, 0.1f, 2.5f, elementalbulletright);
-
-	globalWeaponRepository.push_back(gun1right);
-	globalWeaponRepository.push_back(gun2right);
-	globalWeaponRepository.push_back(gun3right);
-	globalWeaponRepository.push_back(swordright);
-	globalWeaponRepository.push_back(blade1right);
-	globalWeaponRepository.push_back(meteorhammerright);
-	globalWeaponRepository.push_back(wandright);
+    
 
 	/////////////////////////////
 	// 2. 背景初始化（不是地图）（类似于skyworld）				cyf
@@ -126,6 +108,7 @@ bool WildMap::init()
 	TMXObjectGroup* room2 = _tiledmap->getObjectGroup("room2");
 	TMXObjectGroup* room3 = _tiledmap->getObjectGroup("room3");
 	TMXObjectGroup* room4 = _tiledmap->getObjectGroup("room4");
+	TMXObjectGroup* room5 = _tiledmap->getObjectGroup("room5");
 	//room2
 	auto monsterborn2_1 = room2->getObject("monsterborn1");
 	auto monsterborn2_2 = room2->getObject("monsterborn2");
@@ -153,7 +136,7 @@ bool WildMap::init()
 	monster2_2->setScale(0.3, 0.3);
 	monster2_3->setScale(0.3, 0.3);
 	monster2_4->setScale(0.3, 0.3);
-
+  
 	//room3
 	auto monsterborn3_1 = room3->getObject("monsterborn1");
 	auto monsterborn3_2 = room3->getObject("monsterborn2");
@@ -187,7 +170,6 @@ bool WildMap::init()
 	auto monsterborn4_2 = room4->getObject("monsterborn2");
 	auto monsterborn4_3 = room4->getObject("monsterborn3");
 	auto monsterborn4_4 = room4->getObject("monsterborn4");
-	auto bossborn = room4->getObject("bossborn");
 	float born4_X1 = monsterborn4_1["x"].asFloat();
 	float born4_Y1 = monsterborn4_1["y"].asFloat();
 	float born4_X2 = monsterborn4_2["x"].asFloat();
@@ -196,25 +178,30 @@ bool WildMap::init()
 	float born4_Y3 = monsterborn4_3["y"].asFloat();
 	float born4_X4 = monsterborn4_4["x"].asFloat();
 	float born4_Y4 = monsterborn4_4["y"].asFloat();
-	float bossX = bossborn["x"].asFloat();
-	float bossY = bossborn["y"].asFloat();
 
 	auto monster4_1 = globalMonsterRepository[0]->clone();
 	auto monster4_2 = globalMonsterRepository[0]->clone();
 	auto monster4_3 = globalMonsterRepository[0]->clone();
 	auto monster4_4 = globalMonsterRepository[0]->clone();
-	auto boss = globalMonsterRepository[2]->clone();
 
 	monster4_1->setPosition(Vec2(born4_X1, born4_Y1));
 	monster4_2->setPosition(Vec2(born4_X2, born4_Y2));
 	monster4_3->setPosition(Vec2(born4_X3, born4_Y3));
 	monster4_4->setPosition(Vec2(born4_X4, born4_Y4));
-	boss->setPosition(Vec2(bossX, bossY));
 	monster4_1->setScale(0.3, 0.3);
 	monster4_2->setScale(0.3, 0.3);
 	monster4_3->setScale(0.3, 0.3);
 	monster4_4->setScale(0.3, 0.3);
+
+	//room5
+	auto boss = globalMonsterRepository[2]->clone();
+	auto bossborn = room5->getObject("bossborn");
+	float bossX = bossborn["x"].asFloat();
+	float bossY = bossborn["y"].asFloat();
+	boss->setPosition(Vec2(bossX, bossY));
 	boss->setScale(0.5, 0.5);
+
+
 	/////////////////////////////
 	// 5. Hero 初始化										cyf
 	//
@@ -263,6 +250,8 @@ bool WildMap::init()
 	/////////////////////
 	// 5.3.1.1 小怪激活（开始自由移动、攻击）					xyc
 	//……
+
+
 	/////////////////////
 	// 5.3.2 碰撞检测（我方子弹与敌人）（敌方子弹与我方）（双方子弹与墙体）		cyf
 	//
