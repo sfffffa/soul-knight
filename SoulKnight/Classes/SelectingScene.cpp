@@ -8,6 +8,7 @@
 
 USING_NS_CC;
 extern std::shared_ptr<Hero> globalHero;
+extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
 
 Scene* SelectingScene::createScene()
 {
@@ -23,17 +24,32 @@ bool SelectingScene::init()
 
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
+	
+	auto spritecache = SpriteFrameCache::getInstance();
+	spritecache->addSpriteFramesWithFile("new.plist");
+	
+	//武器组装
+	//bullet
+	auto bulletright = Bullet::createWithSpriteFrameName("bulletright.png", 10, 2000.0f);
+	auto elementalbulletright = Bullet::createWithSpriteFrameName("bluefireright.png", 20, 2000.0f);
+	//weapon
+	auto gun1right = RangedWeapon::createWithSpriteFrameName("gun1right.png", 0, 0.3f, 0.1f, 2.5f, bulletright);
+	auto gun2right = RangedWeapon::createWithSpriteFrameName("gun2right.png", 2, 0.5f, 0.2f, 3.0f, bulletright);
+	auto gun3right = RangedWeapon::createWithSpriteFrameName("gun3right.png", 4, 0.5f, 0.3f, 5.0f, bulletright);
+	auto swordright = CloseInWeapon::createWithSpriteFrameName("swordright.png", 0, 8, 500.0f, 0.6f, 0.3f, 3.0f);
+	auto blade1right = CloseInWeapon::createWithSpriteFrameName("blade1right.png", 2, 10, 550.0f, 0.6f, 0.4f, 4.0f);
+	auto meteorhammerright = CloseInWeapon::createWithSpriteFrameName("meteorhammerright.png", 5, 25, 550.0f, 0.8f, 0.5f, 5.0f);
+	auto wandright = RangedWeapon::createWithSpriteFrameName("wandright.png", 0, 0.3f, 0.1f, 2.5f, elementalbulletright);
 
-	/*if (AudioEngine::getPlayingAudioCount())
-	{
-		//AudioEngine::resume(0);
-		AudioEngine::setCurrentTime(0,0);
-		AudioEngine::resume(0);
-	}
-	else
-	{
-		auto backgroundAudioID = AudioEngine::play2d("bgm2.mp3", true);
-	}*/
+	globalWeaponRepository.push_back(gun1right);
+	globalWeaponRepository.push_back(gun2right);
+	globalWeaponRepository.push_back(gun3right);
+	globalWeaponRepository.push_back(swordright);
+	globalWeaponRepository.push_back(blade1right);
+	globalWeaponRepository.push_back(meteorhammerright);
+	globalWeaponRepository.push_back(wandright);
+
+	//场景设置
 	AudioEngine::resume(0);
 
 	auto selectLabel = Label::createWithTTF("Select Hero", "fonts/Marker Felt.ttf", 48);
@@ -42,8 +58,7 @@ bool SelectingScene::init()
 	selectLabel->setPosition(Point(x1, y1));
 	this->addChild(selectLabel);
 
-	auto spritecache = SpriteFrameCache::getInstance();
-	spritecache->addSpriteFramesWithFile("new.plist");
+	
 
 	globalHero = Hero::createWithSpriteFrameName("hero1right.png");
 
