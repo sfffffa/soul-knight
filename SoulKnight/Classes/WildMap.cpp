@@ -5,6 +5,7 @@ USING_NS_CC;
 using namespace std;
 
 extern std::shared_ptr<Hero> globalHero;
+extern int globalCoin;
 
 Scene* WildMap::createScene()
 {
@@ -35,15 +36,11 @@ bool WildMap::init()
 		return false;
 	}
 
-	/////////////////////
+	/////////////////////									cyf
 	// 1.2成员初始化
 	//
 
-	globalHero->setSpriteFrame(
-		SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png"));
-	globalHero->setToward(false);
-	interactStatus.box = 0;
-	interactStatus.conductor = 0;
+	initMember();
 
 	/////////////////////
 	// 1.2 基础信息提取
@@ -96,14 +93,14 @@ bool WildMap::init()
 	weaponVec.push_back(meteorhammerright);*/
 
 	/////////////////////////////
-	// 2. 背景初始化（不是地图）（类似于skyworld）				hth
+	// 2. 背景初始化（不是地图）（类似于skyworld）				cyf
 	//
 	auto background = DrawNode::create();
 	background->drawSolidRect(origin, destination, cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
 	this->addChild(background, -10);
 
 	/////////////////////////////
-	// 3. Hero初始化											hth、cyf
+	// 3. Hero初始化											cyf
 	//
 	initHero();
 
@@ -165,9 +162,13 @@ bool WildMap::init()
 	// 5.2.4 键盘监听（换武器）（L）							xyc、cyf
 	//
 
-	/////////////////////
+	/////////////////////									cyf
 	// 5.3 碰撞检测
 	//（进入地图块）（开始自由移动、攻击）（我方子弹与敌人）（敌方子弹与我方）（双方子弹与墙体）（出口）
+	auto contactListener = EventListenerPhysicsContact::create();
+	contactListener->onContactBegin = CC_CALLBACK_1(WildMap::onContactBegin, this);
+	contactListener->onContactSeparate = CC_CALLBACK_1(WildMap::onContactSeparate, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, _tiledmap);
 	/////////////////////
 	// 5.3.1 碰撞检测（进入地图块）							cyf
 	//
@@ -201,6 +202,30 @@ bool WildMap::init()
 	return true;
 }
 
+void WildMap::initMember() {
+	globalHero->setSpriteFrame(
+		SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png"));
+	globalHero->setToward(false);
+
+	_interactStatus.box = 0;
+	_interactStatus.conductor = 0;
+	_itemIndex = 0;
+	_bulletIndex = 0;
+	_room2Index = 0;
+	_room3Index = 0;
+	_room4Index = 0;
+	_roomStatus = { 0,0,0,0,0 };
+}
+
+void WildMap::releaseMember() {
+	_bulletManagement.clear();
+	_itemManagement.clear();
+	_room2.clear();
+	_room3.clear();
+	_room4.clear();
+	globalHero->removeFromParentAndCleanup(false);
+}
+
 void WildMap::initHero() {
 	//hero本身physicsBody属性设置
 	auto heroPhyBody = globalHero->getPhysicsBody();
@@ -224,7 +249,7 @@ void WildMap::initHero() {
 	globalHero->addChild(heroContact, -1);
 }
 
-void WildMap::initEnemy(std::shared_ptr<Monster> monster) {
+void WildMap::initEnemy(std::shared_ptr<Monster> monster, int roomNum) {
 	//init enemy
 	monster->setAnchorPoint(Vec2(0.38, 0.1));
 
@@ -236,7 +261,7 @@ void WildMap::initEnemy(std::shared_ptr<Monster> monster) {
 	monsterPhyBody->setRotationEnable(false);
 	monsterPhyBody->setTag(ENEMY);
 	monsterPhyBody->setCategoryBitmask(ENEMY);
-	monsterPhyBody->setCollisionBitmask(WALL | HERO | DOOR);
+	monsterPhyBody->setCollisionBitmask(WALL | HERO | DOOR | ENEMY);
 	monsterPhyBody->setContactTestBitmask(0x00);
 
 	monster->addComponent(monsterPhyBody);
@@ -252,10 +277,19 @@ void WildMap::initEnemy(std::shared_ptr<Monster> monster) {
 	physicsBody->setTag(ENEMYCONTACT);
 	physicsBody->setCategoryBitmask(ENEMYCONTACT);
 	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(MY_BULLET | HEROCONTACT);
+	physicsBody->setContactTestBitmask(MY_BULLET | HEROCONTACT | ENEMYCONTACT);
 	monsterContact->addComponent(physicsBody);
 
 	monster->addChild(monsterContact, -1);
+
+	if (roomNum == 2) {
+		monster->setTag(++_room2Index);
+		_room2[monster->getTag()] = monster;
+	}
+	else if (roomNum == 3) {
+		monster->setTag(++_room3Index);
+		_room3[monster->getTag()] = monster;
+	}
 }
 
 void WildMap::initMyBullet(std::shared_ptr<Bullet> bullet) {
@@ -270,8 +304,8 @@ void WildMap::initMyBullet(std::shared_ptr<Bullet> bullet) {
 	physicsBody->setContactTestBitmask(DOOR | ENEMYCONTACT | WALL | BOX);
 
 	bullet->addComponent(physicsBody);
-	bullet->setTag(++bulletIndex);
-	bulletManagement[bullet->getTag()] = bullet;
+	bullet->setTag(++_bulletIndex);
+	_bulletManagement[bullet->getTag()] = bullet;
 }
 
 void WildMap::initEnemyBullet(std::shared_ptr<Bullet> bullet) {
@@ -286,8 +320,8 @@ void WildMap::initEnemyBullet(std::shared_ptr<Bullet> bullet) {
 	physicsBody->setContactTestBitmask(DOOR | HEROCONTACT | WALL);
 
 	bullet->addComponent(physicsBody);
-	bullet->setTag(++bulletIndex);
-	bulletManagement[bullet->getTag()] = bullet;
+	bullet->setTag(++_bulletIndex);
+	_bulletManagement[bullet->getTag()] = bullet;
 }
 
 void WildMap::initWall(Sprite *wall) {
@@ -348,6 +382,8 @@ void WildMap::initItem(std::shared_ptr<Item> item) {
 	physicsBody->setContactTestBitmask(HERO);
 
 	item->addComponent(physicsBody);
+	item->setTag(++_itemIndex);
+	_itemManagement[item->getTag()] = item;
 }
 
 void WildMap::initLayer() {
@@ -514,7 +550,7 @@ bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 			//if()
 		}
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyA->getNode()->getTag());
+		_bulletManagement.erase(bodyA->getNode()->getTag());
 		return true;
 	}
 	if (bodyB->getTag()&MY_BULLET) {
@@ -522,64 +558,124 @@ bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 			//if ()
 		}
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyB->getNode()->getTag());
+		_bulletManagement.erase(bodyB->getNode()->getTag());
 		return true;
 	}
 	if (bodyA->getTag()&ENEMY_BULLET) {
 		if (bodyB->getTag()&HEROCONTACT) {
-			if (globalHero->beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
-				//
+			if (globalHero->beShot(_bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+				//加载死亡动画
+				//回城
 			}
 		}
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyA->getNode()->getTag());
+		_bulletManagement.erase(bodyA->getNode()->getTag());
 		return true;
 	}
 	if (bodyB->getTag()&ENEMY_BULLET) {
 		if (bodyA->getTag()&HEROCONTACT) {
-			if (globalHero->beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
-				//
+			if (globalHero->beShot(_bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+				//加载死亡动画
+				//回城
 			}
 		}
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyB->getNode()->getTag());
+		_bulletManagement.erase(bodyB->getNode()->getTag());
 		return true;
 	}
 
 	//渲染顺序
-	if (bodyA->getTag()&HEROCONTACT && bodyB->getTag()&ENEMYCONTACT) {
-	}
-	if (bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&HEROCONTACT) {
-	}
-	if (bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&ENEMYCONTACT) {
+	if ((bodyA->getTag()&HEROCONTACT && bodyB->getTag()&ENEMYCONTACT) ||
+		(bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&HEROCONTACT) ||
+		(bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&ENEMYCONTACT)) {
+		if ((bodyA->getNode()->getPositionY() < bodyB->getNode()->getPositionY() &&
+			bodyA->getNode()->getLocalZOrder() < bodyB->getNode()->getLocalZOrder()) ||
+			(bodyB->getNode()->getPositionY() < bodyA->getNode()->getPositionY() &&
+				bodyB->getNode()->getLocalZOrder() < bodyA->getNode()->getLocalZOrder())) {
+			auto tempZorder = bodyA->getNode()->getLocalZOrder();
+			bodyA->getNode()->setLocalZOrder(bodyB->getNode()->getLocalZOrder());
+			bodyB->getNode()->setLocalZOrder(tempZorder);
+		}
+		return true;
 	}
 
 	//交互
 	if ((bodyA->getTag()&HERO && bodyB->getTag()&CONDUCTOR) ||
 		(bodyA->getTag()&CONDUCTOR && bodyB->getTag()&HERO)) {
-		interactStatus.conductor = 1;
+		_interactStatus.conductor = 1;
+		return false;
 	}
 	if ((bodyA->getTag()&HERO && bodyB->getTag()&BOX) ||
 		(bodyA->getTag()&BOX && bodyB->getTag()&HERO)) {
-		interactStatus.box = 1;
+		_interactStatus.box = 1;
+		return false;
 	}
-	if ((bodyA->getTag()&HERO && bodyB->getTag()&ITEM) ||
-		(bodyA->getTag()&ITEM && bodyB->getTag()&HERO)) {
-		//
+	if (bodyA->getTag()&HERO && bodyB->getTag()&ITEM) {
+		auto curItem = _itemManagement[bodyB->getNode()->getTag()];
+		if (curItem->getType() == Item::Type::COIN) {
+			globalCoin += curItem->getValue();
+			bodyB->getNode()->removeFromParentAndCleanup(true);
+			_itemManagement.erase(curItem->getTag());
+		}
+		else {
+			globalHero->getItem(curItem);
+			bodyB->getNode()->removeFromParentAndCleanup(true);
+			_itemManagement.erase(curItem->getTag());
+		}
+		return true;
+	}
+	if (bodyA->getTag()&ITEM && bodyB->getTag()&HERO) {
+		auto curItem = _itemManagement[bodyA->getNode()->getTag()];
+		if (curItem->getType() == Item::Type::COIN) {
+			globalCoin += curItem->getValue();
+			bodyA->getNode()->removeFromParentAndCleanup(true);
+			_itemManagement.erase(curItem->getTag());
+		}
+		else {
+			globalHero->getItem(curItem);
+			bodyA->getNode()->removeFromParentAndCleanup(true);
+			_itemManagement.erase(curItem->getTag());
+		}
+		return true;
 	}
 
 	return true;
 }
 
+bool WildMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
+	auto bodyA = contact.getShapeA()->getBody();
+	auto bodyB = contact.getShapeB()->getBody();
+
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&CONDUCTOR) ||
+		(bodyA->getTag()&CONDUCTOR && bodyB->getTag()&HERO)) {
+		_interactStatus.conductor = 0;
+		return false;
+	}
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&BOX) ||
+		(bodyA->getTag()&BOX && bodyB->getTag()&HERO)) {
+		_interactStatus.box = 0;
+		return false;
+	}
+}
+
 void WildMap::interact() {
-	if (interactStatus.conductor) {
-		globalHero->removeFromParentAndCleanup(false);
+	if (_interactStatus.conductor) {
+		releaseMember();
 		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, SecureMap::createScene()));
 		return;
 	}
 	//NPC交互
 }
 
+void WildMap::shoot() {
+	if (!globalHero->shoot()) {
+		return;
+	}
+}
+
 void WildMap::update(float delta) {
+	//相机跟随
 	_tiledmap->setPosition(_initiativeHeroOffset + _initiativeMapOffset - globalHero->getPosition());
+
+	//位置判断
 }

@@ -20,18 +20,31 @@ private:
 		unsigned int box : 1;
 		unsigned int : 1;
 		unsigned int : 1;
-	} interactStatus;
+	} _interactStatus;
 	//Vector<std::shared_ptr<Weapon>> weaponVec;
 	Vec2 _initiativeHeroOffset;
 	Vec2 _initiativeMapOffset;
-	int bulletIndex;
-	std::map<int, std::shared_ptr<Bullet>> bulletManagement;
+	//子弹资源管理器
+	int _bulletIndex;
+	std::map<int, std::shared_ptr<Bullet>> _bulletManagement;
+	//道具资源管理器
+	int _itemIndex;
+	std::map<int, std::shared_ptr<Item>> _itemManagement;
+	//小怪资源管理器（房间）
+	std::vector<char> _roomStatus;
+	int _room2Index;
+	std::map<int, std::shared_ptr<Monster>> _room2;
+	int _room3Index;
+	std::map<int, std::shared_ptr<Monster>> _room3;
+	int _room4Index;
+	std::map<int, std::shared_ptr<Boss>> _room4;
 
-	//子弹初始化
+	void initMember();
+	void releaseMember();
 
 	//场景物件初始化
 	void initHero();
-	void initEnemy(std::shared_ptr<Monster> monster);
+	void initEnemy(std::shared_ptr<Monster> monster, int roomNum);
 	void initMyBullet(std::shared_ptr<Bullet> bullet);
 	void initEnemyBullet(std::shared_ptr<Bullet> bullet);
 	void initWall(Sprite *wall);
