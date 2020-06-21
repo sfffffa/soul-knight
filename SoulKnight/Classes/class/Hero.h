@@ -2,6 +2,7 @@
 #define _HERO_
 
 #include "Character.h"
+#include "Item.h"
 #include <functional>
 #include <new>
 
@@ -49,6 +50,8 @@ public:
 	virtual bool beShot(int damage) override;
 
 	virtual bool changeWeapon();
+
+	virtual void getItem(std::shared_ptr<Item> item);
 	//use move(Vec2(0,0)) to stop
 	/*virtual void move(Vec2 dir) override;
 

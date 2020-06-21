@@ -123,3 +123,20 @@ bool Hero::changeWeapon() {
 	_weaponStatus ^= 01;
 	return true;
 }
+
+void Hero::getItem(std::shared_ptr<Item> item) {
+	switch (item->getType()) {
+	case Item::Type::HEALTH:
+		_HP += item->getValue();
+		if (_HP > *_HPMAX) {
+			_HP = *_HPMAX;
+		}
+		break;
+	case Item::Type::MAGIC:
+		_HP += item->getValue();
+		if (_MP > *_MPMAX) {
+			_MP = *_MPMAX;
+		}
+		break;
+	}
+}
