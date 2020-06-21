@@ -63,6 +63,8 @@ private:
 	void initItem(std::shared_ptr<Item> item);
 	void initLayer();
 
+	void addconductor();
+
 	//¼üÅÌ¼àÌı
 	bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
 	bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);

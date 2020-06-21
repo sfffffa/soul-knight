@@ -427,6 +427,7 @@ void WildMap::initDoor(Sprite *door) {
 	physicsBody->setCollisionBitmask(HERO | ENEMY);
 	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
 
+	door->setVisible(false);
 	door->addComponent(physicsBody);
 }
 
@@ -543,6 +544,46 @@ void WildMap::initLayer() {
 		initWall(layer2->getTileAt(Vec2(43, i)));
 		initWall(layer2->getTileAt(Vec2(53, i)));
 	}
+
+	//door
+	auto layer3 = _tiledmap->getLayer("layer3");
+	for (int i = 19; i < 25; ++i) {
+		initDoor(layer3->getTileAt(Vec2(i, 40)));
+		initDoor(layer3->getTileAt(Vec2(i, 39)));
+		initDoor(layer3->getTileAt(Vec2(i, 71)));
+		initDoor(layer3->getTileAt(Vec2(i, 72)));
+		initDoor(layer3->getTileAt(Vec2(i, 79)));
+		initDoor(layer3->getTileAt(Vec2(i, 78)));
+	}
+	for (int i = 72; i < 78; ++i) {
+		initDoor(layer3->getTileAt(Vec2(i, 71)));
+		initDoor(layer3->getTileAt(Vec2(i, 72)));
+		initDoor(layer3->getTileAt(Vec2(i, 79)));
+		initDoor(layer3->getTileAt(Vec2(i, 78)));
+	}
+	for (int i = 52; i < 59; ++i) {
+		initDoor(layer3->getTileAt(Vec2(43, i)));
+		initDoor(layer3->getTileAt(Vec2(53, i)));
+	}
+	for (int i = 91; i < 98; ++i) {
+		initDoor(layer3->getTileAt(Vec2(43, i)));
+		initDoor(layer3->getTileAt(Vec2(53, i)));
+	}
+}
+
+void WildMap::addconductor() {
+	static bool hasAdded = false;
+	if (hasAdded) {
+		return;
+	}
+	auto conduction = Sprite::createWithSpriteFrameName("conductioncircle.png");
+	initDoor(conduction);
+	TMXObjectGroup* room5 = _tiledmap->getObjectGroup("room5");
+	auto conX = room5->getObject("conductordoor")["x"].asFloat();
+	auto conY = room5->getObject("conductordoor")["y"].asFloat();
+	conduction->setPosition(Vec2(conX, conY));
+	_tiledmap->addChild(conduction, 1);
+	hasAdded = true;
 }
 
 bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
@@ -804,10 +845,24 @@ void WildMap::positionMonitor() {
 	auto room4UR = room4->getObject("monsterborn2");
 	auto room5UR = room5->getObject("monsterborn2");
 	if (_roomStatus[2] != 2) {
-		if (_room2.empty() && _roomStatus[2] == 1) {			
-				_roomStatus[2] = 2;
-				//door;
-				return;
+		if (_room2.empty() && _roomStatus[2] == 1) {
+			_roomStatus[2] = 2;
+			//hero ≈ˆ◊≤…Ë÷√
+			globalHero->getPhysicsBody()->setCollisionBitmask(
+				globalHero->getPhysicsBody()->getCollisionBitmask() ^ DOOR);
+			//√≈“∆≥˝
+			auto layer3 = _tiledmap->getLayer("layer3");
+			for (int i = 19; i < 25; ++i) {
+				layer3->removeTileAt(Vec2(i, 39));
+				layer3->removeTileAt(Vec2(i, 40));
+				layer3->removeTileAt(Vec2(i, 71));
+				layer3->removeTileAt(Vec2(i, 72));
+			}
+			for (int i = 52; i < 59; ++i) {
+				layer3->removeTileAt(Vec2(43, i));
+			}
+
+			return;
 		}
 		else if (_roomStatus[2] == 0) {
 			if ((globalHero->getPositionX() > room2DL["x"].asFloat() &&
@@ -816,6 +871,19 @@ void WildMap::positionMonitor() {
 					globalHero->getPositionY() < room2UR["y"].asFloat())) {
 				_roomStatus[2] = 1;
 				//door
+				auto layer3 = _tiledmap->getLayer("layer3");
+				for (int i = 19; i < 25; ++i) {
+					layer3->getTileAt(Vec2(i, 39))->setVisible(true);
+					layer3->getTileAt(Vec2(i, 40))->setVisible(true);
+					layer3->getTileAt(Vec2(i, 71))->setVisible(true);
+					layer3->getTileAt(Vec2(i, 72))->setVisible(true);
+				}
+				for (int i = 52; i < 59; ++i) {
+					layer3->getTileAt(Vec2(43, i))->setVisible(true);
+				}
+				//≈ˆ◊≤—⁄¬Î
+				globalHero->getPhysicsBody()->setCollisionBitmask(
+					globalHero->getPhysicsBody()->getCollisionBitmask() | DOOR);
 				return;
 			}
 		}
@@ -824,6 +892,18 @@ void WildMap::positionMonitor() {
 		if (_room3.empty() && _roomStatus[3] == 1) {
 			_roomStatus[3] = 2;
 			//door;
+			//hero ≈ˆ◊≤…Ë÷√
+			globalHero->getPhysicsBody()->setCollisionBitmask(
+				globalHero->getPhysicsBody()->getCollisionBitmask() ^ DOOR);
+			//√≈“∆≥˝
+			auto layer3 = _tiledmap->getLayer("layer3");
+			for (int i = 52; i < 59; ++i) {
+				layer3->removeTileAt(Vec2(53, i));
+			}
+			for (int i = 72; i < 78; ++i) {
+				layer3->removeTileAt(Vec2(i, 71));
+				layer3->removeTileAt(Vec2(i, 72));
+			}
 			return;
 		}
 		else if (_roomStatus[3] == 0) {
@@ -833,6 +913,17 @@ void WildMap::positionMonitor() {
 					globalHero->getPositionY() < room3UR["y"].asFloat())) {
 				_roomStatus[3] = 1;
 				//door
+				auto layer3 = _tiledmap->getLayer("layer3");
+				for (int i = 52; i < 59; ++i) {
+					layer3->getTileAt(Vec2(53, i))->setVisible(true);
+				}
+				for (int i = 72; i < 78; ++i) {
+					layer3->getTileAt(Vec2(i, 71))->setVisible(true);
+					layer3->getTileAt(Vec2(i, 72))->setVisible(true);
+				}
+				//≈ˆ◊≤—⁄¬Î
+				globalHero->getPhysicsBody()->setCollisionBitmask(
+					globalHero->getPhysicsBody()->getCollisionBitmask() | DOOR);
 				return;
 			}
 		}
@@ -841,6 +932,21 @@ void WildMap::positionMonitor() {
 		if (_room4.empty() && _roomStatus[4] == 1) {
 			_roomStatus[4] = 2;
 			//door;
+			//hero ≈ˆ◊≤…Ë÷√
+			globalHero->getPhysicsBody()->setCollisionBitmask(
+				globalHero->getPhysicsBody()->getCollisionBitmask() ^ DOOR);
+			//√≈“∆≥˝
+			auto layer3 = _tiledmap->getLayer("layer3");
+			for (int i = 91; i < 98; ++i) {
+				layer3->removeTileAt(Vec2(43, i));
+			}
+			for (int i = 19; i < 25; ++i) {
+				layer3->removeTileAt(Vec2(i, 78));
+				layer3->removeTileAt(Vec2(i, 79));
+			}
+			//º”‘ÿconductor
+			auto conduction = Sprite::createWithSpriteFrameName("conductioncircle.png");
+
 			return;
 		}
 		else if (_roomStatus[4] == 0) {
@@ -850,6 +956,17 @@ void WildMap::positionMonitor() {
 					globalHero->getPositionY() < room4UR["y"].asFloat())) {
 				_roomStatus[4] = 1;
 				//door
+				auto layer3 = _tiledmap->getLayer("layer3");
+				for (int i = 91; i < 98; ++i) {
+					layer3->getTileAt(Vec2(43, i))->setVisible(true);
+				}
+				for (int i = 19; i < 25; ++i) {
+					layer3->getTileAt(Vec2(i, 78))->setVisible(true);
+					layer3->getTileAt(Vec2(i, 79))->setVisible(true);
+				}
+				//≈ˆ◊≤—⁄¬Î
+				globalHero->getPhysicsBody()->setCollisionBitmask(
+					globalHero->getPhysicsBody()->getCollisionBitmask() | DOOR);
 				return;
 			}
 		}
@@ -858,6 +975,20 @@ void WildMap::positionMonitor() {
 		if (_room5.empty() && _roomStatus[5] == 1) {
 			_roomStatus[5] = 2;
 			//door;
+			//hero ≈ˆ◊≤…Ë÷√
+			globalHero->getPhysicsBody()->setCollisionBitmask(
+				globalHero->getPhysicsBody()->getCollisionBitmask() ^ DOOR);
+			//√≈“∆≥˝
+			auto layer3 = _tiledmap->getLayer("layer3");
+			for (int i = 91; i < 98; ++i) {
+				layer3->removeTileAt(Vec2(53, i));
+			}
+			for (int i = 72; i < 78; ++i) {
+				layer3->removeTileAt(Vec2(i, 78));
+				layer3->removeTileAt(Vec2(i, 79));
+			}
+			//conductorº”‘ÿ
+			addconductor();
 			return;
 		}
 		else if (_roomStatus[5] == 0) {
@@ -867,6 +998,17 @@ void WildMap::positionMonitor() {
 					globalHero->getPositionY() < room5UR["y"].asFloat())) {
 				_roomStatus[5] = 1;
 				//door
+				auto layer3 = _tiledmap->getLayer("layer3");
+				for (int i = 91; i < 98; ++i) {
+					layer3->getTileAt(Vec2(53, i))->setVisible(true);
+				}
+				for (int i = 72; i < 78; ++i) {
+					layer3->getTileAt(Vec2(i, 78))->setVisible(true);
+					layer3->getTileAt(Vec2(i, 79))->setVisible(true);
+				}
+				//≈ˆ◊≤—⁄¬Î
+				globalHero->getPhysicsBody()->setCollisionBitmask(
+					globalHero->getPhysicsBody()->getCollisionBitmask() | DOOR);
 				return;
 			}
 		}
@@ -879,6 +1021,4 @@ void WildMap::update(float delta) {
 
 	//Œª÷√≈–∂œ
 	positionMonitor();
-
-
 }
