@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.5" orientation="orthogonal" renderorder="right-down" width="97" height="112" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="43">
+<map version="1.2" tiledversion="1.3.5" orientation="orthogonal" renderorder="right-down" width="97" height="112" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="44">
  <tileset firstgid="1" source="TileA4.tsx"/>
  <layer id="1" name="layer1" width="97" height="112">
   <data encoding="base64">
@@ -15,22 +15,23 @@
   <object id="26" name="conductordoor" x="2404" y="3068" width="32" height="34.6667"/>
  </objectgroup>
  <objectgroup id="8" name="room4">
-  <object id="39" name="monsterborn2" x="1348" y="2558.67" width="32" height="34.6667"/>
-  <object id="40" name="monsterborn1" x="29.3333" y="2557.33" width="32" height="34.6667"/>
-  <object id="41" name="monsterborn4" x="1344" y="3482.67" width="32" height="34.6667"/>
-  <object id="42" name="monsterborn3" x="33.3333" y="3484" width="32" height="34.6667"/>
+  <object id="39" name="monsterborn2" x="1332" y="2566.67" width="32" height="34.6667"/>
+  <object id="40" name="monsterborn1" x="39.3333" y="2569.33" width="32" height="34.6667"/>
+  <object id="41" name="monsterborn4" x="1332" y="3464.67" width="32" height="34.6667"/>
+  <object id="42" name="monsterborn3" x="45.3333" y="3472" width="32" height="34.6667"/>
+  <object id="43" name="bossborn" x="668" y="3040.67" width="32" height="34.6667"/>
  </objectgroup>
  <objectgroup id="3" name="room3">
-  <object id="29" name="monsterborn1" x="1730.67" y="1309.33" width="32" height="34.6667"/>
-  <object id="30" name="monsterborn2" x="3041.33" y="1309.33" width="32" height="34.6667"/>
-  <object id="33" name="monsterborn3" x="1730.67" y="2237.33" width="32" height="34.6667"/>
-  <object id="34" name="monsterborn4" x="3041.33" y="2237.33" width="32" height="34.6667"/>
+  <object id="29" name="monsterborn1" x="1738.67" y="1319.33" width="32" height="34.6667"/>
+  <object id="30" name="monsterborn2" x="3027.33" y="1319.33" width="32" height="34.6667"/>
+  <object id="33" name="monsterborn3" x="1740.67" y="2223.33" width="32" height="34.6667"/>
+  <object id="34" name="monsterborn4" x="3031.33" y="2225.33" width="32" height="34.6667"/>
  </objectgroup>
  <objectgroup id="4" name="room2">
-  <object id="35" name="monsterborn3" x="30.6667" y="2236" width="32" height="34.6667"/>
-  <object id="36" name="monsterborn4" x="1342.67" y="2237.33" width="32" height="34.6667"/>
-  <object id="37" name="monsterborn1" x="29.3333" y="1309.33" width="32" height="34.6667"/>
-  <object id="38" name="monsterborn2" x="1342.67" y="1310.67" width="32" height="34.6667"/>
+  <object id="35" name="monsterborn3" x="42.6667" y="2226" width="32" height="34.6667"/>
+  <object id="36" name="monsterborn4" x="1324.67" y="2223.33" width="32" height="34.6667"/>
+  <object id="37" name="monsterborn1" x="39.3333" y="1329.33" width="32" height="34.6667"/>
+  <object id="38" name="monsterborn2" x="1318.67" y="1330.67" width="32" height="34.6667"/>
  </objectgroup>
  <objectgroup id="6" name="room1">
   <object id="9" name="npcborn" x="1249.33" y="160" width="30.6667" height="32"/>

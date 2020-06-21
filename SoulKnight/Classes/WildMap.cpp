@@ -6,6 +6,8 @@ using namespace std;
 
 extern std::shared_ptr<Hero> globalHero;
 extern int globalCoin;
+extern std::vector<std::shared_ptr<Monster>> globalMonsterRepository;
+extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
 
 Scene* WildMap::createScene()
 {
@@ -127,7 +129,105 @@ bool WildMap::init()
 	/////////////////////////////
 	// 4. 小怪（及Boss）初始化								xyc
 	//……
+	auto monster1 = Monster::createWithSpriteFrameName("monster1right.png");
+	auto monster2 = Monster::createWithSpriteFrameName("monster2right.png");
+	auto boss1 = Monster::createWithSpriteFrameName("boss1right.png");
+	globalMonsterRepository.push_back(monster1);
+	globalMonsterRepository.push_back(monster2);
+	globalMonsterRepository.push_back(boss1);
 
+	TMXObjectGroup* room2 = _tiledmap->getObjectGroup("room2");
+	TMXObjectGroup* room3 = _tiledmap->getObjectGroup("room3");
+	TMXObjectGroup* room4 = _tiledmap->getObjectGroup("room4");
+	//room2
+	auto monsterborn2_1 = room2->getObject("monsterborn1");
+	auto monsterborn2_2 = room2->getObject("monsterborn2");
+	auto monsterborn2_3 = room2->getObject("monsterborn3");
+	auto monsterborn2_4 = room2->getObject("monsterborn4");
+	float born2_X1 = monsterborn2_1["x"].asFloat();
+	float born2_Y1 = monsterborn2_1["y"].asFloat();
+	float born2_X2 = monsterborn2_2["x"].asFloat();
+	float born2_Y2 = monsterborn2_2["y"].asFloat();
+	float born2_X3 = monsterborn2_3["x"].asFloat();
+	float born2_Y3 = monsterborn2_3["y"].asFloat();
+	float born2_X4 = monsterborn2_4["x"].asFloat();
+	float born2_Y4 = monsterborn2_4["y"].asFloat();
+
+	auto monster2_1 = globalMonsterRepository[0]->clone();
+	auto monster2_2 = globalMonsterRepository[0]->clone();
+	auto monster2_3 = globalMonsterRepository[0]->clone();
+	auto monster2_4 = globalMonsterRepository[0]->clone();
+
+	monster2_1->setPosition(Vec2(born2_X1, born2_Y1));
+	monster2_2->setPosition(Vec2(born2_X2, born2_Y2));
+	monster2_3->setPosition(Vec2(born2_X3, born2_Y3));
+	monster2_4->setPosition(Vec2(born2_X4, born2_Y4));
+	monster2_1->setScale(0.3, 0.3);
+	monster2_2->setScale(0.3, 0.3);
+	monster2_3->setScale(0.3, 0.3);
+	monster2_4->setScale(0.3, 0.3);
+
+	//room3
+	auto monsterborn3_1 = room3->getObject("monsterborn1");
+	auto monsterborn3_2 = room3->getObject("monsterborn2");
+	auto monsterborn3_3 = room3->getObject("monsterborn3");
+	auto monsterborn3_4 = room3->getObject("monsterborn4");
+	float born3_X1 = monsterborn3_1["x"].asFloat();
+	float born3_Y1 = monsterborn3_1["y"].asFloat();
+	float born3_X2 = monsterborn3_2["x"].asFloat();
+	float born3_Y2 = monsterborn3_2["y"].asFloat();
+	float born3_X3 = monsterborn3_3["x"].asFloat();
+	float born3_Y3 = monsterborn3_3["y"].asFloat();
+	float born3_X4 = monsterborn3_4["x"].asFloat();
+	float born3_Y4 = monsterborn3_4["y"].asFloat();
+
+	auto monster3_1 = globalMonsterRepository[1]->clone();
+	auto monster3_2 = globalMonsterRepository[1]->clone();
+	auto monster3_3 = globalMonsterRepository[1]->clone();
+	auto monster3_4 = globalMonsterRepository[1]->clone();
+
+	monster3_1->setPosition(Vec2(born3_X1, born3_Y1));
+	monster3_2->setPosition(Vec2(born3_X2, born3_Y2));
+	monster3_3->setPosition(Vec2(born3_X3, born3_Y3));
+	monster3_4->setPosition(Vec2(born3_X4, born3_Y4));
+	monster3_1->setScale(0.3, 0.3);
+	monster3_2->setScale(0.3, 0.3);
+	monster3_3->setScale(0.3, 0.3);
+	monster3_4->setScale(0.3, 0.3);
+
+	//room4
+	auto monsterborn4_1 = room4->getObject("monsterborn1");
+	auto monsterborn4_2 = room4->getObject("monsterborn2");
+	auto monsterborn4_3 = room4->getObject("monsterborn3");
+	auto monsterborn4_4 = room4->getObject("monsterborn4");
+	auto bossborn = room4->getObject("bossborn");
+	float born4_X1 = monsterborn4_1["x"].asFloat();
+	float born4_Y1 = monsterborn4_1["y"].asFloat();
+	float born4_X2 = monsterborn4_2["x"].asFloat();
+	float born4_Y2 = monsterborn4_2["y"].asFloat();
+	float born4_X3 = monsterborn4_3["x"].asFloat();
+	float born4_Y3 = monsterborn4_3["y"].asFloat();
+	float born4_X4 = monsterborn4_4["x"].asFloat();
+	float born4_Y4 = monsterborn4_4["y"].asFloat();
+	float bossX = bossborn["x"].asFloat();
+	float bossY = bossborn["y"].asFloat();
+
+	auto monster4_1 = globalMonsterRepository[0]->clone();
+	auto monster4_2 = globalMonsterRepository[0]->clone();
+	auto monster4_3 = globalMonsterRepository[0]->clone();
+	auto monster4_4 = globalMonsterRepository[0]->clone();
+	auto boss = globalMonsterRepository[2]->clone();
+
+	monster4_1->setPosition(Vec2(born4_X1, born4_Y1));
+	monster4_2->setPosition(Vec2(born4_X2, born4_Y2));
+	monster4_3->setPosition(Vec2(born4_X3, born4_Y3));
+	monster4_4->setPosition(Vec2(born4_X4, born4_Y4));
+	boss->setPosition(Vec2(bossX, bossY));
+	monster4_1->setScale(0.3, 0.3);
+	monster4_2->setScale(0.3, 0.3);
+	monster4_3->setScale(0.3, 0.3);
+	monster4_4->setScale(0.3, 0.3);
+	boss->setScale(0.5, 0.5);
 	/////////////////////////////
 	// 5. Hero 初始化										cyf
 	//
