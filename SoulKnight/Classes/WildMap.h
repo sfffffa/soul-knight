@@ -22,9 +22,6 @@ private:
 		unsigned int : 1;
 	} _interactStatus;
 	
-	std::map<int, std::shared_ptr<Monster>> monsterMap2;
-	std::map<int, std::shared_ptr<Monster>> monsterMap3;
-	std::map<int, std::shared_ptr<Monster>> monsterMap4;
 
 	Vec2 _initiativeHeroOffset;
 	Vec2 _initiativeMapOffset;
@@ -64,7 +61,8 @@ private:
 	void initLayer();
 
 	void initMonsters();
-
+	void monstersAi();
+	
 	void addconductor();
 
 	//¼üÅÌ¼àÌı

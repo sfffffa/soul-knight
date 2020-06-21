@@ -100,10 +100,10 @@ bool WildMap::init()
 	//……
 	auto monster1 = Monster::createWithSpriteFrameName("monster1right.png");
 	auto monster2 = Monster::createWithSpriteFrameName("monster2right.png");
-	auto boss1 = Monster::createWithSpriteFrameName("boss1right.png");
+	auto boss = Boss::createWithSpriteFrameName("boss1right.png");
 	globalMonsterRepository.push_back(monster1);
 	globalMonsterRepository.push_back(monster2);
-	globalMonsterRepository.push_back(boss1);
+	//globalMonsterRepository.push_back(boss1);
 
 	TMXObjectGroup* room2 = _tiledmap->getObjectGroup("room2");
 	TMXObjectGroup* room3 = _tiledmap->getObjectGroup("room3");
@@ -136,10 +136,10 @@ bool WildMap::init()
 	monster2_2->setScale(0.3, 0.3);
 	monster2_3->setScale(0.3, 0.3);
 	monster2_4->setScale(0.3, 0.3);
-	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster2_1));
-	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster2_2));
-	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster2_3));
-	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster2_4));
+	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster2_1));
+	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster2_2));
+	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster2_3));
+	_room2.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster2_4));
 
 	//room3
 	auto monsterborn3_1 = room3->getObject("monsterborn1");
@@ -168,10 +168,10 @@ bool WildMap::init()
 	monster3_2->setScale(0.3, 0.3);
 	monster3_3->setScale(0.3, 0.3);
 	monster3_4->setScale(0.3, 0.3);
-	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster3_1));
-	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster3_2));
-	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster3_3));
-	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster3_4));
+	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster3_1));
+	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster3_2));
+	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster3_3));
+	_room3.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster3_4));
 	
 	//room4
 	auto monsterborn4_1 = room4->getObject("monsterborn1");
@@ -200,17 +200,18 @@ bool WildMap::init()
 	monster4_2->setScale(0.3, 0.3);
 	monster4_3->setScale(0.3, 0.3);
 	monster4_4->setScale(0.3, 0.3);
-	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster4_1));
-	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster4_2));
-	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster4_3));
-	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster4_4));
+	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster4_1));
+	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster4_2));
+	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster4_3));
+	_room4.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster4_4));
 	//room5
-	auto boss = globalMonsterRepository[2]->clone();
+	
 	auto bossborn = room5->getObject("bossborn");
 	float bossX = bossborn["x"].asFloat();
 	float bossY = bossborn["y"].asFloat();
 	boss->setPosition(Vec2(bossX, bossY));
 	boss->setScale(0.5, 0.5);
+	_room5.insert(map<int, std::shared_ptr<Boss>>::value_type(1, boss));
 	//把所有monstermap元素放到位置上去
 	initMonsters();
 
@@ -1038,31 +1039,41 @@ void WildMap::update(float delta) {
 
 void WildMap::initMonsters()
 {
-	initEnemy(monsterMap2[1], 2);
-	initEnemy(monsterMap2[2], 2);
-	initEnemy(monsterMap2[3], 2);
-	initEnemy(monsterMap2[4], 2);
-	initEnemy(monsterMap3[1], 3);
-	initEnemy(monsterMap3[2], 3);
-	initEnemy(monsterMap3[3], 3);
-	initEnemy(monsterMap3[4], 3);
-	initEnemy(monsterMap4[1], 4);
-	initEnemy(monsterMap4[2], 4);
-	initEnemy(monsterMap4[3], 4);
-	initEnemy(monsterMap4[4], 4);
+	initEnemy(_room2[1], 2);
+	initEnemy(_room2[2], 2);
+	initEnemy(_room2[3], 2);
+	initEnemy(_room2[4], 2);
+	initEnemy(_room3[1], 3);
+	initEnemy(_room3[2], 3);
+	initEnemy(_room3[3], 3);
+	initEnemy(_room3[4], 3);
+	initEnemy(_room4[1], 4);
+	initEnemy(_room4[2], 4);
+	initEnemy(_room4[3], 4);
+	initEnemy(_room4[4], 4);
+	initEnemy(_room5[1], 5);
 	
-	_tiledmap->addChild(monsterMap2[1].get(), 30);
-	_tiledmap->addChild(monsterMap2[2].get(), 30);
-	_tiledmap->addChild(monsterMap2[3].get(), 30);
-	_tiledmap->addChild(monsterMap2[4].get(), 30);
+	_tiledmap->addChild(_room2[1].get(), 30);
+	_tiledmap->addChild(_room2[2].get(), 30);
+	_tiledmap->addChild(_room2[3].get(), 30);
+	_tiledmap->addChild(_room2[4].get(), 30);
 	
-	_tiledmap->addChild(monsterMap3[1].get(), 30);
-	_tiledmap->addChild(monsterMap3[2].get(), 30);
-	_tiledmap->addChild(monsterMap3[3].get(), 30);
-	_tiledmap->addChild(monsterMap3[4].get(), 30);
+	_tiledmap->addChild(_room3[1].get(), 30);
+	_tiledmap->addChild(_room3[2].get(), 30);
+	_tiledmap->addChild(_room3[3].get(), 30);
+	_tiledmap->addChild(_room3[4].get(), 30);
 
-	_tiledmap->addChild(monsterMap4[1].get(), 30);
-	_tiledmap->addChild(monsterMap4[2].get(), 30);
-	_tiledmap->addChild(monsterMap4[3].get(), 30);
-	_tiledmap->addChild(monsterMap4[4].get(), 30);
+	_tiledmap->addChild(_room4[1].get(), 30);
+	_tiledmap->addChild(_room4[2].get(), 30);
+	_tiledmap->addChild(_room4[3].get(), 30);
+	_tiledmap->addChild(_room4[4].get(), 30);
+}
+
+void WildMap::monstersAi()
+{
+	//room2
+
+	//room3
+
+	//room4
 }
