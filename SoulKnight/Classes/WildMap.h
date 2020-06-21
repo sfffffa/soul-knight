@@ -63,6 +63,8 @@ private:
 	void initItem(std::shared_ptr<Item> item);
 	void initLayer();
 
+	void initMonsters();
+
 	void addconductor();
 
 	//¼üÅÌ¼àÌı

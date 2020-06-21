@@ -136,7 +136,11 @@ bool WildMap::init()
 	monster2_2->setScale(0.3, 0.3);
 	monster2_3->setScale(0.3, 0.3);
 	monster2_4->setScale(0.3, 0.3);
-  
+	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster2_1));
+	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster2_2));
+	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster2_3));
+	monsterMap2.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster2_4));
+
 	//room3
 	auto monsterborn3_1 = room3->getObject("monsterborn1");
 	auto monsterborn3_2 = room3->getObject("monsterborn2");
@@ -164,7 +168,11 @@ bool WildMap::init()
 	monster3_2->setScale(0.3, 0.3);
 	monster3_3->setScale(0.3, 0.3);
 	monster3_4->setScale(0.3, 0.3);
-
+	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster3_1));
+	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster3_2));
+	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster3_3));
+	monsterMap3.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster3_4));
+	
 	//room4
 	auto monsterborn4_1 = room4->getObject("monsterborn1");
 	auto monsterborn4_2 = room4->getObject("monsterborn2");
@@ -192,7 +200,10 @@ bool WildMap::init()
 	monster4_2->setScale(0.3, 0.3);
 	monster4_3->setScale(0.3, 0.3);
 	monster4_4->setScale(0.3, 0.3);
-
+	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(1, monster4_1));
+	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(2, monster4_2));
+	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(3, monster4_3));
+	monsterMap4.insert(map<int, std::shared_ptr<Monster>>::value_type(4, monster4_4));
 	//room5
 	auto boss = globalMonsterRepository[2]->clone();
 	auto bossborn = room5->getObject("bossborn");
@@ -200,6 +211,8 @@ bool WildMap::init()
 	float bossY = bossborn["y"].asFloat();
 	boss->setPosition(Vec2(bossX, bossY));
 	boss->setScale(0.5, 0.5);
+	//把所有monstermap元素放到位置上去
+	initMonsters();
 
 
 	/////////////////////////////
@@ -1021,4 +1034,35 @@ void WildMap::update(float delta) {
 
 	//位置判断
 	positionMonitor();
+}
+
+void WildMap::initMonsters()
+{
+	initEnemy(monsterMap2[1], 2);
+	initEnemy(monsterMap2[2], 2);
+	initEnemy(monsterMap2[3], 2);
+	initEnemy(monsterMap2[4], 2);
+	initEnemy(monsterMap3[1], 3);
+	initEnemy(monsterMap3[2], 3);
+	initEnemy(monsterMap3[3], 3);
+	initEnemy(monsterMap3[4], 3);
+	initEnemy(monsterMap4[1], 4);
+	initEnemy(monsterMap4[2], 4);
+	initEnemy(monsterMap4[3], 4);
+	initEnemy(monsterMap4[4], 4);
+	
+	_tiledmap->addChild(monsterMap2[1].get(), 30);
+	_tiledmap->addChild(monsterMap2[2].get(), 30);
+	_tiledmap->addChild(monsterMap2[3].get(), 30);
+	_tiledmap->addChild(monsterMap2[4].get(), 30);
+	
+	_tiledmap->addChild(monsterMap3[1].get(), 30);
+	_tiledmap->addChild(monsterMap3[2].get(), 30);
+	_tiledmap->addChild(monsterMap3[3].get(), 30);
+	_tiledmap->addChild(monsterMap3[4].get(), 30);
+
+	_tiledmap->addChild(monsterMap4[1].get(), 30);
+	_tiledmap->addChild(monsterMap4[2].get(), 30);
+	_tiledmap->addChild(monsterMap4[3].get(), 30);
+	_tiledmap->addChild(monsterMap4[4].get(), 30);
 }
