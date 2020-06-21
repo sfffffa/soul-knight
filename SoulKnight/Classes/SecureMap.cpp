@@ -324,10 +324,16 @@ void SecureMap::initLayer() {
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
 	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
+
 	auto weaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
 		globalHero->getWeaponInstance()->getWeaponName() + "left.png");
 	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
 		globalHero->getWeaponInstance()->getWeaponName() + "right.png");
+
+	auto offHandWeaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getOffhandWeaponInstance()->getWeaponName() + "left.png");
+	auto offHandWeaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getOffhandWeaponInstance()->getWeaponName() + "right.png");
 
 	switch (keyCode)
 	{
@@ -339,9 +345,16 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_A:
 		if (!globalHero->isTowardLeft()) {
 			globalHero->setSpriteFrame(heroLeft);
+
 			globalHero->getWeaponInstance()->setSpriteFrame(weaponLeft);
 			globalHero->getWeaponInstance()->setPosition(
 				Vec2(-globalHero->getContentSize().width *0.25, globalHero->getContentSize().height / 2));
+			globalHero->setToward(true);
+
+			globalHero->getOffhandWeaponInstance()->setSpriteFrame(offHandWeaponLeft);
+			globalHero->getOffhandWeaponInstance()->setPosition(
+				Vec2(-globalHero->getContentSize().width *0.25, globalHero->getContentSize().height / 2));
+
 			globalHero->setToward(true);
 		}
 		globalHero->getPhysicsBody()->setVelocity(Vec2(-globalHero->getSpeed(), 0));
@@ -352,9 +365,16 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 	case cocos2d::EventKeyboard::KeyCode::KEY_D:
 		if (globalHero->isTowardLeft()) {
 			globalHero->setSpriteFrame(heroRight);
+
 			globalHero->getWeaponInstance()->setSpriteFrame(weaponRight);
 			globalHero->getWeaponInstance()->setPosition(
 				Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+			globalHero->setToward(false);
+
+			globalHero->getOffhandWeaponInstance()->setSpriteFrame(offHandWeaponRight);
+			globalHero->getOffhandWeaponInstance()->setPosition(
+				Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+
 			globalHero->setToward(false);
 		}
 		globalHero->getPhysicsBody()->setVelocity(Vec2(globalHero->getSpeed(), 0));
@@ -364,6 +384,7 @@ bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 		shoot();
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_K:
+		changeWeaponActive();
 		break;
 	case cocos2d::EventKeyboard::KeyCode::KEY_L:
 		break;
@@ -493,4 +514,24 @@ void SecureMap::shoot() {
 		}
 		_tiledmap->addChild(bullet.get(), 11);
 	}
+}
+
+void SecureMap::changeWeaponActive() 
+{
+	if (!globalHero->getWeaponStatus())
+	{
+		auto _weapon = globalHero->getWeaponInstance();
+		auto _offHandWeapon = globalHero->getOffhandWeaponInstance();
+		globalHero->removeChild(_weapon.get(), 1);
+		globalHero->addChild(_offHandWeapon.get(), 2);
+	}
+	else if (globalHero->getWeaponStatus())
+	{
+		auto _weapon = globalHero->getWeaponInstance();
+		auto _offHandWeapon = globalHero->getOffhandWeaponInstance();
+		globalHero->removeChild(_offHandWeapon.get(),2);
+		globalHero->addChild(_weapon.get(), 1);
+	}
+
+	globalHero->changeWeapon();
 }

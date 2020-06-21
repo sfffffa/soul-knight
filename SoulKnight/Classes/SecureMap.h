@@ -53,6 +53,8 @@ private:
 	void interact();
 	//攻击
 	void shoot();
+	//起换武器,实操,不同于hero.h的changeweapon
+	void changeWeaponActive();
 	//技能
 	void skill();
 };
