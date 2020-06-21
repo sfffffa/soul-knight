@@ -48,10 +48,10 @@ bool SelectingScene::init()
 	globalHero = Hero::createWithSpriteFrameName("hero1right.png");
 
 	auto hero1 = MenuItemImage::create(
-		"hero1right.png", "hero1right.png",
+		"rawmaterials/hero1right.png", "rawmaterials/hero1right.png",
 		CC_CALLBACK_1(SelectingScene::hero1Chosen, this));
 	auto hero2 = MenuItemImage::create(
-		"hero2left.png", "hero2left.png",
+		"rawmaterials/hero2left.png", "rawmaterials/hero2left.png",
 		CC_CALLBACK_1(SelectingScene::hero2Chosen, this));
 	auto menu = Menu::create();
 	menu->setPosition(0, 0);
@@ -66,16 +66,27 @@ bool SelectingScene::init()
 
 void SelectingScene::hero1Chosen(Ref* pSender)
 {
+	initKnight();
 	Scene* securemap = SecureMap::createScene();
-	auto hero = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png");
-	globalHero->setSpriteFrame(hero);
 	Director::getInstance()->replaceScene(securemap);
 }
 
 void SelectingScene::hero2Chosen(Ref* pSender)
 {
+	initWizard();
 	Scene* securemap = SecureMap::createScene();
-	auto hero = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero2right.png");
-	globalHero->setSpriteFrame(hero);
 	Director::getInstance()->replaceScene(securemap);
+}
+
+inline void SelectingScene::initKnight() {
+	globalHero = Hero::createWithSpriteFrameName("hero1right.png", 8, 8, 120, 600.0f);
+	globalHero->setHeroName("hero1");
+	globalHero->setAnchorPoint(Vec2(0.38f, 0.1f));
+}
+
+inline void SelectingScene::initWizard()
+{
+	globalHero = Hero::createWithSpriteFrameName("hero2right.png", 6, 9, 200, 500.0f);
+	globalHero->setHeroName("hero2");
+	globalHero->setAnchorPoint(Vec2(0.28f, 0.1f));
 }

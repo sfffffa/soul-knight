@@ -10,11 +10,12 @@ public:
 	static cocos2d::Scene* createScene();
 
 	virtual bool init();
-	
+
 	void hero1Chosen(cocos2d::Ref* pSender);
 	void hero2Chosen(cocos2d::Ref* pSender);
 	CREATE_FUNC(SelectingScene);
 private:
-	std::shared_ptr<Hero> _hero;
+	void initKnight();
+	void initWizard();
 };
 #endif //__SELECTING_SCENE_H__

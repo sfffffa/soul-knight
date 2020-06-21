@@ -205,7 +205,7 @@ bool WildMap::init()
 
 void WildMap::initMember() {
 	globalHero->setSpriteFrame(
-		SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png"));
+		SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png"));
 	globalHero->setToward(false);
 
 	_interactStatus.box = 0;
@@ -468,8 +468,8 @@ void WildMap::initLayer() {
 }
 
 bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
-	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1left.png");
-	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png");
+	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
+	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
 
 	switch (keyCode)
 	{

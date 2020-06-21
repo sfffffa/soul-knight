@@ -85,8 +85,6 @@ bool SecureMap::init()
 	//  4. hero 初始化										cyf
 	//
 	//依靠前一场景传参,此次初始化仅设置位置及physicsBody
-	globalHero = Hero::createWithSpriteFrameName("hero1right.png");
-	globalHero->setSpeed(500.0f);
 	globalHero->setScale(0.3f, 0.3f);
 	initHero();
 
@@ -203,8 +201,6 @@ Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
 }
 
 void SecureMap::initHero() {
-	globalHero->setAnchorPoint(Vec2(0.38, 0.1));
-
 	auto physicsBody = cocos2d::PhysicsBody::createBox(
 		Size(globalHero->getContentSize().width, globalHero->getContentSize().height * 2 / 5),
 		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*globalHero->getContentSize().height));
@@ -324,8 +320,8 @@ void SecureMap::initLayer() {
 }
 
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
-	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1left.png");
-	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName("hero1right.png");
+	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
+	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
 
 	switch (keyCode)
 	{
