@@ -2,8 +2,7 @@
 #define __WILD_MAP_H__
 
 #include "GlobalVariable.h"
-#include <ctime>
-#include <random>
+#include "ui/CocosGUI.h"
 
 class WildMap : public cocos2d::Scene
 {
@@ -24,6 +23,10 @@ private:
 		unsigned int : 1;
 	} _interactStatus;
 
+	cocos2d::ui::Slider *healthBar;
+	cocos2d::ui::Slider *shieldBar;
+	cocos2d::ui::Slider *magicBar;
+
 	Vec2 _initiativeHeroOffset;
 	Vec2 _initiativeMapOffset;
 
@@ -34,26 +37,20 @@ private:
 	int _bulletZOrder;
 	int _monsterZorder;
 
+	bool _conductorHasAdded = 0;
+
 	int curRoomNum = 0;
 
 	void initMember();
 	void releaseMember();
 
 	//³¡¾°Îï¼þ³õÊ¼»¯
-	void initHero();
-	void initEnemy(std::shared_ptr<Monster> monster, int roomNum);
-	void initMyBullet(std::shared_ptr<Bullet> bullet);
-	void initEnemyBullet(std::shared_ptr<Bullet> bullet);
-	void initWall(Sprite *wall);
-	void initDoor(Sprite *door);
-	void initBox(Sprite *box);
-	void initConductor(Sprite *conductor);
-	void initItem(std::shared_ptr<Item> item);
 	void initLayer();
 
-	void monstersAi();
+	//void monstersAi();
 
-	void addMonsterInRoom();
+	void addMonsterInRoom(int roomNum);
+	void addMonsterInRooms();
 	void addconductor();
 	//void addItem(Item::Type type);
 	//¼üÅÌ¼àÌý
@@ -68,14 +65,21 @@ private:
 	void interact();
 	//¹¥»÷
 	void shoot();
+
 	//ÎäÆ÷ÇÐ»»
 	void changeWeaponActive();
 	//¼¼ÄÜ
 	void skill();
 
+	void aiShoot(std::shared_ptr<Monster> monster);
+	void aiMove(std::shared_ptr<Monster> monster);
+
 	void positionMonitor();
 
 	void update(float delta);
+	void updateShield(float delta);
+	void aiInTwoSec(float delta);
+	void aiInThreeSec(float delta);
 };
 
 #endif // __WILD_MAP_H__

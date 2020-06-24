@@ -2,29 +2,11 @@
 #include "SecureMap.h"
 #include <random>
 #include <ctime>
+#include <algorithm>
+#include <utility>
 
 USING_NS_CC;
 using namespace std;
-
-extern std::shared_ptr<Hero> globalHero;
-extern int globalCoin;
-extern std::vector<std::shared_ptr<Monster>> globalMonsterRepository;
-extern std::vector<std::shared_ptr<Weapon>> globalWeaponRepository;
-extern std::vector<std::shared_ptr<Boss>> globalBossRepository;
-extern int bulletIndex;
-extern std::map<int, std::shared_ptr<Bullet>> bulletManagement;
-extern int itemIndex;
-extern std::map<int, std::shared_ptr<Item>> itemManagement;
-
-extern std::vector<char> roomStatus;
-extern int room2Index;
-extern std::map<int, std::shared_ptr<Monster>> room2;
-extern int room3Index;
-extern std::map<int, std::shared_ptr<Monster>> room3;
-extern int room4Index;
-extern std::map<int, std::shared_ptr<Monster>> room4;
-extern int room5Index;
-extern std::map<int, std::shared_ptr<Boss>> room5;
 
 std::default_random_engine engine(static_cast<unsigned>(time(0)));
 
@@ -73,8 +55,6 @@ bool WildMap::init()
 	/////////////////////
 	// 1.3 资源加载											hth
 	//
-	auto spritecache = SpriteFrameCache::getInstance();
-	spritecache->addSpriteFramesWithFile("new.plist");
 
 	/////////////////////
 	// 1.3.1 武器库初始化（相应子弹初始化）					hth
@@ -88,9 +68,8 @@ bool WildMap::init()
 	this->addChild(background, -10);
 
 	/////////////////////////////
-	// 3. Hero初始化											cyf
+	// 3. Hero 初始化											cyf
 	//
-	initHero();
 
 	/////////////////////////////
 	// 3. 地图初始化											hth、cyf
@@ -116,34 +95,12 @@ bool WildMap::init()
 	// 4. 小怪（及Boss）初始化								xyc
 	//……
 	//怪物图集初始化
-	auto weapon1 = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[0]->clone());
-	auto monster1 = Monster::createWithSpriteFrameName(
-		"monster1right.png", 15, 100, 400.0f, weapon1, 0.5, 0.1, 0.2);
-	monster1->setCharacterName("monster1");
-	monster1->setScale(0.3f);
-	monster1->addChild(weapon1.get(), 1);
+	initGlobalMonsterRepository();
 
-	auto weapon2 = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[2]->clone());
-	auto monster2 = Monster::createWithSpriteFrameName(
-		"monster2right.png", 20, 50, 300.0f, weapon2, 0.3, 0.2, 0.1);
-	monster2->setCharacterName("monster2");
-	monster2->setScale(0.3f);
-	monster2->addChild(weapon2.get(), 1);
-
-	auto weapon3 = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[1]->clone());
-	auto boss = Boss::createWithSpriteFrameName(
-		"boss1right.png", 200, 1000, 800.0f, globalWeaponRepository[1], 0.0f, 0.0f, 0.3f);
-	boss->setCharacterName("boss1");
-	boss->setScale(0.5, 0.5);
-	boss->addChild(weapon3.get(), 1);
-
-	globalMonsterRepository.push_back(monster1);
-	globalMonsterRepository.push_back(monster2);
-	globalBossRepository.push_back(boss);
-	//globalMonsterRepository.push_back(boss1);
+	initGlobalBossRepository();
 
 	//把所有monstermap元素放到位置上去
-	addMonsterInRoom();
+	addMonsterInRooms();
 
 	/////////////////////////////
 	// 5. Hero 初始化										cyf
@@ -204,6 +161,49 @@ bool WildMap::init()
 	/////////////////////////////
 	// 6. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）				hth
 	//
+	healthBar = ui::Slider::create();
+	healthBar->setEnabled(false);
+	healthBar->setAnchorPoint(Vec2(0.0f, 0.5f));
+	healthBar->setScale(1.2f, 0.8f);
+	healthBar->loadBarTexture("rawmaterials/emptybar.png");
+	healthBar->loadProgressBarTexture("rawmaterials/fullblood.png");
+	healthBar->setPercent(100);
+	healthBar->setPosition(
+		Vec2(healthBar->getContentSize().width*0.12f, healthBar->getContentSize().height*3.0f));
+
+	magicBar = ui::Slider::create();
+	magicBar->setEnabled(false);
+	magicBar->setAnchorPoint(Vec2(0.0f, 0.5f));
+	magicBar->setScale(1.2f, 0.8f);
+	magicBar->loadBarTexture("rawmaterials/emptybar.png");
+	magicBar->loadProgressBarTexture("rawmaterials/fullblue.png");
+	magicBar->setPercent(100);
+	magicBar->setPosition(
+		Vec2(healthBar->getContentSize().width*0.12f, healthBar->getContentSize().height*1.0f));
+
+	shieldBar = ui::Slider::create();
+	shieldBar->setScale(1.2f, 0.8f);
+	shieldBar->setAnchorPoint(Vec2(0.0f, 0.5f));
+	shieldBar->setEnabled(false);
+	shieldBar->loadBarTexture("rawmaterials/emptybar.png");
+	shieldBar->loadProgressBarTexture("rawmaterials/fullshield.png");
+	shieldBar->setPercent(100);
+	shieldBar->setPosition(
+		Vec2(healthBar->getContentSize().width*0.12f, healthBar->getContentSize().height*2.0f));
+
+	auto panel = DrawNode::create();
+	panel->drawSolidRect(Vec2::ZERO,
+		Vec2(healthBar->getContentSize().width*1.44f,
+			healthBar->getContentSize().height*4.0f),
+		cocos2d::Color4F(237 / 255.0f, 189 / 255.0f, 101 / 255.0f, 1.0f));
+	panel->setOpacity(220);
+	panel->setAnchorPoint(Vec2(0.0f, 1.0f));
+	panel->setPosition(Vec2(origin.x + 10, visibleSize.height + 62));
+	this->addChild(panel, 200);
+
+	panel->addChild(shieldBar, 10);
+	panel->addChild(healthBar, 10);
+	panel->addChild(magicBar, 10);
 
 	/////////////////////////////
 	// 7. 菜单初始化											hth
@@ -217,209 +217,69 @@ bool WildMap::init()
 	// 8 camera 跟随									cyf
 	//
 	scheduleUpdate();
+	schedule(CC_SCHEDULE_SELECTOR(WildMap::updateShield), 3.0f);
+	schedule(CC_SCHEDULE_SELECTOR(WildMap::aiInTwoSec), 2.0f);
+	schedule(CC_SCHEDULE_SELECTOR(WildMap::aiInThreeSec), 3.0f);
 
 	return true;
 }
 
 void WildMap::initMember() {
 	globalHero->setSpriteFrame(
-		SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png"));
+		SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getName() + "right.png"));
 	globalHero->setToward(false);
+	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getWeaponInstance()->getName() + "right.png");
+	globalHero->getWeaponInstance()->setSpriteFrame(weaponRight);
+	globalHero->getWeaponInstance()->setPosition(
+		Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+
+	for (int i = 2; i < 6; ++i) {
+		roomStatus[i] = 0;
+		globalRoomsIndex[i] = 0;
+	}
 
 	_interactStatus.box = 0;
 	_interactStatus.conductor = 0;
-	itemIndex = 0;
-	bulletIndex = 0;
-	room2Index = 0;
-	room3Index = 0;
-	room4Index = 0;
-	room5Index = 0;
-	roomStatus = { 0,0,0,0,0,0 };
+
+	_conductorHasAdded = 0;
 
 	_bulletZOrder = 0;
-	_monsterZorder = 10000;
+	_monsterZorder = 1000;
+
+	roomStatus.clear();
 }
 
 void WildMap::releaseMember() {
-	bulletManagement.clear();
-	itemManagement.clear();
-	room2.clear();
-	room3.clear();
-	room4.clear();
-	room5.clear();
-	roomStatus.clear();
+	globalBulletIndex = 0;
+	std::for_each(globalBulletManagement.begin(), globalBulletManagement.end(),
+		[](std::pair<int, std::shared_ptr<Bullet>> bullet) {
+		bullet.second->removeFromParentAndCleanup(true);
+	});
+	globalBulletManagement.clear();
+
+	globalItemIndex = 0;
+	std::for_each(globalItemManagement.begin(), globalItemManagement.end(),
+		[](std::pair<int, std::shared_ptr<Item>> ite) {
+		ite.second->removeFromParentAndCleanup(true);
+	});
+	globalItemManagement.clear();
+
+	globalRoomsIndex.clear();
+	std::for_each(globalRooms.begin(), globalRooms.end(),
+		[](std::pair<int, std::map<int, std::shared_ptr<Monster>>> room) {
+		std::for_each(room.second.begin(), room.second.end(),
+			[](std::pair<int, std::shared_ptr<Monster>> monster) {
+			monster.second->removeFromParentAndCleanup(true);
+		});
+	});
+	globalRooms.clear();
 	globalHero->removeFromParentAndCleanup(false);
-}
 
-void WildMap::initHero() {
-	//hero本身physicsBody属性设置
-	auto heroPhyBody = globalHero->getPhysicsBody();
-	heroPhyBody->setCollisionBitmask(ENEMY | WALL | BOX);
-	heroPhyBody->setContactTestBitmask(BOX | CONDUCTOR | ITEM);
-
-	//跟随方块（用于渲染顺序及伤害判定）
-	auto heroContact = DrawNode::create();
-	heroContact->drawSolidRect(Vec2::ZERO, globalHero->getContentSize(),
-		cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
-
-	auto physicsBody = PhysicsBody::createBox(
-		globalHero->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(HEROCONTACT);
-	physicsBody->setCategoryBitmask(HEROCONTACT);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(ENEMY_BULLET | ENEMYCONTACT);
-	heroContact->setPhysicsBody(physicsBody);
-	heroContact->setVisible(false);
-
-	globalHero->addChild(heroContact, -1);
-}
-
-void WildMap::initEnemy(std::shared_ptr<Monster> monster, int roomNum) {
-	//init enemy
-	monster->setAnchorPoint(Vec2(0.38, 0.1));
-
-	auto monsterPhyBody = cocos2d::PhysicsBody::createBox(
-		Size(monster->getContentSize().width, monster->getContentSize().height * 2 / 5),
-		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*monster->getContentSize().height));
-	monsterPhyBody->setDynamic(true);
-	monsterPhyBody->setGravityEnable(false);
-	monsterPhyBody->setRotationEnable(false);
-	monsterPhyBody->setTag(ENEMY);
-	monsterPhyBody->setCategoryBitmask(ENEMY);
-	monsterPhyBody->setCollisionBitmask(WALL | HERO | DOOR | ENEMY);
-	monsterPhyBody->setContactTestBitmask(0x00);
-
-	monster->setPhysicsBody(monsterPhyBody);
-
-	//init enemy contact
-	auto monsterContact = DrawNode::create();
-	monsterContact->drawSolidRect(Vec2::ZERO, monster->getContentSize(),
-		cocos2d::Color4F(195 / 255.0f, 176 / 255.0f, 145 / 255.0f, 1.0f));
-
-	auto physicsBody = PhysicsBody::createBox(
-		monster->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(ENEMYCONTACT);
-	physicsBody->setCategoryBitmask(ENEMYCONTACT);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(MY_BULLET | HEROCONTACT | ENEMYCONTACT);
-	monsterContact->setPhysicsBody(physicsBody);
-	monsterContact->setVisible(false);
-
-	monster->addChild(monsterContact, -1);
-
-	if (roomNum == 2) {
-		monster->setTag(++room2Index);
-		room2[monster->getTag()] = monster;
-	}
-	else if (roomNum == 3) {
-		monster->setTag(++room3Index);
-		room3[monster->getTag()] = monster;
-	}
-	else if (roomNum == 4) {
-		monster->setTag(++room3Index);
-		room4[monster->getTag()] = monster;
-	}
-	/*else if (roomNum == 5) {
-		monster->setTag(++room3Index);
-		room5[monster->getTag()] = monster;
-	}*/
-}
-
-void WildMap::initMyBullet(std::shared_ptr<Bullet> bullet) {
-	auto physicsBody = PhysicsBody::createBox(
-		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(true);
-	physicsBody->setGravityEnable(false);
-	physicsBody->setRotationEnable(false);
-	physicsBody->setTag(MY_BULLET);
-	physicsBody->setCategoryBitmask(MY_BULLET);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(DOOR | ENEMYCONTACT | WALL | BOX);
-
-	bullet->setPhysicsBody(physicsBody);
-	bullet->setTag(++bulletIndex);
-	bulletManagement[bullet->getTag()] = bullet;
-}
-
-void WildMap::initEnemyBullet(std::shared_ptr<Bullet> bullet) {
-	auto physicsBody = PhysicsBody::createBox(
-		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(true);
-	physicsBody->setGravityEnable(false);
-	physicsBody->setRotationEnable(false);
-	physicsBody->setTag(ENEMY_BULLET);
-	physicsBody->setCategoryBitmask(ENEMY_BULLET);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(DOOR | HEROCONTACT | WALL);
-
-	bullet->setPhysicsBody(physicsBody);
-	bullet->setTag(++bulletIndex);
-	bulletManagement[bullet->getTag()] = bullet;
-}
-
-void WildMap::initWall(Sprite *wall) {
-	auto physicsBody = PhysicsBody::createBox(
-		wall->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(WALL);
-	physicsBody->setCategoryBitmask(WALL);
-	physicsBody->setCollisionBitmask(HERO | ENEMY | ITEM);
-	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
-
-	wall->setPhysicsBody(physicsBody);
-}
-
-void WildMap::initDoor(Sprite *door) {
-	auto physicsBody = PhysicsBody::createBox(
-		door->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(DOOR);
-	physicsBody->setCategoryBitmask(DOOR);
-	physicsBody->setCollisionBitmask(HERO | ENEMY);
-	physicsBody->setContactTestBitmask(MY_BULLET | ENEMY_BULLET);
-
-	door->setVisible(false);
-	door->setPhysicsBody(physicsBody);
-}
-
-void WildMap::initBox(Sprite *box) {
-	auto physicsBody = PhysicsBody::createBox(
-		box->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(BOX);
-	physicsBody->setCategoryBitmask(BOX);
-	physicsBody->setCollisionBitmask(HERO | ITEM);
-	physicsBody->setContactTestBitmask(MY_BULLET | HERO);
-
-	box->setPhysicsBody(physicsBody);
-}
-
-void WildMap::initConductor(Sprite *conductor) {
-	auto physicsBody = PhysicsBody::createBox(
-		conductor->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(CONDUCTOR);
-	physicsBody->setCategoryBitmask(CONDUCTOR);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(HERO);
-
-	conductor->setPhysicsBody(physicsBody);
-}
-
-void WildMap::initItem(std::shared_ptr<Item> item) {
-	auto physicsBody = PhysicsBody::createBox(
-		item->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(ITEM);
-	physicsBody->setCategoryBitmask(ITEM);
-	physicsBody->setCollisionBitmask(WALL | BOX);
-	physicsBody->setContactTestBitmask(HERO);
-
-	item->setPhysicsBody(physicsBody);
-	item->setTag(++itemIndex);
-	itemManagement[item->getTag()] = item;
+	globalHero->setHP(globalHero->getHPMax());
+	globalHero->setShield(globalHero->getShieldMax());
+	globalHero->setMP(globalHero->getMPMax());
+	globalHero->getPhysicsBody()->setContactTestBitmask(BOX | CONDUCTOR | ITEM | NPC);
 }
 
 void WildMap::initLayer() {
@@ -525,94 +385,69 @@ void WildMap::initLayer() {
 }
 
 void WildMap::addconductor() {
-	static bool hasAdded = false;
-	if (hasAdded) {
+	if (_conductorHasAdded) {
 		return;
 	}
 	auto conduction = Sprite::createWithSpriteFrameName("conductioncircle.png");
-	initDoor(conduction);
+	initConductor(conduction);
+	conduction->setScale(1.8f, 4.5f);
+	conduction->setAnchorPoint(Vec2(0.5f, 0.3f));
+	conduction->setOpacity(210);
 	TMXObjectGroup* room5 = _tiledmap->getObjectGroup("room5");
 	auto conX = room5->getObject("conductordoor")["x"].asFloat();
 	auto conY = room5->getObject("conductordoor")["y"].asFloat();
 	conduction->setPosition(Vec2(conX, conY));
-	_tiledmap->addChild(conduction, 1);
-	hasAdded = true;
+	_tiledmap->addChild(conduction, 12);
+	_conductorHasAdded = true;
 }
 
-void WildMap::addMonsterInRoom() {
-	//room2
-	TMXObjectGroup* roomm2 = _tiledmap->getObjectGroup("room2");
-	std::uniform_int_distribution<int> room2Num(0, 10);
-	auto roomm2Num = room2Num(engine);
-	for (int i = 0; i <= roomm2Num; ++i) {
-		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[0]->clone());
-		initEnemy(monster, 2);
-		auto bornLD = roomm2->getObject("monsterborn3");
-		auto bornRU = roomm2->getObject("monsterborn2");
-		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
-		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
-		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
-		_tiledmap->addChild(monster.get(), ++_monsterZorder);
-	}
-	for (int i = 0; i < 10 - roomm2Num; ++i) {
-		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[1]->clone());
-		initEnemy(monster, 2);
-		auto bornLD = roomm2->getObject("monsterborn3");
-		auto bornRU = roomm2->getObject("monsterborn2");
-		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
-		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
-		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
-		_tiledmap->addChild(monster.get(), ++_monsterZorder);
-	}
+void WildMap::addMonsterInRoom(int roomNum) {
+	TMXObjectGroup* roomm = _tiledmap->getObjectGroup(
+		static_cast<string>("room") + static_cast<char>(roomNum + '0'));
+	std::uniform_int_distribution<int> roomRan(0, 10);
+	auto roommNum = roomRan(engine);
+	for (int i = 0; i <= roommNum; ++i) {
+		auto monsterSource = globalMonsterRepository[0];
 
-	//room3
-	TMXObjectGroup* roomm3 = _tiledmap->getObjectGroup("room3");
-	std::uniform_int_distribution<int> room3Num(0, 10);
-	auto roomm3Num = room3Num(engine);
-	for (int i = 0; i <= roomm3Num; ++i) {
-		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[0]->clone());
-		initEnemy(monster, 3);
-		auto bornLD = roomm3->getObject("monsterborn3");
-		auto bornRU = roomm3->getObject("monsterborn2");
-		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
-		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
-		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
-		_tiledmap->addChild(monster.get(), ++_monsterZorder);
-	}
-	for (int i = 0; i < 10 - roomm3Num; ++i) {
-		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[1]->clone());
-		initEnemy(monster, 3);
-		auto bornLD = roomm3->getObject("monsterborn3");
-		auto bornRU = roomm3->getObject("monsterborn2");
-		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
-		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
-		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
-		_tiledmap->addChild(monster.get(), ++_monsterZorder);
-	}
+		auto monster = static_cast<std::shared_ptr<Monster>>(monsterSource->clone());
+		initEnemy(monster, roomNum);
 
-	//room4
-	TMXObjectGroup* roomm4 = _tiledmap->getObjectGroup("room4");
-	std::uniform_int_distribution<int> room4Num(0, 10);
-	auto roomm4Num = room4Num(engine);
-	for (int i = 0; i <= roomm4Num; ++i) {
-		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[0]->clone());
-		initEnemy(monster, 4);
-		auto bornLD = roomm4->getObject("monsterborn3");
-		auto bornRU = roomm4->getObject("monsterborn2");
+		//生成坐标
+		auto bornLD = roomm->getObject("monsterborn3");
+		auto bornRU = roomm->getObject("monsterborn2");
 		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
 		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+
 		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		monster->setScale(monsterSource->getScale());
+		monster->setAnchorPoint(monsterSource->getAnchorPoint());
+		monster->setName(monsterSource->getName());
 		_tiledmap->addChild(monster.get(), ++_monsterZorder);
 	}
-	for (int i = 0; i < 10 - roomm4Num; ++i) {
-		auto monster = static_cast<std::shared_ptr<Monster>>(globalMonsterRepository[1]->clone());
-		initEnemy(monster, 4);
-		auto bornLD = roomm4->getObject("monsterborn3");
-		auto bornRU = roomm4->getObject("monsterborn2");
+	for (int i = 0; i < 10 - roommNum; ++i) {
+		auto monsterSource = globalMonsterRepository[1];
+
+		auto monster = static_cast<std::shared_ptr<Monster>>(monsterSource->clone());
+		initEnemy(monster, roomNum);
+
+		//生成坐标
+		auto bornLD = roomm->getObject("monsterborn3");
+		auto bornRU = roomm->getObject("monsterborn2");
 		std::uniform_real_distribution<float> bornX(bornLD["x"].asFloat(), bornRU["x"].asFloat());
 		std::uniform_real_distribution<float> bornY(bornLD["y"].asFloat(), bornRU["y"].asFloat());
+
 		monster->setPosition(Vec2(bornX(engine), bornY(engine)));
+		monster->setScale(monsterSource->getScale());
+		monster->setAnchorPoint(monsterSource->getAnchorPoint());
+		monster->setName(monsterSource->getName());
 		_tiledmap->addChild(monster.get(), ++_monsterZorder);
+	}
+}
+
+void WildMap::addMonsterInRooms() {
+	//小怪房间
+	for (int i = 2; i < 5; ++i) {
+		addMonsterInRoom(i);
 	}
 
 	//room5
@@ -624,19 +459,20 @@ void WildMap::addMonsterInRoom() {
 }
 
 bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
-	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
-	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
+	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getName() + "left.png");
+	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getName() + "right.png");
 
 	auto weaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getWeaponInstance()->getWeaponName() + "left.png");
+		globalHero->getWeaponInstance()->getName() + "left.png");
 	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getWeaponInstance()->getWeaponName() + "right.png");
+		globalHero->getWeaponInstance()->getName() + "right.png");
 
 	auto offHandWeaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getOffhandWeaponInstance()->getWeaponName() + "left.png");
+		globalHero->getOffhandWeaponInstance()->getName() + "left.png");
 	auto offHandWeaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getOffhandWeaponInstance()->getWeaponName() + "right.png");
-
+		globalHero->getOffhandWeaponInstance()->getName() + "right.png");
 
 	switch (keyCode)
 	{
@@ -651,12 +487,12 @@ bool WildMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 
 			globalHero->getWeaponInstance()->setSpriteFrame(weaponLeft);
 			globalHero->getWeaponInstance()->setPosition(
-				Vec2(-globalHero->getContentSize().width *0.25, globalHero->getContentSize().height / 2));
+				Vec2(-globalHero->getContentSize().width *0.25f, globalHero->getContentSize().height / 2));
 			globalHero->setToward(true);
 
 			globalHero->getOffhandWeaponInstance()->setSpriteFrame(offHandWeaponLeft);
 			globalHero->getOffhandWeaponInstance()->setPosition(
-				Vec2(-globalHero->getContentSize().width *0.25, globalHero->getContentSize().height / 2));
+				Vec2(-globalHero->getContentSize().width *0.25f, globalHero->getContentSize().height / 2));
 
 			globalHero->setToward(true);
 		}
@@ -739,107 +575,83 @@ bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 
 	//子弹
 	if (bodyA->getTag()&MY_BULLET) {
-		if (bodyB->getTag()&ENEMYCONTACT) {
-			/*switch (curRoomNum) {
-			case 2:
-				if (room2[bodyB->getNode()->getTag()]->
-					beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
-					room2.erase(bodyB->getNode()->getTag());
-					bodyB->getNode()->removeFromParentAndCleanup(true);
-					bodyB->setTag(0);
-				}break;
-			case 3:
-				if (room3[bodyB->getNode()->getTag()]->
-					beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
-					room3.erase(bodyB->getNode()->getTag());
-					bodyB->getNode()->removeFromParentAndCleanup(true);
-					bodyB->setTag(0);
-				}break;
-			case 4:
-				if (room4[bodyB->getNode()->getTag()]->
-					beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
-					room4.erase(bodyB->getNode()->getTag());
-					bodyB->getNode()->removeFromParentAndCleanup(true);
-					bodyB->setTag(0);
-				}break;
-			}*/
+		if (bodyB->getTag()&ENEMY_CONTACT) {
+			if (globalRooms[curRoomNum][bodyB->getNode()->getParent()->getTag()]->
+				beShot(globalBulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+				bodyB->getNode()->getParent()->removeFromParentAndCleanup(true);
+				globalRooms[curRoomNum].erase(bodyB->getNode()->getParent()->getTag());
+				bodyB->setTag(0);
+				bodyB->removeFromWorld();
+			}
 		}
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyA->getNode()->getTag());
+		globalBulletManagement.erase(bodyA->getNode()->getTag());
 		bodyA->setTag(0);
 		bodyA->removeFromWorld();
-		return true;
+		return false;
 	}
 	if (bodyB->getTag()&MY_BULLET) {
-		if (bodyA->getTag()&ENEMYCONTACT) {
-			/*switch (curRoomNum) {
-			case 2:
-				if (room2[bodyA->getNode()->getTag()]->
-					beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
-					room2.erase(bodyA->getNode()->getTag());
-					bodyA->getNode()->removeFromParentAndCleanup(true);
-					bodyA->setTag(0);
-				}break;
-			case 3:
-				if (room3[bodyA->getNode()->getTag()]->
-					beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
-					room3.erase(bodyA->getNode()->getTag());
-					bodyA->getNode()->removeFromParentAndCleanup(true);
-					bodyA->setTag(0);
-				}break;
-			case 4:
-				if (room4[bodyA->getNode()->getTag()]->
-					beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
-					room4.erase(bodyA->getNode()->getTag());
-					bodyA->getNode()->removeFromParentAndCleanup(true);
-					bodyA->setTag(0);
-				}break;
-			}*/
+		if (bodyA->getTag()&ENEMY_CONTACT) {
+			if (globalRooms[curRoomNum][bodyA->getNode()->getParent()->getTag()]->
+				beShot(globalBulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+				bodyA->getNode()->getParent()->removeFromParentAndCleanup(true);
+				globalRooms[curRoomNum].erase(bodyA->getNode()->getParent()->getTag());
+				bodyA->setTag(0);
+				bodyA->removeFromWorld();
+			}
 		}
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyB->getNode()->getTag());
+		globalBulletManagement.erase(bodyB->getNode()->getTag());
 		bodyB->setTag(0);
 		bodyB->removeFromWorld();
-		return true;
+		return false;
 	}
 	if (bodyA->getTag()&ENEMY_BULLET) {
-		if (bodyB->getTag()&HEROCONTACT) {
-			if (globalHero->beShot(bulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
+		if (bodyB->getTag()&HERO_CONTACT) {
+			if (globalHero->beShot(globalBulletManagement[bodyA->getNode()->getTag()]->getDamage())) {
 				//加载死亡动画
+				globalHero->getPhysicsBody()->setCollisionBitmask(0x00);
 				//回城
+				releaseMember();
+				Director::getInstance()->replaceScene(TransitionFade::create(2.0f, SecureMap::createScene()));
+				return false;
 			}
 		}
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyA->getNode()->getTag());
+		globalBulletManagement.erase(bodyA->getNode()->getTag());
 		bodyA->setTag(0);
 		bodyA->removeFromWorld();
-		return true;
+		return false;
 	}
 	if (bodyB->getTag()&ENEMY_BULLET) {
-		if (bodyA->getTag()&HEROCONTACT) {
-			if (globalHero->beShot(bulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
+		if (bodyA->getTag()&HERO_CONTACT) {
+			if (globalHero->beShot(globalBulletManagement[bodyB->getNode()->getTag()]->getDamage())) {
 				//加载死亡动画
+				globalHero->getPhysicsBody()->setCollisionBitmask(0x00);
 				//回城
+				releaseMember();
+				Director::getInstance()->replaceScene(TransitionFade::create(2.0f, SecureMap::createScene()));
+				return false;
 			}
 		}
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyB->getNode()->getTag());
+		globalBulletManagement.erase(bodyB->getNode()->getTag());
 		bodyB->setTag(0);
 		bodyB->removeFromWorld();
 		return true;
 	}
 
 	//渲染顺序
-	if ((bodyA->getTag()&HEROCONTACT && bodyB->getTag()&ENEMYCONTACT) ||
-		(bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&HEROCONTACT) ||
-		(bodyA->getTag()&ENEMYCONTACT && bodyB->getTag()&ENEMYCONTACT)) {
-		if ((bodyA->getNode()->getPositionY() < bodyB->getNode()->getPositionY() &&
-			bodyA->getNode()->getLocalZOrder() < bodyB->getNode()->getLocalZOrder()) ||
-			(bodyB->getNode()->getPositionY() < bodyA->getNode()->getPositionY() &&
-				bodyB->getNode()->getLocalZOrder() < bodyA->getNode()->getLocalZOrder())) {
-			auto tempZorder = bodyA->getNode()->getLocalZOrder();
-			bodyA->getNode()->setLocalZOrder(bodyB->getNode()->getLocalZOrder());
-			bodyB->getNode()->setLocalZOrder(tempZorder);
+	if ((bodyA->getTag()&HERO_CONTACT && bodyB->getTag()&ENEMY_CONTACT) ||
+		(bodyA->getTag()&ENEMY_CONTACT && bodyB->getTag()&HERO_CONTACT) ||
+		(bodyA->getTag()&ENEMY_CONTACT && bodyB->getTag()&ENEMY_CONTACT)) {
+		if ((bodyA->getNode()->getParent()->getPositionY() < bodyB->getNode()->getParent()->getPositionY() &&
+			bodyA->getNode()->getParent()->getLocalZOrder() < bodyB->getNode()->getParent()->getLocalZOrder()) ||
+			(bodyB->getNode()->getParent()->getPositionY() < bodyA->getNode()->getParent()->getPositionY() &&
+				bodyB->getNode()->getParent()->getLocalZOrder() < bodyA->getNode()->getParent()->getLocalZOrder())) {
+			auto tempZorder = bodyA->getNode()->getParent()->getLocalZOrder();
+			bodyA->getNode()->getParent()->setLocalZOrder(bodyB->getNode()->getParent()->getLocalZOrder());
+			bodyB->getNode()->getParent()->setLocalZOrder(tempZorder);
 		}
 		return true;
 	}
@@ -856,30 +668,30 @@ bool WildMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 		return false;
 	}
 	if (bodyA->getTag()&HERO && bodyB->getTag()&ITEM) {
-		auto curItem = itemManagement[bodyB->getNode()->getTag()];
+		auto curItem = globalItemManagement[bodyB->getNode()->getTag()];
 		if (curItem->getType() == Item::Type::COIN) {
 			globalCoin += curItem->getValue();
 			bodyB->getNode()->removeFromParentAndCleanup(true);
-			itemManagement.erase(curItem->getTag());
+			globalItemManagement.erase(curItem->getTag());
 		}
 		else {
 			globalHero->getItem(curItem);
 			bodyB->getNode()->removeFromParentAndCleanup(true);
-			itemManagement.erase(curItem->getTag());
+			globalItemManagement.erase(curItem->getTag());
 		}
 		return true;
 	}
 	if (bodyA->getTag()&ITEM && bodyB->getTag()&HERO) {
-		auto curItem = itemManagement[bodyA->getNode()->getTag()];
+		auto curItem = globalItemManagement[bodyA->getNode()->getTag()];
 		if (curItem->getType() == Item::Type::COIN) {
 			globalCoin += curItem->getValue();
 			bodyA->getNode()->removeFromParentAndCleanup(true);
-			itemManagement.erase(curItem->getTag());
+			globalItemManagement.erase(curItem->getTag());
 		}
 		else {
 			globalHero->getItem(curItem);
 			bodyA->getNode()->removeFromParentAndCleanup(true);
-			itemManagement.erase(curItem->getTag());
+			globalItemManagement.erase(curItem->getTag());
 		}
 		return true;
 	}
@@ -901,12 +713,13 @@ bool WildMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
 		_interactStatus.box = 0;
 		return false;
 	}
+	return false;
 }
 
 void WildMap::interact() {
 	if (_interactStatus.conductor) {
 		releaseMember();
-		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, SecureMap::createScene()));
+		Director::getInstance()->replaceScene(TransitionFade::create(2.0f, SecureMap::createScene()));
 		return;
 	}
 	//NPC交互
@@ -931,8 +744,9 @@ void WildMap::shoot() {
 	}, Rect::Rect(globalHero->getPhysicsBody()->getPosition().x - 500,
 		globalHero->getPhysicsBody()->getPosition().y - 500, 1000, 1000), nullptr);
 
+	auto bulletSample = globalHero->getWeaponInstance()->getBulletInstance();
 	auto bullet = static_cast<std::shared_ptr<Bullet>>(
-		globalHero->getWeaponInstance()->getBulletInstance()->clone(false));
+		bulletSample->clone(false));
 	initMyBullet(bullet);
 	if (shootDir == Vec2::ZERO) {
 		if (globalHero->isTowardLeft()) {
@@ -946,9 +760,30 @@ void WildMap::shoot() {
 		shootDir.normalize();
 	}
 	bullet->setPosition(globalHero->getPosition());
-	bullet->setRotation(shootDir.getAngle());
+	bullet->setRotation(-shootDir.getAngle() * 180 / 3.14f);
+	bullet->setAnchorPoint(bulletSample->getAnchorPoint());
+	bullet->setScale(bulletSample->getScale());
 	bullet->getPhysicsBody()->setVelocity(bullet->getSpeed()*shootDir);
 	_tiledmap->addChild(bullet.get(), 10000);
+}
+
+void WildMap::aiShoot(std::shared_ptr<Monster> monster) {
+	auto redBullet = Bullet::createWithSpriteFrameName("bulletright.png", 2, 300.0f);
+	Vec2 shootDir = globalHero->getPosition() - monster->getPosition();
+	shootDir.normalize();
+	shootDir *= 300.0f;
+	initEnemyBullet(redBullet);
+	redBullet->setPosition(monster->getPosition());
+	redBullet->setRotation(-shootDir.getAngle() * 180 / 3.14f);
+	redBullet->getPhysicsBody()->setVelocity(shootDir);
+	_tiledmap->addChild(redBullet.get(), 10000);
+}
+
+void WildMap::aiMove(std::shared_ptr<Monster> monster) {
+	std::uniform_real_distribution<float> X(-1.0f, 1.0f);
+	auto dir = Vec2(X(engine), X(engine));
+	dir.normalize();
+	monster->getPhysicsBody()->setVelocity(monster->getSpeed()*dir);
 }
 
 void WildMap::positionMonitor() {
@@ -967,7 +802,7 @@ void WildMap::positionMonitor() {
 	auto room4UR = roomm4->getObject("monsterborn2");
 	auto room5UR = roomm5->getObject("monsterborn2");
 	if (roomStatus[2] != 2) {
-		if (room2.empty() && roomStatus[2] == 1) {
+		if (globalRooms[2].empty() && roomStatus[2] == 1) {
 			curRoomNum = 0;
 			roomStatus[2] = 2;
 			//hero 碰撞设置
@@ -1013,7 +848,7 @@ void WildMap::positionMonitor() {
 		}
 	}
 	if (roomStatus[3] != 2) {
-		if (room3.empty() && roomStatus[3] == 1) {
+		if (globalRooms[3].empty() && roomStatus[3] == 1) {
 			curRoomNum = 0;
 			roomStatus[3] = 2;
 			//door;
@@ -1055,7 +890,7 @@ void WildMap::positionMonitor() {
 		}
 	}
 	if (roomStatus[4] != 2) {
-		if (room4.empty() && roomStatus[4] == 1) {
+		if (globalRooms[4].empty() && roomStatus[4] == 1) {
 			curRoomNum = 0;
 			roomStatus[4] = 2;
 			//door;
@@ -1072,7 +907,6 @@ void WildMap::positionMonitor() {
 				layer3->removeTileAt(Vec2(i, 79));
 			}
 			//加载conductor
-			auto conduction = Sprite::createWithSpriteFrameName("conductioncircle.png");
 
 			return;
 		}
@@ -1100,7 +934,7 @@ void WildMap::positionMonitor() {
 		}
 	}
 	if (roomStatus[5] != 2) {
-		if (room5.empty() && roomStatus[5] == 1) {
+		if (globalRooms[5].empty() && roomStatus[5] == 1) {
 			roomStatus[5] = 2;
 			//door;
 			//hero 碰撞设置
@@ -1149,118 +983,11 @@ void WildMap::update(float delta) {
 
 	//位置判断
 	positionMonitor();
-}
 
-void WildMap::monstersAi()
-{
-	int currentRoom = 0;
-	for (int i = 1; i < 6; i++)
-	{
-		if (roomStatus[i] == 1)
-		{
-			currentRoom = i;
-			break;
-		}
-	}
-
-	if (currentRoom == 0 || currentRoom == 1)
-	{
-		return;
-	}
-
-	if (currentRoom == 2)//room2
-	{
-		for (int i = 1; i <= 4; i++)
-		{
-			std::default_random_engine e(static_cast<unsigned>(time(0)));
-			float Y = room2[i]->getPosition().y;
-			float X = room2[i]->getPosition().x;
-			float maxY = Y + 100;
-			float minY = Y - 100;
-			float maxX = X + 100;
-			float minX = X - 100;
-			int dirChosen = random(0, 1);
-			if (dirChosen)
-			{
-				std::uniform_real_distribution<float> randomY(minY, maxY);
-				room2[i]->setPosition(Vec2(room2[i]->getPosition().x, randomY(e)));
-			}
-			else
-			{
-				std::uniform_real_distribution<float> randomX(minX, maxX);
-				room2[i]->setPosition(Vec2(randomX(e), room2[i]->getPosition().y));
-			}
-		}
-	}
-	if (currentRoom == 3)//room3
-	{
-		for (int i = 1; i <= 4; i++)
-		{
-			std::default_random_engine e(static_cast<unsigned>(time(0)));
-			float Y = room3[i]->getPosition().y;
-			float X = room3[i]->getPosition().x;
-			float maxY = Y + 100;
-			float minY = Y - 100;
-			float maxX = X + 100;
-			float minX = X - 100;
-			int dirChosen = random(0, 1);
-			if (dirChosen)
-			{
-				std::uniform_real_distribution<float> randomY(minY, maxY);
-				room3[i]->setPosition(Vec2(room3[i]->getPosition().x, randomY(e)));
-			}
-			else
-			{
-				std::uniform_real_distribution<float> randomX(minX, maxX);
-				room3[i]->setPosition(Vec2(randomX(e), room3[i]->getPosition().y));
-			}
-		}
-	}
-	if (currentRoom == 4)//room4
-	{
-		for (int i = 1; i <= 4; i++)
-		{
-			std::default_random_engine e(static_cast<unsigned>(time(0)));
-			float Y = room4[i]->getPosition().y;
-			float X = room4[i]->getPosition().x;
-			float maxY = Y + 100;
-			float minY = Y - 100;
-			float maxX = X + 100;
-			float minX = X - 100;
-			int dirChosen = random(0, 1);
-			if (dirChosen)
-			{
-				std::uniform_real_distribution<float> randomY(minY, maxY);
-				room4[i]->setPosition(Vec2(room4[i]->getPosition().x, randomY(e)));
-			}
-			else
-			{
-				std::uniform_real_distribution<float> randomX(minX, maxX);
-				room4[i]->setPosition(Vec2(randomX(e), room4[i]->getPosition().y));
-			}
-		}
-	}
-	if (currentRoom == 5)//room5
-	{
-		std::default_random_engine e(static_cast<unsigned>(time(0)));
-		float Y = room5[1]->getPosition().y;
-		float X = room5[1]->getPosition().x;
-		float maxY = Y + 150;
-		float minY = Y - 150;
-		float maxX = X + 150;
-		float minX = X - 150;
-		int dirChosen = random(0, 1);
-		if (dirChosen)
-		{
-			std::uniform_real_distribution<float> randomY(minY, maxY);
-			room5[1]->setPosition(Vec2(room5[1]->getPosition().x, randomY(e)));
-		}
-		else
-		{
-			std::uniform_real_distribution<float> randomX(minX, maxX);
-			room5[1]->setPosition(Vec2(randomX(e), room5[1]->getPosition().y));
-		}
-	}
+	//状态更新
+	healthBar->setPercent(100.0f*globalHero->getHP() / globalHero->getHPMax());
+	shieldBar->setPercent(100.0f*globalHero->getShield() / globalHero->getShieldMax());
+	magicBar->setPercent(100.0f*globalHero->getMP() / globalHero->getMPMax());
 }
 
 void WildMap::changeWeaponActive()
@@ -1281,4 +1008,50 @@ void WildMap::changeWeaponActive()
 	}
 
 	globalHero->changeWeapon();
+}
+
+void WildMap::updateShield(float delta) {
+	globalHero->setShield(globalHero->getShield() + 1);
+}
+
+void WildMap::aiInTwoSec(float delta) {
+	if (curRoomNum < 2) {
+		return;
+	}
+	std::uniform_real_distribution<double> action(0.0, 1.0);
+	for (int i = 0; i < 6; ++i) {
+		auto actionNum = action(engine);
+		if (globalRooms[curRoomNum].count(i)) {
+			if (actionNum < 0.2) {
+				globalRooms[curRoomNum][i]->getPhysicsBody()->setVelocity(Vec2::ZERO);
+			}
+			else if (actionNum < 0.68) {
+				aiShoot(globalRooms[curRoomNum][i]);
+			}
+			else {
+				aiMove(globalRooms[curRoomNum][i]);
+			}
+		}
+	}
+}
+
+void WildMap::aiInThreeSec(float delta) {
+	if (curRoomNum < 2) {
+		return;
+	}
+	std::uniform_real_distribution<double> action(0.0, 1.0);
+	for (int i = 6; i < 12; ++i) {
+		auto actionNum = action(engine);
+		if (globalRooms[curRoomNum].count(i)) {
+			if (actionNum < 0.2) {
+				globalRooms[curRoomNum][i]->getPhysicsBody()->setVelocity(Vec2::ZERO);
+			}
+			else if (actionNum < 0.68) {
+				aiShoot(globalRooms[curRoomNum][i]);
+			}
+			else {
+				aiMove(globalRooms[curRoomNum][i]);
+			}
+		}
+	}
 }

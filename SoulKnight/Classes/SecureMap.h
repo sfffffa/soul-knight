@@ -2,7 +2,7 @@
 #define _SECURE_MAP_H_
 
 #include "GlobalVariable.h"
-#include <map>
+#include "ui/CocosGUI.h"
 
 class SecureMap : public cocos2d::Scene
 {
@@ -27,18 +27,14 @@ private:
 		unsigned int : 1;
 	} interactStatus;
 
-	//赋予NPC图片及PhysicsBody
-	Sprite *initNPC(const std::string& spriteFrameName);
+	cocos2d::ui::Slider *healthBar;
+	cocos2d::ui::Slider *shieldBar;
+	cocos2d::ui::Slider *magicBar;
 
-	//赋予hero PhysicsBody
-	void initHero();
-
-	//武器初始化
-	void initBullet(std::shared_ptr<Bullet> bullet);
+	void initMember();
+	void releaseMember();
 
 	//场景物件初始化
-	void initWall(Sprite *wall);
-	void initDoor(Sprite *door);
 	void initLayer();
 
 	//键盘监听
@@ -57,6 +53,9 @@ private:
 	void changeWeaponActive();
 	//技能
 	void skill();
+
+	void updateHeroStatus(float delta);
+	void updateShield(float delta);
 };
 
 #endif // _SECURE_MAP_H_#pragma once

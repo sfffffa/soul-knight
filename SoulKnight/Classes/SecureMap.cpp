@@ -1,14 +1,9 @@
 #include "SecureMap.h"
-#include "ui/CocosGUI.h"
 #include "AudioEngine.h"
 #include "SettingScene.h"
 #include "WildMap.h"
 
 USING_NS_CC;
-extern std::shared_ptr<Hero> globalHero;
-extern int globalCoin;
-extern std::map<int, std::shared_ptr<Bullet>> bulletManagement;
-extern int bulletIndex;
 
 Scene* SecureMap::createScene()
 {
@@ -42,10 +37,7 @@ bool SecureMap::init()
 	/////////////////////
 	// 1.2 成员初始化
 	//
-	interactStatus.door = 0;
-	interactStatus.hunter = 0;
-	interactStatus.oldMan = 0;
-	bulletIndex = 0;
+	initMember();
 
 	/////////////////////
 	// 1.2 基础信息提取
@@ -57,8 +49,6 @@ bool SecureMap::init()
 	/////////////////////
 	// 1.3 资源加载											hth
 	//
-	auto spritecache = SpriteFrameCache::getInstance();
-	spritecache->addSpriteFramesWithFile("new.plist");
 	if (AudioEngine::getPlayingAudioCount())
 	{
 		AudioEngine::resume(0);
@@ -76,22 +66,24 @@ bool SecureMap::init()
 	this->addChild(background, -10);
 
 	/////////////////////////////
-	// 3. NPC初始化（addNPC函数）								hth、cyf
+	// 3. NPC初始化（addNPC函数）								hth 、 cyf
 	//
-	auto hunter = initNPC("hunter.png");
-	hunter->getPhysicsBody()->setTag(ASPDNPC);
-	auto oldMan = initNPC("oldman.png");
-	oldMan->getPhysicsBody()->setTag(SPEEDNPC);
+	auto hunter = Sprite::createWithSpriteFrameName("hunter.png");
+	initNPC(hunter);
+	hunter->getPhysicsBody()->setTag(NPC_ASPD);
+	auto oldMan = Sprite::createWithSpriteFrameName("oldman.png");
+	initNPC(oldMan);
+	oldMan->getPhysicsBody()->setTag(NPC_SPEED);
 
 	/////////////////////////////
 	//  4. hero 初始化										cyf
 	//
 	//依靠前一场景传参,此次初始化仅设置位置及physicsBody
-	globalHero->setScale(0.3f, 0.3f);
+	globalHero->setScale(0.3f);
 	initHero();
 
 	/////////////////////////////
-	// 5. 地图初始化											hth、cyf
+	// 5. 地图初始化											hth 、 cyf
 	//
 	_tiledmap = TMXTiledMap::create("safemap.tmx");
 	_tiledmap->setAnchorPoint(Vec2::ZERO);
@@ -146,117 +138,96 @@ bool SecureMap::init()
 	// 8. 属性面板初始化（Hero的血，蓝，盾以及金币，魔法币这一类）			hth
 	//
 
-	auto bloodBar = ui::Slider::create();
-	bloodBar->setEnabled(false);
-	bloodBar->loadBarTexture("emptybar.png");
-	bloodBar->loadProgressBarTexture("fullblood.png");
-	bloodBar->setPercent(100);
-	bloodBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height / 2));
-	this->addChild(bloodBar, 200);
+	healthBar = ui::Slider::create();
+	healthBar->setEnabled(false);
+	healthBar->setAnchorPoint(Vec2(0.0f, 0.5f));
+	healthBar->setScale(1.2f, 0.8f);
+	healthBar->loadBarTexture("rawmaterials/emptybar.png");
+	healthBar->loadProgressBarTexture("rawmaterials/fullblood.png");
+	healthBar->setPercent(100);
+	healthBar->setPosition(
+		Vec2(healthBar->getContentSize().width*0.12f, healthBar->getContentSize().height*3.0f));
 
-	auto blueBar = ui::Slider::create();
-	blueBar->setEnabled(false);
-	blueBar->loadBarTexture("emptybar.png");
-	blueBar->loadProgressBarTexture("fullblue.png");
-	blueBar->setPercent(100);
-	blueBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height / 2 - 10));
-	this->addChild(blueBar, 200);
+	magicBar = ui::Slider::create();
+	magicBar->setEnabled(false);
+	magicBar->setAnchorPoint(Vec2(0.0f, 0.5f));
+	magicBar->setScale(1.2f, 0.8f);
+	magicBar->loadBarTexture("rawmaterials/emptybar.png");
+	magicBar->loadProgressBarTexture("rawmaterials/fullblue.png");
+	magicBar->setPercent(100);
+	magicBar->setPosition(
+		Vec2(healthBar->getContentSize().width*0.12f, healthBar->getContentSize().height*1.0f));
 
-	auto shieldBar = ui::Slider::create();
+	shieldBar = ui::Slider::create();
+	shieldBar->setScale(1.2f, 0.8f);
+	shieldBar->setAnchorPoint(Vec2(0.0f, 0.5f));
 	shieldBar->setEnabled(false);
-	shieldBar->loadBarTexture("emptybar.png");
-	shieldBar->loadProgressBarTexture("fullshield.png");
+	shieldBar->loadBarTexture("rawmaterials/emptybar.png");
+	shieldBar->loadProgressBarTexture("rawmaterials/fullshield.png");
 	shieldBar->setPercent(100);
-	shieldBar->setPosition(Vec2(origin.x + bloodBar->getContentSize().width / 2, origin.y + visibleSize.height - bloodBar->getContentSize().height - blueBar->getContentSize().height - shieldBar->getContentSize().height / 2 - 20));
-	this->addChild(shieldBar, 200);
+	shieldBar->setPosition(
+		Vec2(healthBar->getContentSize().width*0.12f, healthBar->getContentSize().height*2.0f));
+
+	auto panel = DrawNode::create();
+	panel->drawSolidRect(Vec2::ZERO,
+		Vec2(healthBar->getContentSize().width*1.44f,
+			healthBar->getContentSize().height*4.0f),
+		cocos2d::Color4F(237 / 255.0f, 189 / 255.0f, 101 / 255.0f, 1.0f));
+	panel->setOpacity(220);
+	panel->setAnchorPoint(Vec2(0.0f, 1.0f));
+	panel->setPosition(Vec2(origin.x + 10, visibleSize.height + 62));
+	this->addChild(panel, 200);
+
+	panel->addChild(shieldBar, 10);
+	panel->addChild(healthBar, 10);
+	panel->addChild(magicBar, 10);
 
 	/////////////////////////////
 	// 9. 菜单初始化											hth
 	//
-	auto pause = MenuItemLabel::create(Label::createWithTTF("pause", "fonts/Marker Felt.ttf", 48), CC_CALLBACK_1(SecureMap::pausemenu, this));
+	auto pause = MenuItemLabel::create(
+		Label::createWithTTF("pause", "fonts/Marker Felt.ttf", 48), CC_CALLBACK_1(SecureMap::pausemenu, this));
 	auto menu = Menu::createWithItem(pause);
-	menu->setPosition(Vec2(origin.x + visibleSize.width - pause->getContentSize().width / 2 - 20, origin.y + visibleSize.height - pause->getContentSize().height / 2));
+	menu->setPosition(
+		Vec2(origin.x + visibleSize.width - pause->getContentSize().width / 2 - 20,
+			origin.y + visibleSize.height - pause->getContentSize().height / 2));
 	this->addChild(menu, 300);
 
 	/////////////////////////////
 	// 10 鼠标的监听										hth
 	//
 
+	schedule(CC_SCHEDULE_SELECTOR(SecureMap::updateShield), 3.0f);
+	schedule(CC_SCHEDULE_SELECTOR(SecureMap::updateHeroStatus));
+
 	return true;
 }
 
-Sprite *SecureMap::initNPC(const std::string& spriteFrameName) {
-	auto npc = cocos2d::Sprite::createWithSpriteFrameName(spriteFrameName);
-	npc->setAnchorPoint(Vec2(0.5, 0.1));
+void SecureMap::initMember() {
+	globalHero->setSpriteFrame(
+		SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getName() + "right.png"));
+	globalHero->setToward(false);
+	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getWeaponInstance()->getName() + "right.png");
+	globalHero->getWeaponInstance()->setSpriteFrame(weaponRight);
+	globalHero->getWeaponInstance()->setPosition(
+		Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
 
-	auto physicsBody = cocos2d::PhysicsBody::createBox(
-		npc->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setCategoryBitmask(NPC);
-	physicsBody->setCollisionBitmask(HERO);
-	physicsBody->setContactTestBitmask(HERO | MY_BULLET);
-
-	npc->addComponent(physicsBody);
-
-	npc->setScale(2.5);
-	return npc;
+	interactStatus.door = 0;
+	interactStatus.hunter = 0;
+	interactStatus.oldMan = 0;
 }
 
-void SecureMap::initHero() {
-	auto physicsBody = cocos2d::PhysicsBody::createBox(
-		Size(globalHero->getContentSize().width, globalHero->getContentSize().height * 2 / 5),
-		PhysicsMaterial(0.0f, 0.0f, 0.0f), Vec2(0.0f, -0.3f*globalHero->getContentSize().height));
-	physicsBody->setDynamic(true);
-	physicsBody->setGravityEnable(false);
-	physicsBody->setRotationEnable(false);
-	physicsBody->setTag(HERO);
-	physicsBody->setCategoryBitmask(HERO);
-	physicsBody->setCollisionBitmask(WALL | NPC);
-	physicsBody->setContactTestBitmask(DOOR | NPC);
-
-	globalHero->addComponent(physicsBody);
-}
-
-void SecureMap::initBullet(std::shared_ptr<Bullet> bullet) {
-	auto physicsBody = PhysicsBody::createBox(
-		bullet->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	//physicsBody->setGravityEnable(false);
-	//physicsBody->setRotationEnable(false);
-	physicsBody->setTag(MY_BULLET);
-	physicsBody->setCategoryBitmask(MY_BULLET);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(DOOR | NPC | WALL);
-
-	bullet->addComponent(physicsBody);
-
-	bullet->setTag(++bulletIndex);
-	bulletManagement[bullet->getTag()] = bullet;
-	bullet->setPosition(globalHero->getPosition());
-}
-
-void SecureMap::initWall(Sprite *wall) {
-	auto physicsBody = PhysicsBody::createBox(
-		wall->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(WALL);
-	physicsBody->setCategoryBitmask(WALL);
-	physicsBody->setCollisionBitmask(HERO);
-	physicsBody->setContactTestBitmask(MY_BULLET);
-
-	wall->addComponent(physicsBody);
-}
-
-void SecureMap::initDoor(Sprite *door) {
-	auto physicsBody = PhysicsBody::createBox(
-		door->getContentSize(), PhysicsMaterial(0.0f, 0.0f, 0.0f));
-	physicsBody->setDynamic(false);
-	physicsBody->setTag(DOOR);
-	physicsBody->setCategoryBitmask(DOOR);
-	physicsBody->setCollisionBitmask(0x00);
-	physicsBody->setContactTestBitmask(HERO);
-
-	door->addComponent(physicsBody);
+void SecureMap::releaseMember() {
+	//切换场景前的处理
+	//1.删除场景内Hero的显示
+	globalHero->removeFromParentAndCleanup(false);
+	//2.bulletMangement 清空
+	globalBulletManagement.clear();
+	globalBulletIndex = 0;
+	//3.itemMangement 清空
+	globalItemManagement.clear();
+	globalItemIndex = 0;
 }
 
 void SecureMap::initLayer() {
@@ -314,26 +285,30 @@ void SecureMap::initLayer() {
 	initWall(layer9->getTileAt(Vec2(24, 4)));
 	initWall(layer9->getTileAt(Vec2(25, 4)));
 
-	//door
+	//conductor
 	auto layer4 = _tiledmap->getLayer("layer4");
-	initDoor(layer4->getTileAt(Vec2(31, 3)));
-	initDoor(layer4->getTileAt(Vec2(32, 3)));
-	initDoor(layer4->getTileAt(Vec2(33, 3)));
+	initConductor(layer4->getTileAt(Vec2(31, 3)));
+	initConductor(layer4->getTileAt(Vec2(32, 3)));
+	initConductor(layer4->getTileAt(Vec2(33, 3)));
 }
 
 bool SecureMap::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
-	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "left.png");
-	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(globalHero->getHeroName() + "right.png");
+	//Hero 左右图片获取
+	static auto heroLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getName() + "left.png");
+	static auto heroRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
+		globalHero->getName() + "right.png");
 
+	//Hero 手拿武器对应左右图片获取
 	auto weaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getWeaponInstance()->getWeaponName() + "left.png");
+		globalHero->getWeaponInstance()->getName() + "left.png");
 	auto weaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getWeaponInstance()->getWeaponName() + "right.png");
+		globalHero->getWeaponInstance()->getName() + "right.png");
 
 	auto offHandWeaponLeft = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getOffhandWeaponInstance()->getWeaponName() + "left.png");
+		globalHero->getOffhandWeaponInstance()->getName() + "left.png");
 	auto offHandWeaponRight = SpriteFrameCache::getInstance()->getSpriteFrameByName(
-		globalHero->getOffhandWeaponInstance()->getWeaponName() + "right.png");
+		globalHero->getOffhandWeaponInstance()->getName() + "right.png");
 
 	switch (keyCode)
 	{
@@ -436,21 +411,21 @@ bool SecureMap::onContactBegin(cocos2d::PhysicsContact& contact) {
 	//子弹和其他
 	if (bodyA->getTag()&MY_BULLET) {
 		bodyA->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyA->getNode()->getTag());
+		globalBulletManagement.erase(bodyA->getNode()->getTag());
 		bodyA->setTag(0);
 		bodyA->removeFromWorld();
-		return true;
+		return false;
 	}
 	if (bodyB->getTag()&MY_BULLET) {
 		bodyB->getNode()->removeFromParentAndCleanup(true);
-		bulletManagement.erase(bodyB->getNode()->getTag());
+		globalBulletManagement.erase(bodyB->getNode()->getTag());
 		bodyB->setTag(0);
 		bodyB->removeFromWorld();
-		return true;
+		return false;
 	}
-	//Hero 和门
-	if ((bodyA->getTag()&HERO && bodyB->getTag()&DOOR) ||
-		(bodyA->getTag()&DOOR && bodyB->getTag()&HERO)) {
+	//Hero 和传送门
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&CONDUCTOR) ||
+		(bodyA->getTag()&CONDUCTOR && bodyB->getTag()&HERO)) {
 		interactStatus.door = 1;
 		return false;
 	}
@@ -462,32 +437,18 @@ bool SecureMap::onContactSeparate(cocos2d::PhysicsContact& contact) {
 	auto bodyA = contact.getShapeA()->getBody();
 	auto bodyB = contact.getShapeB()->getBody();
 	//Hero 和门
-	if ((bodyA->getTag()&HERO && bodyB->getTag()&DOOR) ||
-		(bodyA->getTag()&DOOR && bodyB->getTag()&HERO)) {
+	if ((bodyA->getTag()&HERO && bodyB->getTag()&CONDUCTOR) ||
+		(bodyA->getTag()&CONDUCTOR && bodyB->getTag()&HERO)) {
 		interactStatus.door = 0;
 		return false;
 	}
 	//Hero和NPC
 }
 
-void SecureMap::pausemenu(cocos2d::Ref* pSender)
-{
-	AudioEngine::pause(0);
-	Director::getInstance()->pause();
-	Scene* settingScene = Setting::createScene();
-	Director::getInstance()->pushScene(settingScene);
-}
-
 void SecureMap::interact() {
 	if (interactStatus.door) {
-		//切换场景前的处理
-		//1.删除场景内Hero的显示
-		globalHero->removeFromParentAndCleanup(false);
-		//2.bulletMangement清空
-		bulletManagement.clear();
-		bulletIndex = 0;
-		Director::getInstance()->pushScene(TransitionJumpZoom::create(2.0f, WildMap::createScene()));
-		return;
+		releaseMember();
+		Director::getInstance()->replaceScene(TransitionFade::create(1.5f, WildMap::createScene()));
 	}
 	//NPC交互
 }
@@ -501,7 +462,7 @@ void SecureMap::shoot() {
 	}
 	else {//远程
 		auto bullet = static_cast<std::shared_ptr<Bullet>>(haveBullet->clone(false));
-		initBullet(bullet);
+		initMyBullet(bullet);
 		if (globalHero->isTowardLeft()) {
 			bullet->setSpriteFrame(
 				SpriteFrameCache::getInstance()->getSpriteFrameByName("bulletleft.png"));
@@ -512,11 +473,14 @@ void SecureMap::shoot() {
 				SpriteFrameCache::getInstance()->getSpriteFrameByName("bulletright.png"));
 			bullet->getPhysicsBody()->setVelocity(Vec2(bullet->getSpeed(), 0));
 		}
+		bullet->setPosition(globalHero->getPosition());
+		bullet->setAnchorPoint(haveBullet->getAnchorPoint());
+		bullet->setScale(haveBullet->getScale());
 		_tiledmap->addChild(bullet.get(), 11);
 	}
 }
 
-void SecureMap::changeWeaponActive() 
+void SecureMap::changeWeaponActive()
 {
 	if (!globalHero->getWeaponStatus())
 	{
@@ -529,9 +493,27 @@ void SecureMap::changeWeaponActive()
 	{
 		auto _weapon = globalHero->getWeaponInstance();
 		auto _offHandWeapon = globalHero->getOffhandWeaponInstance();
-		globalHero->removeChild(_offHandWeapon.get(),2);
+		globalHero->removeChild(_offHandWeapon.get(), 2);
 		globalHero->addChild(_weapon.get(), 1);
 	}
 
 	globalHero->changeWeapon();
+}
+
+void SecureMap::pausemenu(cocos2d::Ref* pSender)
+{
+	AudioEngine::pause(0);
+	Director::getInstance()->pause();
+	Scene* settingScene = Setting::createScene();
+	Director::getInstance()->pushScene(settingScene);
+}
+
+void SecureMap::updateShield(float delta) {
+	globalHero->setShield(globalHero->getShield() + 1);
+}
+
+void SecureMap::updateHeroStatus(float delta) {
+	healthBar->setPercent(100.0f*globalHero->getHP() / globalHero->getHPMax());
+	shieldBar->setPercent(100.0f*globalHero->getShield() / globalHero->getShieldMax());
+	magicBar->setPercent(100.0f*globalHero->getMP() / globalHero->getMPMax());
 }

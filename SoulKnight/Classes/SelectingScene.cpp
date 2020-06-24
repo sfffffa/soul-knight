@@ -25,50 +25,21 @@ bool SelectingScene::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	auto spritecache = SpriteFrameCache::getInstance();
-	spritecache->addSpriteFramesWithFile("new.plist");
-
-	//武器组装
-	//bullet
-	auto bulletright = Bullet::createWithSpriteFrameName("bulletright.png", 2, 2000.0f);
-	auto elementalbulletright = Bullet::createWithSpriteFrameName("bluefireright.png", 2, 2000.0f);
-	//weapon
-	auto gun1right = RangedWeapon::createWithSpriteFrameName("gun1right.png", 0, 0.3f, 0.1f, 2.5f, bulletright);
-	gun1right->setWeaponName("gun1");
-	auto gun2right = RangedWeapon::createWithSpriteFrameName("gun2right.png", 2, 0.5f, 0.2f, 3.0f, bulletright);
-	gun2right->setWeaponName("gun2");
-	auto gun3right = RangedWeapon::createWithSpriteFrameName("gun3right.png", 4, 0.5f, 0.3f, 5.0f, bulletright);
-	gun3right->setWeaponName("gun3");
-	auto swordright = CloseInWeapon::createWithSpriteFrameName("swordright.png", 0, 8, 500.0f, 0.6f, 0.3f, 3.0f);
-	swordright->setWeaponName("sword");
-	auto blade1right = CloseInWeapon::createWithSpriteFrameName("blade1right.png", 2, 10, 550.0f, 0.6f, 0.4f, 4.0f);
-	blade1right->setWeaponName("blade1");
-	auto meteorhammerright = CloseInWeapon::createWithSpriteFrameName("meteorhammerright.png", 5, 25, 550.0f, 0.8f, 0.5f, 5.0f);
-	meteorhammerright->setWeaponName("meteorhammer");
-	auto wandright = RangedWeapon::createWithSpriteFrameName("wandright.png", 0, 0.3f, 0.1f, 2.5f, elementalbulletright);
-	wandright->setWeaponName("wand");
-	wandright->setAnchorPoint(Vec2(0.35, 0.5));
-	wandright->setScale(3.5f);
-
-	globalWeaponRepository.push_back(gun1right);
-	globalWeaponRepository.push_back(gun2right);
-	globalWeaponRepository.push_back(gun3right);
-	globalWeaponRepository.push_back(swordright);
-	globalWeaponRepository.push_back(blade1right);
-	globalWeaponRepository.push_back(meteorhammerright);
-	globalWeaponRepository.push_back(wandright);
+	//加载武器库
+	initGlobalWeaponRepository();
 
 	//场景设置
+	//bgm
 	AudioEngine::resume(0);
 
+	//标题
 	auto selectLabel = Label::createWithTTF("Select Hero", "fonts/Marker Felt.ttf", 48);
 	float x1 = origin.x + visibleSize.width / 2;
 	float y1 = origin.y + visibleSize.height - selectLabel->getContentSize().width / 2;
 	selectLabel->setPosition(Point(x1, y1));
 	this->addChild(selectLabel);
 
-	globalHero = Hero::createWithSpriteFrameName("hero1right.png");
-
+	//选择按钮
 	auto hero1 = MenuItemImage::create(
 		"rawmaterials/hero1right.png", "rawmaterials/hero1right.png",
 		CC_CALLBACK_1(SelectingScene::hero1Chosen, this));
@@ -105,27 +76,41 @@ inline void SelectingScene::initKnight() {
 	auto offHandWeaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[3]->clone());
 	weaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
 	weaponDefault->setScale(3.5f);
+	weaponDefault->setName(globalWeaponRepository[0]->getName());
 	offHandWeaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
 	offHandWeaponDefault->setScale(3.5f);
-	globalHero = Hero::createWithSpriteFrameName("hero1right.png", 8, 8, 120, 600.0f, weaponDefault, offHandWeaponDefault);
-	weaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
-	offHandWeaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	offHandWeaponDefault->setName(globalWeaponRepository[3]->getName());
+
+	globalHero = Hero::createWithSpriteFrameName(
+		"hero1right.png", 8, 8, 120, 600.0f, weaponDefault, offHandWeaponDefault);
+	weaponDefault->setPosition(
+		Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	offHandWeaponDefault->setPosition(
+		Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	globalHero->setScale(0.3f);
 	globalHero->addChild(weaponDefault.get(), 1);
-	globalHero->setHeroName("hero1");
+	globalHero->setName("hero1");
 	globalHero->setAnchorPoint(Vec2(0.38f, 0.1f));
 }
 
 inline void SelectingScene::initWizard()
 {
-	auto weaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[6]->clone());
+	auto weaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[3]->clone());
 	auto offHandWeaponDefault = static_cast<std::shared_ptr<Weapon>>(globalWeaponRepository[1]->clone());
 	weaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
 	weaponDefault->setScale(3.5f);
+	weaponDefault->setName(globalWeaponRepository[3]->getName());
+
 	offHandWeaponDefault->setAnchorPoint(Vec2(0.35, 0.5));
 	offHandWeaponDefault->setScale(3.5f);
-	globalHero = Hero::createWithSpriteFrameName("hero2right.png", 6, 9, 200, 500.0f, weaponDefault, offHandWeaponDefault);
-	weaponDefault->setPosition(Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	offHandWeaponDefault->setName(globalWeaponRepository[1]->getName());
+
+	globalHero = Hero::createWithSpriteFrameName(
+		"hero2right.png", 6, 9, 200, 500.0f, weaponDefault, offHandWeaponDefault);
+	weaponDefault->setPosition(
+		Vec2(globalHero->getContentSize().width, globalHero->getContentSize().height / 2));
+	globalHero->setScale(0.3f);
 	globalHero->addChild(weaponDefault.get(), 1);
-	globalHero->setHeroName("hero2");
+	globalHero->setName("hero2");
 	globalHero->setAnchorPoint(Vec2(0.28f, 0.1f));
 }
