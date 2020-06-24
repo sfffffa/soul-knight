@@ -33,7 +33,6 @@ public:
 	virtual void setCD(float cd) { _coolDown = cd; }
 	virtual void setSkill(std::function<void(void)> skill) { _skill = skill; }
 	virtual void setToward(bool towardLeft) { _toward = towardLeft; }
-	virtual void setHeroName(const std::string &name) { _name = name; }
 
 	virtual int getShield()const { return _shield; }
 	virtual int getShieldMax()const { return _shieldMAX; }
@@ -41,7 +40,6 @@ public:
 	virtual bool getWeaponStatus()const { return _weaponStatus; }
 	virtual std::shared_ptr<Weapon> getOffhandWeaponInstance()const { return _offhandWeapon; }
 	virtual bool isTowardLeft()const { return _toward; }
-	virtual std::string getHeroName()const { return _name; }
 
 	virtual Hero *clone()const override;
 
@@ -88,7 +86,6 @@ protected:
 	float _coolDown;//技能cd
 	std::function<void(void)> _skill;//技能
 	bool _toward = 0;
-	std::string _name;
 
 private:
 	bool initMember(int shieldMax, std::shared_ptr<Weapon> offhandWeapon,

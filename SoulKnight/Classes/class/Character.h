@@ -21,7 +21,6 @@ public:
 	virtual void setMPMax(int MPMax) { *_MPMAX = MPMax; }
 	virtual void setSpeed(float speed) { *_speed = speed; }
 	virtual void setWeapon(std::shared_ptr<Weapon> weapon) { _weapon = weapon; }
-	virtual void setCharacterName(std::string name) { _charaName = name; }
 
 	virtual int getHP()const { return _HP; }
 	virtual int getHPMax()const { return *_HPMAX; }
@@ -29,7 +28,6 @@ public:
 	virtual int getMPMax()const { return *_MPMAX; }
 	virtual float getSpeed()const { return *_speed; }
 	virtual std::shared_ptr<Weapon> getWeaponInstance()const { return _weapon; }
-	virtual std::string getCharacterName()const { return _charaName; }
 
 	virtual Character *clone()const = 0;
 
@@ -63,7 +61,7 @@ protected:
 	std::shared_ptr<int> _MPMAX;
 	std::shared_ptr<float> _speed;
 	std::shared_ptr<Weapon> _weapon;
-	std::string _charaName;
+
 private:
 
 	bool initMember(

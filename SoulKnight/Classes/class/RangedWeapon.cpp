@@ -74,14 +74,11 @@ RangedWeapon *RangedWeapon::clone()const {
 
 	if (temp) {
 		temp->setSpriteFrame(this->getSpriteFrame());
-		temp->setAnchorPoint(getAnchorPoint());
-		temp->setScale(getScale());
 		temp->_MPconsume = _MPconsume;
 		temp->_aspd = _aspd;
 		temp->_critRate = _critRate;
 		temp->_critMultiple = _critMultiple;
 		temp->_bullet = _bullet;
-		temp->_weaponName = _weaponName;
 		return temp;
 	}
 	else {
